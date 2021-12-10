@@ -4,10 +4,30 @@ import datetime
 import os
 import json
 import time
+import sys
 
 import tensorflow as tf
 
 from load_imagenet import load_imagenet, resize_with_crop
+
+
+class Logger(object):
+    def __init__(self, fname='logfile.txt'):
+        self.terminal = sys.stdout
+        self.log = open(fname, 'a')
+   
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)  
+
+    def flush(self):
+        # this flush method is needed for python 3 compatibility.
+        # this handles the flush command by doing nothing.
+        # you might want to specify some extra behavior here.
+        pass
+
+    def close(self):
+        self.log.close()
 
 
 def main(args):
@@ -19,7 +39,9 @@ def main(args):
             args.output_dir = os.path.join(args.output_dir, timestamp)
         if not os.path.exists(args.output_dir):
             os.makedirs(args.output_dir)
-    # write args
+    # write logfile and config
+    sysout = sys.stdout
+    sys.stdout = Logger(os.path.join(args.output_dir, 'logfile.txt'))
     with open(os.path.join(args.output_dir, 'config.json'), 'w') as cfg:
         d_args = args.__dict__
         d_args['timestamp'] = timestamp
@@ -161,6 +183,9 @@ def main(args):
     with open(os.path.join(args.output_dir, 'monitoring.json'), 'w') as cfg:
         json.dump(monitoring_result, cfg, indent=4)
 
+    sys.stdout.close()
+    sys.stdout = sysout
+
 
 def get_args_parser(add_help=True):
     import argparse
@@ -169,7 +194,7 @@ def get_args_parser(add_help=True):
 
     parser.add_argument("--data-path", default="/raid/imagenet", type=str, help="dataset path")
     parser.add_argument("--use-timestamp-dir", default=True, action="store_true", help="Creates timestamp directory in data path")
-    parser.add_argument("--gpu-monitor-interval", default=-1, type=int, help="Setting to > 0 activates GPU profiling")
+    parser.add_argument("--gpu-monitor-interval", default=-1, type=float, help="Setting to > 0 activates GPU profiling")
     parser.add_argument("--model", default="ResNet50", type=str, help="model name")
     parser.add_argument("--n-batches", default=-1, type=int, help="number of batches to take")
     parser.add_argument("-b", "--batch-size", default=32, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
@@ -203,5 +228,8 @@ def get_args_parser(add_help=True):
 
 
 if __name__ == "__main__":
+    # TODO quantization? quicknet training? larq?
+    # TODO add logfile writing
+    # TODO check why data is loaded so slow (only imports, only data set loading, ... ?)
     args = get_args_parser().parse_args()
     main(args)
