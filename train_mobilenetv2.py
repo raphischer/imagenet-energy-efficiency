@@ -1,14 +1,16 @@
+import argparse
+
 import tensorflow as tf
 
 from load_imagenet import load_imagenet, resize_with_crop
 
 
-def train_model(tensorflow_model, ds, optim, loss, epochs, checkpoint_dir, metrics):
+def train_model(tensorflow_model, ds, optim, loss, epochs, checkpoint, metrics):
     new_model = tensorflow_model(include_top=True, weights=None)
     new_model.trainable = True
     new_model.compile(optimizer=optim, loss=loss, metrics=metrics)
 
-    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_dir,
+    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint,
                                                      save_weights_only=True,
                                                      verbose=1)
 
@@ -29,12 +31,18 @@ def load_model(tensorflow_model, optim, loss, metrics, weights=None):
 
 
 if __name__ == '__main__':
-    data_dir = '/home/fischer/mnt_imagenet/ecml2021_enerob'
-    write_dir = '/home/fischer/mnt_imagenet/tf-imagenet-dirs'
+
+    parser = argparse.ArgumentParser(description="Load Imagenet for Tensorflow")
+
+    parser.add_argument("--data_dir", default="/raid/imagenet/", type=str, help="directory with downloaded 'ILSVRC2012_img_train.tar' and 'ILSVRC2012_img_val.tar'")
+    parser.add_argument("--checkpoint", default="/raid/fischer/checkpoints/mobilenetv2test", type=str, help="location to store checkpoint")
+
+    args = parser.parse_args()
+
     batch_size = 32
     metrics = ['accuracy']
 
-    ds = load_imagenet(data_dir, write_dir, 'train', resize_with_crop, batch_size)
+    ds = load_imagenet(args.data_dir, None, 'train', resize_with_crop, batch_size)
 
     # train your own
 
@@ -50,12 +58,11 @@ if __name__ == '__main__':
         decay=weight_decay
     )
     loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-    checkpoint_dir = "/home/fischer/mnt_imagenet/mobilenetv2cp/"
 
-    # model = train_model(tensorflow_model, ds, optim, loss, epochs, checkpoint_dir)
+    model = train_model(tensorflow_model, ds, optim, loss, epochs, args.checkpoint, metrics)
 
     pretrained = load_model(tensorflow_model, optim, loss, metrics)
-    custom = load_model(tensorflow_model, optim, loss, metrics, checkpoint_dir)
+    custom = load_model(tensorflow_model, optim, loss, metrics, args.checkpoint)
 
     result = pretrained.evaluate(ds)
     print(dict(zip(pretrained.metrics_names, result)))
