@@ -49,6 +49,8 @@ class GpuMonitoringProcess:
                 for key, val in values.items():
                     out[gpu_id][key].append(val)
 
+        # TODO add manufactur information for every GPU
+
         return out, result
 
 
@@ -88,7 +90,7 @@ class MonitoringProcess(Process):
                 time.sleep(sleep_time)
 
 
-def get_gpu_stats_nvml_py(gpu_id=0):
+def get_gpu_stats_nvml_py():
     results = {}
     deviceCount = nvmlDeviceGetCount()
 
@@ -125,4 +127,4 @@ if __name__ == "__main__":
     parser.add_argument("--logpath", default="/home/fischer/mnt_imagenet/models/train_2021_12_10_15_56/monitoring.json", type=str, help="dataset path")
     
     args = parser.parse_args()
-    print(aggregate_log(args.logpath))
+    print(json.dumps(aggregate_log(args.logpath), indent=4))
