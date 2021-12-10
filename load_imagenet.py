@@ -5,8 +5,14 @@ import os
 import argparse
 
 
-def load_imagenet(data_dir, write_dir, split, map_f=None, batch_size=None, variant='imagenet2012'):
-
+def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_size=None, variant='imagenet2012'):
+    assert(variant in ['imagenet2012_subset', 'imagenet2012'])
+    assert(split in ['train', 'validation'])
+    if write_dir is None:
+        write_dir = os.path.join(data_dir, split)
+        data_dir = os.path.join(data_dir, 'raw')
+        assert(os.path.isdir(data_dir))
+        assert(os.path.isdir(write_dir))
     # Construct a tf.data.Dataset
     download_config = tfds.download.DownloadConfig(
         extract_dir=os.path.join(write_dir, 'extracted'),
@@ -16,7 +22,6 @@ def load_imagenet(data_dir, write_dir, split, map_f=None, batch_size=None, varia
         'download_dir': os.path.join(write_dir, 'downloaded'),
         'download_config': download_config,
     }
-    assert(variant in ['imagenet2012_subset', 'imagenet2012'])
     ds = tfds.load(variant,
                    data_dir=os.path.join(write_dir, 'data'),         
                    split=split, 
@@ -49,8 +54,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Load Imagenet for Tensorflow")
 
     parser.add_argument("--data-raw", default="/raid/imagenet/raw/", type=str, help="directory with downloaded 'ILSVRC2012_img_train.tar' and 'ILSVRC2012_img_val.tar'")
-    parser.add_argument("--data-out", default="/raid/imagenet/train/", type=str, help="directory where Tensorflow dataset is created")
-    parser.add_argument("--split", default="train", type=str, choices=['train', 'val'], help="data split to use")
+    parser.add_argument("--data-out", default="/raid/imagenet/validation/", type=str, help="directory where Tensorflow dataset is created")
+    parser.add_argument("--split", default="train", type=str, choices=['train', 'validation'], help="data split to use")
 
     args = parser.parse_args()
 
