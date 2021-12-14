@@ -124,7 +124,7 @@ def get_gpu_stats_nvml_py():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Aggregates a given GPU profiling result")
 
-    parser.add_argument("--logpath", default="/home/fischer/mnt_imagenet/models/train_2021_12_10_15_56/monitoring.json", type=str, help="dataset path")
+    parser.add_argument("--log", default="/home/fischer/mnt_imagenet/models/train_2021_12_10_15_56/monitoring.json", type=str, help="dataset path")
     
     args = parser.parse_args()
-    print(json.dumps(aggregate_log(args.logpath), indent=4))
+    print(json.dumps(aggregate_log(args.log), indent=4))
