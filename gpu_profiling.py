@@ -24,7 +24,6 @@ def aggregate_log(fpath):
             results[gpu_id]['nr_measurements'] = len(meas['timestamp'])
             for field in ['util.gpu', 'temperature', 'memory.used', 'power.draw', 'util.memory']:
                 results[gpu_id][field] = {m.__name__: m(meas[field]) for m in [min, max, np.mean]}
-        print(results)
     return results
 
 
@@ -72,7 +71,7 @@ def profile(interval, logfile, stopper, gpu_id):
         sleep_time = interval - profile_duration
         if sleep_time > 0:
             time.sleep(sleep_time)
-    print(i, 'SUCCESSFUL PROFILINGS, STORED TO', logfile)
+    print(f'Wrote {i} GPU proflings to {logfile}')
     with open(logfile, 'w') as log:
         json.dump(out, log)
 
