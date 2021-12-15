@@ -1,5 +1,5 @@
 from collections import defaultdict
-from multiprocessing import Queue, Process
+from multiprocessing import Process, Event
 from datetime import datetime
 import time
 import argparse
@@ -28,97 +28,82 @@ def aggregate_log(fpath):
     return results
 
 
+def get_gpu_stats(gpu_id):
+    handle = nvmlDeviceGetHandleByIndex(gpu_id)
+
+    # Energy
+    milliWatts = nvmlDeviceGetPowerUsage(handle)
+    # Memory
+    memory_t = nvmlDeviceGetMemoryInfo(handle)
+    # Utilization
+    utilization_t = nvmlDeviceGetUtilizationRates(handle)
+    tmp = nvmlDeviceGetTemperature(handle, NVML_TEMPERATURE_GPU)
+    unix_time_millis = (datetime.now() - datetime.utcfromtimestamp(0)).total_seconds() * 1000.0
+    return {
+        'temperature': tmp,
+        'util.gpu': utilization_t.gpu,
+        'util.memory': utilization_t.memory,
+        'power.draw': milliWatts / 1000.0,
+        'memory.used': memory_t.used,
+        'timestamp': unix_time_millis
+    }
+
+
+def profile(interval, logfile, stopper, gpu_id):
+    nvmlInit()
+    out = defaultdict(lambda: defaultdict(list))
+    if gpu_id is None:
+        deviceCount = nvmlDeviceGetCount()
+        gpu_id = list(range(deviceCount))
+    else:
+        if not isinstance(gpu_id, list):
+            gpu_id = [gpu_id]
+    print('PROFILING FOR GPUs', gpu_id)
+    i = 0
+    while not stopper.is_set():
+        # TODO check amount of stored data and flush out if necessary
+        start = time.time()
+        i += 1
+        for gid in gpu_id:
+            profiled = get_gpu_stats(gid)
+            for key, val in profiled.items():
+                out[gid][key].append(val)
+        profile_duration = time.time() - start
+        sleep_time = interval - profile_duration
+        if sleep_time > 0:
+            time.sleep(sleep_time)
+    print(i, 'SUCCESSFUL PROFILINGS, STORED TO', logfile)
+    with open(logfile, 'w') as log:
+        json.dump(out, log)
+
+
 class GpuMonitoringProcess:
 
-    def __init__(self, interval=1, timeout=365 * 24 * 60 * 60 * 10) -> None:
+    def __init__(self, interval=1, outfile=None, gpu_id=None) -> None:
         self.interval = interval
-        self.timeout = timeout # 10 years
+        if outfile is None:
+            raise NotImplementedError('Implement using a custom tmp file if no file is given!')
+        self.outfile = outfile
+        self.gpu_id = gpu_id
 
     def run(self, func):
-        queue = Queue()
 
-        p = MonitoringProcess(lambda: get_gpu_stats_nvml_py(), queue, self.interval, self.timeout)
+        # TODO log manufactur information for every GPU
+
+        stopper = Event()
+        p = Process(target=profile, args=(self.interval, self.outfile, stopper, self.gpu_id))
         p.start()
         result = func()
-        p.terminate()
+        stopper.set() # stops loop in profiling processing
+        p.join()
 
-        out = defaultdict(lambda: defaultdict(list))
-        while not queue.empty():
-            x = queue.get()
-            for gpu_id, values in x.items():
-                for key, val in values.items():
-                    out[gpu_id][key].append(val)
+        # ts = (datetime.now() - datetime.utcfromtimestamp(0)).total_seconds()
+        # print(datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S'))
 
-        # TODO add manufactur information for every GPU
+        with open(self.outfile, 'r') as tmp:
+            out = json.load(tmp)
 
         return out, result
-
-
-class MonitoringProcess(Process):
-    def __init__(self, measurement_fn, queue, interval, timeout):
-        """
-        This allows to monitor measurements via
-        :param measurement_fn:
-        :param queue:
-        :param interval:
-        :param timeout: seconds to run the process (Default is 10 years:D)
-        """
-        super(MonitoringProcess, self).__init__()
-
-        self.measurement_fn = measurement_fn
-        self.queue = queue
-        self.interval = interval
-
-        self.timeout = timeout
-
-    def run(self):
-
-        nvmlInit()
-
-        process_start = time.time()
-
-        while time.time() < process_start + self.timeout:
-            start = time.time()
-
-            measurement = self.measurement_fn()
-            self.queue.put(measurement)
-
-            measure_duration = time.time() - start
-            sleep_time = self.interval - measure_duration
-
-            if sleep_time > 0:
-                time.sleep(sleep_time)
-
-
-def get_gpu_stats_nvml_py():
-    results = {}
-    deviceCount = nvmlDeviceGetCount()
-
-    for gpu_id in range(deviceCount):
-        handle = nvmlDeviceGetHandleByIndex(gpu_id)
-
-        # Energy
-        milliWatts = nvmlDeviceGetPowerUsage(handle)
-
-        # Memory
-        memory_t = nvmlDeviceGetMemoryInfo(handle)
-        # Utilization
-        utilization_t = nvmlDeviceGetUtilizationRates(handle)
-
-        tmp = nvmlDeviceGetTemperature(handle, NVML_TEMPERATURE_GPU)
-
-        unix_time_millis = (datetime.now() - datetime.utcfromtimestamp(0)).total_seconds() * 1000.0
-
-        results[gpu_id] =  {
-            'temperature': tmp,
-            'util.gpu': utilization_t.gpu,
-            'util.memory': utilization_t.memory,
-            'power.draw': milliWatts / 1000.0,
-            'memory.used': memory_t.used,
-            'timestamp': unix_time_millis
-        }
-        
-    return results
 
 
 if __name__ == "__main__":
