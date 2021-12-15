@@ -18,7 +18,7 @@ def fix_seed(seed):
     return seed
 
 
-def prepare_model(model_name, opt_name, lr, momentum, weight_decay, weights=None):
+def prepare_model(model_name, opt_name, lr, momentum, weight_decay, metrics=['accuracy'], weights=None):
     try:
         model = tf.keras.applications.__dict__[model_name]
     except (TypeError, KeyError) as e:
@@ -44,7 +44,6 @@ def prepare_model(model_name, opt_name, lr, momentum, weight_decay, weights=None
     else:
         raise RuntimeError(f"Invalid optimizer {opt_name}. Only SGD and RMSprop are supported.")
 
-    metrics = ['accuracy']
     model.compile(optimizer=optimizer, loss=criterion, metrics=metrics)
 
     return model
