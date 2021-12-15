@@ -5,7 +5,7 @@ import os
 import argparse
 
 
-def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_size=None, variant='imagenet2012'):
+def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_size=None, n_batches=-1, variant='imagenet2012'):
     assert(variant in ['imagenet2012_subset', 'imagenet2012'])
     assert(split in ['train', 'validation'])
     if write_dir is None:
@@ -35,8 +35,11 @@ def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_siz
     if map_f is not None:
         ds = ds.map(map_f)
 
+    # batch the data
     if not batch_size is None:
         ds = ds.batch(batch_size)
+    if n_batches > 0:
+        ds = ds.take(n_batches)
 
     return ds
 
