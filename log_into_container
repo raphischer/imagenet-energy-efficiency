@@ -1,0 +1,7 @@
+ssh gwkilab
+ssh ml2ran07e0 -p 2222
+source /opt/conda/bin/activate
+conda activate enerob
+cd /rdata/s01b_ls8_000/fischer/repos/ecml21-enerob/
+export PYTHONHASHSEED=0
+export CUDA_VISIBLE_DEVICES=-1
