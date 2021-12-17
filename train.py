@@ -7,7 +7,8 @@ import sys
 import tensorflow as tf
 
 from load_imagenet import load_imagenet, resize_with_crop
-from util import fix_seed, create_output_dir, Logger, prepare_model, set_gpu
+from util import fix_seed, create_output_dir, Logger, prepare_model, set_gpu, prepare_optimizer, start_monitoring
+from util import prepare_lr_scheduling
 
 
 def main(args):
@@ -20,43 +21,16 @@ def main(args):
     # reroute the stdout to logfile, remember to call close!
     sys.stdout = Logger(os.path.join(args.output_dir, 'logfile.txt'))
 
-    dataset = load_imagenet(args.data_path, None, 'train', resize_with_crop, args.batch_size, args.n_batches)
-    model = prepare_model(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay)
+    dataset, ds_info = load_imagenet(args.data_path, None, 'train', resize_with_crop, args.batch_size, args.n_batches)
+    optimizer = prepare_optimizer(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
+    model = prepare_model(args.model, optimizer)
 
-    # TODO Implement custom learning rate scheduling for training RegNet
-    # args.lr_scheduler = args.lr_scheduler.lower()
-    # if args.lr_scheduler == "steplr":
-    #     main_lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.lr_step_size, gamma=args.lr_gamma)
-    # elif args.lr_scheduler == "cosineannealinglr":
-    #     main_lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-    #         optimizer, T_max=args.epochs - args.lr_warmup_epochs
-    #     )
-    # elif args.lr_scheduler == "exponentiallr":
-    #     main_lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=args.lr_gamma)
-    # else:
-    #     raise RuntimeError(
-    #         f"Invalid lr scheduler '{args.lr_scheduler}'. Only StepLR, CosineAnnealingLR and ExponentialLR "
-    #         "are supported."
-    #     )
+    save_freq = ds_info.steps_per_epoch * 10 # every 10 epochs
+    callbacks = [tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(args.output_dir, 'checkpoint_{epoch:03d}.hdf5'), save_weights_only=True, save_freq=save_freq)]
 
-    # if args.lr_warmup_epochs > 0:
-    #     if args.lr_warmup_method == "linear":
-    #         warmup_lr_scheduler = torch.optim.lr_scheduler.LinearLR(
-    #             optimizer, start_factor=args.lr_warmup_decay, total_iters=args.lr_warmup_epochs
-    #         )
-    #     elif args.lr_warmup_method == "constant":
-    #         warmup_lr_scheduler = torch.optim.lr_scheduler.ConstantLR(
-    #             optimizer, factor=args.lr_warmup_decay, total_iters=args.lr_warmup_epochs
-    #         )
-    #     else:
-    #         raise RuntimeError(
-    #             f"Invalid warmup lr method '{args.lr_warmup_method}'. Only linear and constant are supported."
-    #         )
-    #     lr_scheduler = torch.optim.lr_scheduler.SequentialLR(
-    #         optimizer, schedulers=[warmup_lr_scheduler, main_lr_scheduler], milestones=[args.lr_warmup_epochs]
-    #     )
-    # else:
-    #     lr_scheduler = main_lr_scheduler
+    lr_callback = prepare_lr_scheduling(args.lr_scheduler, args.lr_gamma, args.lr_step_size, args.lr)
+    if lr_callback is not None:
+        callbacks.append(lr_callback)
 
     # removed distributed, mixup transforms & ema code because not used for the selected models
 
@@ -64,9 +38,21 @@ def main(args):
         # TODO implement this
         raise NotImplementedError('Resuming training not implemented (yet)')
 
-    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(args.output_dir, 'checkpoint.hdf5'), save_weights_only=True)
-    fit_func = lambda: model.fit(dataset, epochs=args.epochs, callbacks=[cp_callback])
-    
+    start_time = time.time()
+
+    monitoring = start_monitoring(args.gpu_monitor_interval, args.cpu_monitor_interval, args.output_dir, args.gpu)
+
+    model.fit(dataset, epochs=args.epochs, callbacks=callbacks)
+
+    for monitor in monitoring:
+        monitor.stop()
+
+    print(f"Training finished in {timedelta(seconds=int(time.time() - start_time))} seconds, results can be found in {args.output_dir}")
+
+    sys.stdout.close()
+
+    return args.output_dir
+
     # TODO add custom lr scheduler code for tensorflow
     # for epoch in range(args.start_epoch, args.epochs):
     #     train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, args, model_ema, scaler)
@@ -89,23 +75,6 @@ def main(args):
     #         utils.save_on_master(checkpoint, os.path.join(args.output_dir, f"model_{epoch}.pth"))
     #         utils.save_on_master(checkpoint, os.path.join(args.output_dir, "checkpoint.pth"))
 
-    start_time = time.time()
-
-    if args.gpu_monitor_interval > 0:
-        from gpu_profiling import GpuMonitoringProcess
-        monitoring = GpuMonitoringProcess(interval=args.gpu_monitor_interval, outfile=os.path.join(args.output_dir, 'monitoring.json'), gpu_id=args.gpu)
-        _, model = monitoring.run(fit_func)
-    else:
-        model = fit_func()
-
-    print(f"Training finished in {timedelta(seconds=int(time.time() - start_time))} seconds, results can be found in {args.output_dir}")
-
-    if args.gpu_monitor_interval > 0:
-        from gpu_profiling import aggregate_log
-        print(json.dumps(aggregate_log(os.path.join(args.output_dir, 'monitoring.json')), indent=4))
-    
-    sys.stdout.close()
-
 
 def get_args_parser(add_help=True):
     import argparse
@@ -114,8 +83,9 @@ def get_args_parser(add_help=True):
 
     parser.add_argument("--data-path", default="/raid/imagenet", type=str, help="dataset path")
     parser.add_argument("--use-timestamp-dir", default=True, action="store_true", help="Creates timestamp directory in data path")
-    parser.add_argument("--gpu-monitor-interval", default=.5, type=float, help="Setting to > 0 activates GPU profiling every X seconds")
-    parser.add_argument("--model", default="ResNet50", type=str, help="model name")
+    parser.add_argument("--gpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates GPU profiling every X seconds")
+    parser.add_argument("--cpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates CPU profiling every X seconds")
+    parser.add_argument("--model", default="QuickNet", type=str, help="model name")
     parser.add_argument("--n-batches", default=-1, type=int, help="number of batches to take")
     parser.add_argument("-b", "--batch-size", default=256, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
     parser.add_argument("--epochs", default=90, type=int, metavar="N", help="number of total epochs to run")
@@ -146,7 +116,10 @@ def get_args_parser(add_help=True):
 
 
 if __name__ == "__main__":
-    # TODO custom learning rate scheduling for MobileNet!
-    # TODO quantization? quicknet training? larq?
+    # TODO implement custom learning rate scheduling for MobileNet!
+    # TODO quantization?
     args = get_args_parser().parse_args()
     main(args)
+    from monitoring import aggregate_log
+    gpu_log = aggregate_log(os.path.join(args.output_dir, 'monitoring_gpu.json'))
+    cpu_log = aggregate_log(os.path.join(args.output_dir, 'monitoring_cpu.json'))

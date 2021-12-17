@@ -1,11 +1,11 @@
-import tensorflow as tf
-import tensorflow_datasets as tfds
-
+import math
 import os
 import argparse
 
+import tensorflow as tf
+import tensorflow_datasets as tfds
 
-def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_size=None, n_batches=-1, variant='imagenet2012'):
+def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_size=1, n_batches=-1, variant='imagenet2012'):
     assert(variant in ['imagenet2012_subset', 'imagenet2012'])
     assert(split in ['train', 'validation'])
     if write_dir is None:
@@ -22,12 +22,13 @@ def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_siz
         'download_dir': os.path.join(write_dir, 'downloaded'),
         'download_config': download_config,
     }
-    ds = tfds.load(variant,
+    ds, info = tfds.load(variant,
                    data_dir=os.path.join(write_dir, 'data'),         
-                   split=split, 
-                   shuffle_files=False, 
-                   download=True, 
+                   split=split,
+                   shuffle_files=False,
+                   download=True,
                    as_supervised=True,
+                   with_info=True,
                    download_and_prepare_kwargs=download_and_prepare_kwargs
     )
 
@@ -35,13 +36,17 @@ def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_siz
     if map_f is not None:
         ds = ds.map(map_f)
 
+    info.split = split
+    info.batch_size = batch_size
+    info.steps_per_epoch = n_batches if n_batches > 0 else math.ceil(info.splits[split].num_examples / batch_size)
     # batch the data
     if not batch_size is None:
         ds = ds.batch(batch_size)
     if n_batches > 0:
+        info.steps_per_epoch 
         ds = ds.take(n_batches)
 
-    return ds
+    return ds, info
 
 
 def resize_with_crop(image, label):
@@ -56,11 +61,10 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Load Imagenet for Tensorflow")
 
-    parser.add_argument("--data-raw", default="/raid/imagenet/raw/", type=str, help="directory with downloaded 'ILSVRC2012_img_train.tar' and 'ILSVRC2012_img_val.tar'")
-    parser.add_argument("--data-out", default="/raid/imagenet/validation/", type=str, help="directory where Tensorflow dataset is created")
+    parser.add_argument("--data-raw", default="/raid/imagenet/", type=str, help="directory with downloaded 'ILSVRC2012_img_train.tar' and 'ILSVRC2012_img_val.tar'")
     parser.add_argument("--split", default="train", type=str, choices=['train', 'validation'], help="data split to use")
 
     args = parser.parse_args()
 
-    ds = load_imagenet(args.data_raw, args.data_out, args.split)
+    ds = load_imagenet(args.data_raw, None, args.split)
     print(ds)

@@ -7,7 +7,7 @@ import time
 import sys
 
 from load_imagenet import load_imagenet, resize_with_crop
-from util import fix_seed, create_output_dir, Logger, prepare_model, set_gpu
+from util import fix_seed, create_output_dir, Logger, prepare_model, set_gpu, prepare_optimizer, start_monitoring
 
 
 def main(args):
@@ -26,25 +26,27 @@ def main(args):
     # reroute the stdout to logfile, remember to call close!
     sys.stdout = Logger(os.path.join(args.output_dir, 'logfile.txt'))
 
-    dataset = load_imagenet(args.data_path, None, args.split, resize_with_crop, args.batch_size, args.n_batches)
-    model = prepare_model(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, weights=args.model_dir)
+    dataset, ds_info = load_imagenet(args.data_path, None, args.split, resize_with_crop, args.batch_size, args.n_batches)
+    optimizer = prepare_optimizer(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
+    model = prepare_model(args.model, optimizer, weights=args.model_dir)
 
-    eval_model = lambda: model.evaluate(dataset)
     print("Start evaluation")
     start_time = time.time()
 
-    if args.gpu_monitor_interval > 0:
-        from gpu_profiling import GpuMonitoringProcess
-        monitoring = GpuMonitoringProcess(interval=args.gpu_monitor_interval, outfile=os.path.join(args.output_dir, 'monitoring.json'), gpu_id=args.gpu)
-        _, eval_result = monitoring.run(eval_model)
-    else:
-        eval_result = eval_model()
+    monitoring = start_monitoring(args.gpu_monitor_interval, args.cpu_monitor_interval, args.output_dir, args.gpu)
+
+    eval_result = model.evaluate(dataset)
+
+    for monitor in monitoring:
+        monitor.stop()
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print(f"Evaluation time {total_time_str}")
 
     print(dict(zip(model.metrics_names, eval_result)))
+
+    return eval_result
 
     
 def get_args_parser(add_help=True):
@@ -53,7 +55,8 @@ def get_args_parser(add_help=True):
 
     parser.add_argument("--data-path", default="/raid/imagenet", type=str, help="dataset path")
     parser.add_argument("--split", default="train", choices=['train', 'validation'], type=str, help="dataset split to use")
-    parser.add_argument("--gpu-monitor-interval", default=-1, type=float, help="Setting to > 0 activates GPU profiling")
+    parser.add_argument("--gpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates GPU profiling every X seconds")
+    parser.add_argument("--cpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates CPU profiling every X seconds")
     parser.add_argument("--n-batches", default=-1, type=int, help="number of batches to take")
     parser.add_argument("-b", "--batch-size", default=256, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
     parser.add_argument("--model-dir", default="/raid/fischer/dnns/train_2021_12_15_15_01", type=str, help="path to access the trained model")
@@ -67,4 +70,4 @@ def get_args_parser(add_help=True):
 
 if __name__ == "__main__":
     args = get_args_parser().parse_args()
-    main(args)
+    eval_result = main(args)
