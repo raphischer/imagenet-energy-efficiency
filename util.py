@@ -8,6 +8,17 @@ import tensorflow as tf
 import numpy as np
 
 
+def set_gpu(gpu_id):
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    if len(gpus) > gpu_id:
+        tf.config.experimental.set_visible_devices(gpus[gpu_id], 'GPU')
+    # GPU usage might be limited by environment variable
+    if 'CUDA_VISIBLE_DEVICES' in os.environ:
+        limited_gpus = [int(g) for g in os.environ['CUDA_VISIBLE_DEVICES'].split(',')]
+        gpu_id = limited_gpus[gpu_id]
+    return gpu_id
+
+
 def fix_seed(seed):
     if seed == -1:
         seed = python_random.randint(0, 2**32 - 1)
@@ -51,7 +62,7 @@ def prepare_model(model_name, opt_name, lr, momentum, weight_decay, metrics=['ac
 
 def create_output_dir(dir, use_timestamp, config=None):
     # create log dir
-    timestamp = datetime.now().strftime('%Y_%m_%d_%H_%M')
+    timestamp = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
     if use_timestamp:
         dir = f'{dir}_{timestamp}'
     if not os.path.exists(dir):

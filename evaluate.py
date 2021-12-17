@@ -7,10 +7,12 @@ import time
 import sys
 
 from load_imagenet import load_imagenet, resize_with_crop
-from util import fix_seed, create_output_dir, Logger, prepare_model
+from util import fix_seed, create_output_dir, Logger, prepare_model, set_gpu
 
 
 def main(args):
+    args.gpu = set_gpu(args.gpu)
+
     args.seed = fix_seed(args.seed)
 
     with open(os.path.join(args.model_dir, 'config.json'), 'r') as m_cfg:
@@ -33,7 +35,7 @@ def main(args):
 
     if args.gpu_monitor_interval > 0:
         from gpu_profiling import GpuMonitoringProcess
-        monitoring = GpuMonitoringProcess(interval=args.gpu_monitor_interval, outfile=os.path.join(args.output_dir, 'monitoring.json'))
+        monitoring = GpuMonitoringProcess(interval=args.gpu_monitor_interval, outfile=os.path.join(args.output_dir, 'monitoring.json'), gpu_id=args.gpu)
         _, eval_result = monitoring.run(eval_model)
     else:
         eval_result = eval_model()
@@ -58,6 +60,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--output-dir", default="/raid/fischer/dnns", type=str, help="path to save outputs")
     parser.add_argument("--seed", type=int, default=-1, help="Seed to use (if -1, uses and logs random seed)"),
     parser.add_argument("--use-timestamp-dir", default=True, action="store_true", help="Creates timestamp directory in data path")
+    parser.add_argument("--gpu", default=0, type=int, help="gpu to use for computations (if available)")
     
     return parser
 

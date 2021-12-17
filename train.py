@@ -1,5 +1,3 @@
-### inspired by https://github.com/pytorch/vision/tree/main/references/classification
-
 from datetime import timedelta
 import os
 import json
@@ -9,10 +7,11 @@ import sys
 import tensorflow as tf
 
 from load_imagenet import load_imagenet, resize_with_crop
-from util import fix_seed, create_output_dir, Logger, prepare_model
+from util import fix_seed, create_output_dir, Logger, prepare_model, set_gpu
 
 
 def main(args):
+    args.gpu = set_gpu(args.gpu)
 
     args.seed = fix_seed(args.seed)
 
@@ -64,16 +63,6 @@ def main(args):
     if args.resume:
         # TODO implement this
         raise NotImplementedError('Resuming training not implemented (yet)')
-        # checkpoint = torch.load(args.resume, map_location="cpu")
-        # model_without_ddp.load_state_dict(checkpoint["model"])
-        # if not args.test_only:
-        #     optimizer.load_state_dict(checkpoint["optimizer"])
-        #     lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
-        # args.start_epoch = checkpoint["epoch"] + 1
-        # if model_ema:
-        #     model_ema.load_state_dict(checkpoint["model_ema"])
-        # if scaler:
-        #     scaler.load_state_dict(checkpoint["scaler"])
 
     cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(args.output_dir, 'checkpoint.hdf5'), save_weights_only=True)
     fit_func = lambda: model.fit(dataset, epochs=args.epochs, callbacks=[cp_callback])
@@ -104,7 +93,7 @@ def main(args):
 
     if args.gpu_monitor_interval > 0:
         from gpu_profiling import GpuMonitoringProcess
-        monitoring = GpuMonitoringProcess(interval=args.gpu_monitor_interval, outfile=os.path.join(args.output_dir, 'monitoring.json'))
+        monitoring = GpuMonitoringProcess(interval=args.gpu_monitor_interval, outfile=os.path.join(args.output_dir, 'monitoring.json'), gpu_id=args.gpu)
         _, model = monitoring.run(fit_func)
     else:
         model = fit_func()
@@ -151,11 +140,13 @@ def get_args_parser(add_help=True):
 
     parser.add_argument("--seed", type=int, default=-1, help="Seed to use (if -1, uses and logs random seed)"),
     parser.add_argument("--interpolation", default="bilinear", type=str, help="the interpolation method (default: bilinear)")
+    parser.add_argument("--gpu", default=0, type=int, help="gpu to use for computations (if available)")
 
     return parser
 
 
 if __name__ == "__main__":
+    # TODO custom learning rate scheduling for MobileNet!
     # TODO quantization? quicknet training? larq?
     args = get_args_parser().parse_args()
     main(args)
