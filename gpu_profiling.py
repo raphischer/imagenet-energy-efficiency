@@ -22,14 +22,13 @@ def aggregate_log(fpath):
             results[gpu_id]['end_utc'] = datetime.utcfromtimestamp(results[gpu_id]['end_unix']).strftime('%Y-%m-%d %H:%M:%S')
             results[gpu_id]['duration'] = results[gpu_id]['end_unix'] - results[gpu_id]['start_unix']
             results[gpu_id]['nr_measurements'] = len(meas['timestamp'])
-            for field in ['util.gpu', 'temperature', 'memory.used', 'power.draw', 'util.memory']:
+            for field in ['temperature', 'power_usage', 'util.gpu', 'util.memory', 'memory.used', 'memory.free']:
                 results[gpu_id][field] = {m.__name__: m(meas[field]) for m in [min, max, np.mean]}
     return results
 
 
 def get_gpu_stats(gpu_id):
     handle = nvmlDeviceGetHandleByIndex(gpu_id)
-
     # Energy
     milliWatts = nvmlDeviceGetPowerUsage(handle)
     # Memory
@@ -42,8 +41,9 @@ def get_gpu_stats(gpu_id):
         'temperature': tmp,
         'util.gpu': utilization_t.gpu,
         'util.memory': utilization_t.memory,
-        'power.draw': milliWatts / 1000.0,
+        'power_usage': milliWatts / 1000.0,
         'memory.used': memory_t.used,
+        'memory.free': memory_t.free,
         'timestamp': unix_time_millis
     }
 
@@ -71,7 +71,7 @@ def profile(interval, logfile, stopper, gpu_id):
         sleep_time = interval - profile_duration
         if sleep_time > 0:
             time.sleep(sleep_time)
-    print(f'Wrote {i} GPU proflings to {logfile}')
+    print(f'Wrote {i} GPU profilings to {logfile}')
     with open(logfile, 'w') as log:
         json.dump(out, log)
 
