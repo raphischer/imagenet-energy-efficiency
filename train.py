@@ -6,9 +6,8 @@ import sys
 
 import tensorflow as tf
 
-from load_imagenet import load_imagenet, resize_with_crop
-from util import fix_seed, create_output_dir, Logger, prepare_model, set_gpu, prepare_optimizer, start_monitoring
-from util import prepare_lr_scheduling
+from load_imagenet import load_imagenet, preprocessing_preset, resize_with_crop
+from util import fix_seed, create_output_dir, Logger, prepare_model, set_gpu, prepare_optimizer, start_monitoring, prepare_lr_scheduling
 
 
 def main(args):
@@ -21,7 +20,9 @@ def main(args):
     # reroute the stdout to logfile, remember to call close!
     sys.stdout = Logger(os.path.join(args.output_dir, 'logfile.txt'))
 
-    dataset, ds_info = load_imagenet(args.data_path, None, 'train', resize_with_crop, args.batch_size, args.n_batches)
+    preproc_f = lambda img, lab: preprocessing_preset(img, lab, args.crop_size, args.interpolation, args.auto_augment, args.random_erase)
+    # preproc_f = resize_with_crop
+    dataset, ds_info = load_imagenet(args.data_path, None, 'train', preproc_f, args.batch_size, args.n_batches)
     optimizer = prepare_optimizer(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
     model = prepare_model(args.model, optimizer)
 
@@ -81,13 +82,19 @@ def get_args_parser(add_help=True):
 
     parser = argparse.ArgumentParser(description="Classification training with Tensorflow, based on PyTorch training", add_help=add_help)
 
-    parser.add_argument("--data-path", default="/raid/imagenet", type=str, help="dataset path")
-    parser.add_argument("--use-timestamp-dir", default=True, action="store_true", help="Creates timestamp directory in data path")
-    parser.add_argument("--gpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates GPU profiling every X seconds")
-    parser.add_argument("--cpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates CPU profiling every X seconds")
+    # model and data input
     parser.add_argument("--model", default="QuickNet", type=str, help="model name")
+    parser.add_argument("--data-path", default="/raid/imagenet", type=str, help="dataset path")
     parser.add_argument("--n-batches", default=-1, type=int, help="number of batches to take")
     parser.add_argument("-b", "--batch-size", default=256, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
+
+    # output
+    parser.add_argument("--use-timestamp-dir", default=True, action="store_true", help="Creates timestamp directory in data path")
+    parser.add_argument("--output-dir", default="/raid/fischer/dnns", type=str, help="path to save outputs")
+    parser.add_argument("--gpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates GPU profiling every X seconds")
+    parser.add_argument("--cpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates CPU profiling every X seconds")
+
+    # training parameters
     parser.add_argument("--epochs", default=90, type=int, metavar="N", help="number of total epochs to run")
     parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
     parser.add_argument("--lr", default=0.1, type=float, help="initial learning rate")
@@ -100,16 +107,17 @@ def get_args_parser(add_help=True):
     parser.add_argument("--lr-warmup-decay", default=0.01, type=float, help="the decay for lr")
     parser.add_argument("--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs")
     parser.add_argument("--lr-gamma", default=0.1, type=float, help="decrease lr by a factor of lr-gamma")
-    parser.add_argument("--print-freq", default=10, type=int, help="print frequency")
-    parser.add_argument("--output-dir", default="/raid/fischer/dnns", type=str, help="path to save outputs")
     parser.add_argument("--resume", default="", type=str, help="path of checkpoint")
     parser.add_argument("--start-epoch", default=0, type=int, metavar="N", help="start epoch")
 
+    # data preprocessing
     parser.add_argument("--auto-augment", default=None, type=str, help="auto augment policy (default: None)")
     parser.add_argument("--random-erase", default=0.0, type=float, help="random erasing probability (default: 0.0)")
-
-    parser.add_argument("--seed", type=int, default=-1, help="Seed to use (if -1, uses and logs random seed)"),
     parser.add_argument("--interpolation", default="bilinear", type=str, help="the interpolation method (default: bilinear)")
+    parser.add_argument("--crop-size", default=224, type=int, help="the random crop size used for training (default: 224)")
+
+    # randomization and hardware
+    parser.add_argument("--seed", type=int, default=-1, help="Seed to use (if -1, uses and logs random seed)"),
     parser.add_argument("--gpu", default=0, type=int, help="gpu to use for computations (if available)")
 
     return parser
