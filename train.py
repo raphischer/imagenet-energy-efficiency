@@ -20,8 +20,10 @@ def main(args):
     # reroute the stdout to logfile, remember to call close!
     sys.stdout = Logger(os.path.join(args.output_dir, 'logfile.txt'))
 
-    preproc_f = lambda img, lab: preprocessing_preset(img, lab, args.crop_size, args.interpolation, args.auto_augment, args.random_erase)
-    # preproc_f = resize_with_crop
+    if args.use_simple:
+        preproc_f = resize_with_crop
+    else:
+        preproc_f = lambda img, lab: preprocessing_preset(img, lab, args.crop_size, args.interpolation, args.auto_augment, args.random_erase)
     dataset, ds_info = load_imagenet(args.data_path, None, 'train', preproc_f, args.batch_size, args.n_batches)
     optimizer = prepare_optimizer(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
     model = prepare_model(args.model, optimizer)
@@ -111,6 +113,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--start-epoch", default=0, type=int, metavar="N", help="start epoch")
 
     # data preprocessing
+    parser.add_argument("--use-simple", type=bool, default=False, help="use the simple preprocessing instead")
     parser.add_argument("--auto-augment", default=None, type=str, help="auto augment policy (default: None)")
     parser.add_argument("--random-erase", default=0.0, type=float, help="random erasing probability (default: 0.0)")
     parser.add_argument("--interpolation", default="bilinear", type=str, help="the interpolation method (default: bilinear)")
