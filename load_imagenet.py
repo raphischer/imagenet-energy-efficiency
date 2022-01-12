@@ -17,6 +17,14 @@ def resize_with_crop(image, label):
     return (i, label)
 
 
+def resize_with_crop_and_normalize(image, label, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
+    i = image
+    i = tf.cast(i, tf.float32)
+    i = tf.image.resize_with_crop_or_pad(i, 224, 224)
+    i = (i - tf.convert_to_tensor(mean)) / tf.convert_to_tensor(std)
+    return i, label
+
+
 def tf_random_resized_crop(img, crop_size, interpolation):
     ratio = np.random.uniform(0.75, 1.3333333333333333)
     w = tf.cast(tf.shape(img)[0], float)
@@ -39,7 +47,6 @@ def tf_random_horizontal_flip(img, hflip_prob):
 
 def tf_autoaugment(img_in):
     img = tf.keras.preprocessing.image.array_to_img(img_in, scale=False)
-    img.save('test.bmp')
     policy = ImageNetPolicy()
     img = policy(img)
     return tf.convert_to_tensor(tf.keras.preprocessing.image.img_to_array(img))
