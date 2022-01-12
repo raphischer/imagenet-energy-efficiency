@@ -10,6 +10,8 @@ import numpy as np
 
 
 def aggregate_log(fpath):
+    if not os.path.isfile(fpath):
+        return None
     results = defaultdict(dict)
     with open(fpath, 'r') as fc:
         log = json.load(fc)
@@ -22,7 +24,13 @@ def aggregate_log(fpath):
             results[gpu_id]['duration'] = results[gpu_id]['end_unix'] - results[gpu_id]['start_unix']
             results[gpu_id]['nr_measurements'] = len(meas['timestamp'])
             for field in device_fields:
-                results[gpu_id][field] = {m.__name__: m(meas[field]) for m in [min, max, np.mean]}
+                results[gpu_id][field] = {m.__name__: m(meas[field]) for m in [min, max, np.mean, np.std]}
+            if 'power_usage' in results[gpu_id]:
+                results[gpu_id]['total_power_draw'] = results[gpu_id]['duration'] * results[gpu_id]['power_usage']['mean']
+            else:
+                results[gpu_id]['total_power_draw'] = -1
+    # if len(list(results.values())) == 1: # only results with one gpu
+    #     return list(results.values())[0]
     return results
 
 
@@ -68,7 +76,7 @@ def monitor_cpu(interval, logfile, stopper, process_id):
     proc = psutil.Process(process_id)
     out = defaultdict(lambda: defaultdict(list))
     if not isinstance(process_id, list):
-            process_id = [process_id]
+        process_id = [process_id]
     print('PROFILING FOR PROCESSES', process_id)
     i = 0
     while not stopper.is_set():
@@ -124,7 +132,10 @@ class DeviceMonitor:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Aggregates a given GPU profiling result")
 
-    parser.add_argument("--log", default="/home/fischer/mnt_imagenet/models/train_2021_12_10_15_56/monitoring.json", type=str, help="dataset path")
+    parser.add_argument("--logs", default="/home/fischer/mnt_imagenet/models/train_2021_12_10_15_56", type=str, help="directory with logs")
     
     args = parser.parse_args()
-    print(json.dumps(aggregate_log(args.log), indent=4))
+    with open(os.path.join(args.log, 'config.json'), 'r') as cf:
+        config = json.read(cf)
+    cpu = aggregate_log(os.path.join(args.log, 'monitoring_cpu.json'))
+    gpu = aggregate_log(os.path.join(args.log, 'monitoring_gpu.json'))
