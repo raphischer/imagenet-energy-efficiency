@@ -15,6 +15,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--n-batches", default=-1, type=int, help="number of batches to take")
     parser.add_argument("-b", "--batch-size", default=256, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
     parser.add_argument("--always-use-simple-prep", default=False, action="store_true", help="")
+    parser.add_argument("--pretrained", default=False, action="store_true", help="")
 
     # output
     parser.add_argument("--use-timestamp-dir", default=True, action="store_true", help="Creates timestamp directory in data path")

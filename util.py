@@ -138,7 +138,10 @@ def prepare_model(model_name, optimizer, metrics=['accuracy', 'sparse_categorica
     except (TypeError, KeyError) as e:
         avail = ', '.join(n for n, _ in MODELS.items())
         raise RuntimeError(f'Error when loading {model_name}! \n{e}\nAvailable models:\n{avail}')
-    if weights is not None and os.path.isdir(weights): # load the custom weights
+    if weights == 'pretrained':
+        print(f'Loading pretrained weights!')
+        weights = 'imagenet'
+    elif weights is not None and os.path.isdir(weights): # load the custom weights
         best_model = sorted([f for f in os.listdir(weights) if f.startswith('checkpoint')])[-1]
         print(f'Loading weights from {best_model}!')
         weights = os.path.join(weights, best_model)
@@ -148,6 +151,8 @@ def prepare_model(model_name, optimizer, metrics=['accuracy', 'sparse_categorica
     # criterion = tf.keras.losses.CategoricalCrossentropy(from_logits=True, label_smoothing=args.label_smoothing)
     criterion = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
+    if optimizer is None: # use any default optimizer
+        optimizer = tf.keras.optimizers.SGD()
     model.compile(optimizer=optimizer, loss=criterion, metrics=metrics)
 
     return model

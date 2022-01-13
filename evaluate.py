@@ -18,14 +18,17 @@ def evaluate_single(args):
         cfg = json.load(m_cfg)
         cfg.update(args.__dict__)
 
+    if args.pretrained and cfg['model'] == 'QuickNet':
+        return
+
     cfg['output_dir'] = create_output_dir(os.path.join(args.output_dir, 'eval'), args.use_timestamp_dir, cfg)
     args = namedtuple('CFG', cfg)(**cfg)
 
     # reroute the stdout to logfile, remember to call close!
     sys.stdout = Logger(os.path.join(args.output_dir, 'logfile.txt'))
 
-    if args.use_simple: # legacy prepr method, TODO remove this if all experiments are updated
-        preproc_f = resize_with_crop
+    if args.pretrained:
+        preproc_f = lambda img, label: resize_with_crop(img, label, args.model.lower())
     else:
         if args.always_use_simple_prep:
             preproc_f = lambda img, lab: resize_with_crop_and_normalize(img, lab)
@@ -34,7 +37,10 @@ def evaluate_single(args):
 
     dataset, ds_info = load_imagenet(args.data_path, None, args.split, preproc_f, args.batch_size, args.n_batches)
     optimizer = prepare_optimizer(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
-    model = prepare_model(args.model, optimizer, weights=args.model_dir)
+    if args.pretrained:
+        model = prepare_model(args.model, optimizer, weights='pretrained')
+    else:
+        model = prepare_model(args.model, optimizer, weights=args.model_dir)
 
     print("Start evaluation")
     start_time = time.time()
@@ -61,12 +67,13 @@ def get_args_parser(add_help=True):
     parser = argparse.ArgumentParser(description="Classification training with Tensorflow, based on PyTorch training", add_help=add_help)
 
     # data and model input
-    parser.add_argument("--model-dir", default="/raid/fischer/dnns/train_2021_12_22_00_12_27", type=str, help="path to access the trained model (can also be directory with multiple model subdirs)")
+    parser.add_argument("--model-dir", default="/raid/fischer/dnns", type=str, help="path to access the trained model (can also be directory with multiple model subdirs)")
     parser.add_argument("--data-path", default="/raid/imagenet", type=str, help="dataset path")
     parser.add_argument("--split", default="validation", choices=['train', 'validation'], type=str, help="dataset split to use")
     parser.add_argument("--n-batches", default=-1, type=int, help="number of batches to take")
     parser.add_argument("-b", "--batch-size", default=256, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
     parser.add_argument("--always-use-simple-prep", default=False, action="store_true", help="")
+    parser.add_argument("--pretrained", default=False, action="store_true", help="")
 
     # output
     parser.add_argument("--use-timestamp-dir", default=True, action="store_true", help="Creates timestamp directory in data path")

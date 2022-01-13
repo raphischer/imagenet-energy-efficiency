@@ -1,6 +1,7 @@
 import math
 import os
 import argparse
+import inspect
 
 import numpy as np
 import tensorflow as tf
@@ -9,11 +10,18 @@ import tensorflow_datasets as tfds
 from autoaugment import ImageNetPolicy
 
 
-def resize_with_crop(image, label):
+PRETRAINED_PREPR = {n.replace('_', ''): e.preprocess_input for n, e in tf.keras.applications.__dict__.items() if inspect.ismodule(e) and hasattr(e, 'preprocess_input')}
+PRETRAINED_PREPR['resnet101'] = PRETRAINED_PREPR['resnet']
+PRETRAINED_PREPR['resnet152'] = PRETRAINED_PREPR['resnet']
+PRETRAINED_PREPR['mobilenetv3small'] = PRETRAINED_PREPR['mobilenetv3']
+PRETRAINED_PREPR['mobilenetv3large'] = PRETRAINED_PREPR['mobilenetv3']
+
+
+def resize_with_crop(image, label, model_name):
     i = image
     i = tf.cast(i, tf.float32)
     i = tf.image.resize_with_crop_or_pad(i, 224, 224)
-    i = tf.keras.applications.mobilenet_v2.preprocess_input(i)
+    i = PRETRAINED_PREPR[model_name](i)
     return (i, label)
 
 
