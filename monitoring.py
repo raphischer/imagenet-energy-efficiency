@@ -9,6 +9,15 @@ import time
 import numpy as np
 
 
+def start_monitoring(gpu_interval, cpu_interval, output_dir, gpu_id):
+    monitoring = []
+    if gpu_interval > 0:
+        monitoring.append(DeviceMonitor('gpu', interval=gpu_interval, outfile=os.path.join(output_dir, 'monitoring_gpu.json'), device_id=gpu_id))
+    if cpu_interval > 0:
+        monitoring.append(DeviceMonitor('cpu', interval=cpu_interval, outfile=os.path.join(output_dir, 'monitoring_cpu.json')))
+    return monitoring
+
+
 def aggregate_log(fpath):
     if not os.path.isfile(fpath):
         return None

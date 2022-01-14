@@ -12,21 +12,17 @@ from larq_zoo.training.learning_schedules import CosineDecayWithWarmup
 import larq as lq
 import numpy as np
 
-from monitoring import DeviceMonitor
-
 
 TF_MODELS = {n: e for n, e in tf.keras.applications.__dict__.items() if callable(e)}
 QUICKNETS = {n: e for n, e in lqz.sota.__dict__.items() if callable(e)}
 MODELS = {**TF_MODELS, **QUICKNETS}
 
 
-def start_monitoring(gpu_interval, cpu_interval, output_dir, gpu_id):
-    monitoring = []
-    if gpu_interval > 0:
-        monitoring.append(DeviceMonitor('gpu', interval=gpu_interval, outfile=os.path.join(output_dir, 'monitoring_gpu.json'), device_id=gpu_id))
-    if cpu_interval > 0:
-        monitoring.append(DeviceMonitor('cpu', interval=cpu_interval, outfile=os.path.join(output_dir, 'monitoring_cpu.json')))
-    return monitoring
+class PatchedJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.float32):
+            return float(obj)
+        return json.JSONEncoder.default(self, obj)
 
 
 def set_gpu(gpu_id):
@@ -133,6 +129,7 @@ def prepare_lr_scheduling(lr_scheduler, lr_gamma, lr_step_size, init_lr):
 
 
 def prepare_model(model_name, optimizer, metrics=['accuracy', 'sparse_categorical_accuracy', 'sparse_top_k_categorical_accuracy'], weights=None):
+    mfile = None
     try:
         model = MODELS[model_name]
     except (TypeError, KeyError) as e:
@@ -145,6 +142,7 @@ def prepare_model(model_name, optimizer, metrics=['accuracy', 'sparse_categorica
         best_model = sorted([f for f in os.listdir(weights) if f.startswith('checkpoint')])[-1]
         print(f'Loading weights from {best_model}!')
         weights = os.path.join(weights, best_model)
+        mfile = weights
     model = model(include_top=True, weights=weights)
 
     # TODO which Crossentropy to use?!
@@ -155,7 +153,7 @@ def prepare_model(model_name, optimizer, metrics=['accuracy', 'sparse_categorica
         optimizer = tf.keras.optimizers.SGD()
     model.compile(optimizer=optimizer, loss=criterion, metrics=metrics)
 
-    return model
+    return model, mfile
 
 
 def create_output_dir(dir, use_timestamp, config=None):
