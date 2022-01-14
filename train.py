@@ -6,8 +6,8 @@ import sys
 
 import tensorflow as tf
 
-from load_imagenet import load_imagenet, load_simple_prepr
-from custom_prepr import preprocessing_preset
+from load_imagenet import load_imagenet
+from load_preprocessing import load_preprocessing
 from monitoring import start_monitoring
 from util import fix_seed, create_output_dir, Logger, prepare_model, set_gpu, prepare_optimizer, prepare_lr_scheduling, PatchedJSONEncoder
 
@@ -21,19 +21,8 @@ def main(args):
     # reroute the stdout to logfile, remember to call close!
     tmp = sys.stdout
     sys.stdout = Logger(os.path.join(args.output_dir, 'logfile.txt'))
-     
-    # load preprocessing
-    if args.preprocessing == 'model':
-        preproc_f = load_simple_prepr(args.model.lower())
-    elif args.preprocessing == 'complex':
-        preproc_f = lambda img, lab: preprocessing_preset(img, lab, args.crop_size, args.interpolation, args.auto_augment, args.random_erase)
-    else:
-        try:
-            preproc_f = load_simple_prepr(args.preprocessing.lower())
-        except KeyError as e:
-            print(e)
-            raise Exception(f'Error loading builtin preprocessing for {args.preprocessing}!')
 
+    preproc_f = load_preprocessing(args.preprocessing, args.model, args)
     dataset, ds_info = load_imagenet(args.data_path, None, 'train', preproc_f, args.batch_size, args.n_batches)
     optimizer = prepare_optimizer(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
     model, _ = prepare_model(args.model, optimizer)
@@ -51,8 +40,8 @@ def main(args):
         # TODO implement this
         raise NotImplementedError('Resuming training not implemented (yet)')
 
-    start_time = time.time()
     monitoring = start_monitoring(args.gpu_monitor_interval, args.cpu_monitor_interval, args.output_dir, args.gpu)
+    start_time = time.time()
     res = model.fit(dataset, epochs=args.epochs, callbacks=callbacks)
     end_time = time.time()
     for monitor in monitoring:
@@ -108,7 +97,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--start-epoch", default=0, type=int, metavar="N", help="start epoch")
 
     # data preprocessing
-    parser.add_argument("--preprocessing", default='model', type=str, help="pass 'model' for choosing tf builtin preprocessing according to model choice, or pass a specific model name, or 'custom' with using the parameters below")
+    parser.add_argument("--preprocessing", default='builtin', type=str, help="pass 'builtin' for choosing tf builtin preprocessing according to model choice, or pass a specific model name, or 'custom' with using the parameters below")
     parser.add_argument("--auto-augment", default=None, type=str, help="auto augment policy (default: None)")
     parser.add_argument("--random-erase", default=0.0, type=float, help="random erasing probability (default: 0.0)")
     parser.add_argument("--interpolation", default="bilinear", type=str, help="the interpolation method (default: bilinear)")

@@ -1,7 +1,42 @@
+import inspect
 import numpy as np
 import tensorflow as tf
 
 from autoaugment import ImageNetPolicy
+
+
+BUILTIN_PREPR = {n.replace('_', ''): e.preprocess_input for n, e in tf.keras.applications.__dict__.items() if inspect.ismodule(e) and hasattr(e, 'preprocess_input')}
+BUILTIN_PREPR['resnet101'] = BUILTIN_PREPR['resnet']
+BUILTIN_PREPR['resnet152'] = BUILTIN_PREPR['resnet']
+BUILTIN_PREPR['mobilenetv3small'] = BUILTIN_PREPR['mobilenetv3']
+BUILTIN_PREPR['mobilenetv3large'] = BUILTIN_PREPR['mobilenetv3']
+
+
+def load_preprocessing(preprocessing, model, args):
+    print(preprocessing, model)
+    if preprocessing == 'builtin':
+        preproc_f = load_simple_prepr(model.lower())
+    elif preprocessing == 'custom':
+        preproc_f = lambda img, lab: preprocessing_preset(img, lab, args.crop_size, args.interpolation, args.auto_augment, args.random_erase)
+    else:
+        try:
+            preproc_f = load_simple_prepr(preprocessing.lower())
+        except KeyError as e:
+            print(e)
+            raise Exception(f'Error loading builtin preprocessing for {preprocessing}!')
+    return preproc_f
+
+
+def load_simple_prepr(model_name):
+    prepr = BUILTIN_PREPR[model_name]
+    return lambda img, label : simple_prepr(img, label, prepr)
+
+
+def simple_prepr(image, label, prepr):
+    i = tf.cast(image, tf.float32)
+    i = tf.image.resize_with_crop_or_pad(i, 224, 224) # necessary for processing batches
+    i = prepr(i)
+    return (i, label)
 
 
 def resize_with_crop_and_normalize(image, label, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):

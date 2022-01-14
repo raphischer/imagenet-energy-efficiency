@@ -1,29 +1,8 @@
 import math
 import os
 import argparse
-import inspect
 
-import tensorflow as tf
 import tensorflow_datasets as tfds
-
-
-PRETRAINED_PREPR = {n.replace('_', ''): e.preprocess_input for n, e in tf.keras.applications.__dict__.items() if inspect.ismodule(e) and hasattr(e, 'preprocess_input')}
-PRETRAINED_PREPR['resnet101'] = PRETRAINED_PREPR['resnet']
-PRETRAINED_PREPR['resnet152'] = PRETRAINED_PREPR['resnet']
-PRETRAINED_PREPR['mobilenetv3small'] = PRETRAINED_PREPR['mobilenetv3']
-PRETRAINED_PREPR['mobilenetv3large'] = PRETRAINED_PREPR['mobilenetv3']
-
-
-def simple_prepr(image, label, prepr):
-    i = tf.cast(image, tf.float32)
-    i = tf.image.resize_with_crop_or_pad(i, 224, 224) # necessary for processing batches
-    i = prepr(i)
-    return (i, label)
-
-
-def load_simple_prepr(model_name):
-    prepr = PRETRAINED_PREPR[model_name]
-    return lambda img, label : simple_prepr(img, label, prepr)
 
 
 def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_size=1, n_batches=-1, variant='imagenet2012'):
