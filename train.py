@@ -25,7 +25,13 @@ def main(args):
     preproc_f = load_preprocessing(args.preprocessing, args.model, args)
     dataset, ds_info = load_imagenet(args.data_path, None, 'train', preproc_f, args.batch_size, args.n_batches)
     optimizer = prepare_optimizer(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
-    model, _ = prepare_model(args.model, optimizer)
+
+    if args.resume:
+        model, mfile = prepare_model(args.model, optimizer, weights=args.resume)
+        initial_epoch = int(mfile[11:14])
+    else:
+        model, _ = prepare_model(args.model, optimizer)
+        initial_epoch = 0
 
     for i in [10, 5, 2, 1]:
         if args.epochs % i == 0:
@@ -36,13 +42,9 @@ def main(args):
     if lr_callback is not None:
         callbacks.append(lr_callback)
 
-    if args.resume:
-        # TODO implement this
-        raise NotImplementedError('Resuming training not implemented (yet)')
-
     monitoring = start_monitoring(args.gpu_monitor_interval, args.cpu_monitor_interval, args.output_dir, args.gpu)
     start_time = time.time()
-    res = model.fit(dataset, epochs=args.epochs, callbacks=callbacks)
+    res = model.fit(dataset, epochs=args.epochs, callbacks=callbacks, initial_epoch=initial_epoch)
     end_time = time.time()
     for monitor in monitoring:
         monitor.stop()
@@ -94,7 +96,6 @@ def get_args_parser(add_help=True):
     parser.add_argument("--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs")
     parser.add_argument("--lr-gamma", default=0.1, type=float, help="decrease lr by a factor of lr-gamma")
     parser.add_argument("--resume", default="", type=str, help="path of checkpoint")
-    parser.add_argument("--start-epoch", default=0, type=int, metavar="N", help="start epoch")
 
     # data preprocessing
     parser.add_argument("--preprocessing", default='builtin', type=str, help="pass 'builtin' for choosing tf builtin preprocessing according to model choice, or pass a specific model name, or 'custom' with using the parameters below")
