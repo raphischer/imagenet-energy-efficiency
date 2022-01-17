@@ -2,6 +2,7 @@ import math
 import os
 import argparse
 
+import tensorflow as tf
 import tensorflow_datasets as tfds
 
 
@@ -41,7 +42,8 @@ def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_siz
 
     # batch the data
     if not batch_size is None:
-        ds = ds.batch(batch_size)
+        n_gpus = max(len(tf.config.list_physical_devices('GPU')), 1) # if no GPU is available, use given batch size
+        ds = ds.batch(batch_size * n_gpus)
     if n_batches > 0:
         info.steps_per_epoch 
         ds = ds.take(n_batches)

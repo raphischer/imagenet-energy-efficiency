@@ -9,46 +9,52 @@ import tensorflow as tf
 from load_imagenet import load_imagenet
 from load_preprocessing import load_preprocessing
 from monitoring import start_monitoring
-from util import fix_seed, create_output_dir, Logger, prepare_model, set_gpu, prepare_optimizer, prepare_lr_scheduling, PatchedJSONEncoder
+from util import fix_seed, create_output_dir, Logger, prepare_model, prepare_optimizer, prepare_lr_scheduling, PatchedJSONEncoder, TimestampOnEpochEnd
 
 
 def main(args):
-    args.gpu = set_gpu(args.gpu)
     args.seed = fix_seed(args.seed)
-
     args.output_dir = create_output_dir(os.path.join(args.output_dir, 'train'), args.use_timestamp_dir, args.__dict__)
 
     # reroute the stdout to logfile, remember to call close!
     tmp = sys.stdout
     sys.stdout = Logger(os.path.join(args.output_dir, 'logfile.txt'))
 
-    preproc_f = load_preprocessing(args.preprocessing, args.model, args)
-    dataset, ds_info = load_imagenet(args.data_path, None, 'train', preproc_f, args.batch_size, args.n_batches)
-    optimizer = prepare_optimizer(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
+    # open strategy scope for using all GPUs
+    strategy = tf.distribute.MirroredStrategy()
+    print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
+    with strategy.scope():
+        preproc_f = load_preprocessing(args.preprocessing, args.model, args)
+        dataset, ds_info = load_imagenet(args.data_path, None, 'train', preproc_f, args.batch_size, args.n_batches)
+        optimizer = prepare_optimizer(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
 
-    if args.resume:
-        model, mfile = prepare_model(args.model, optimizer, weights=args.resume)
-        initial_epoch = int(mfile[11:14])
-    else:
-        model, _ = prepare_model(args.model, optimizer)
-        initial_epoch = 0
+        if args.resume:
+            model, mfile = prepare_model(args.model, optimizer, weights=args.resume)
+            initial_epoch = int(mfile[11:14])
+        else:
+            model, _ = prepare_model(args.model, optimizer)
+            initial_epoch = 0
 
+    # create callbacks
+    callbacks = [TimestampOnEpochEnd(os.path.join(args.output_dir, "epoch_timestamps.csv"))]
     for i in [10, 5, 2, 1]:
         if args.epochs % i == 0:
             save_freq = ds_info.steps_per_epoch * i # checkpoints every i epochs
             break
-    callbacks = [tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(args.output_dir, 'checkpoint_{epoch:03d}.hdf5'), save_weights_only=True, save_freq=save_freq)]
+    callbacks.append([tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(args.output_dir, 'checkpoint_{epoch:03d}.hdf5'), save_weights_only=True, save_freq=save_freq)])
     lr_callback = prepare_lr_scheduling(args.lr_scheduler, args.lr_gamma, args.lr_step_size, args.lr)
     if lr_callback is not None:
         callbacks.append(lr_callback)
 
-    monitoring = start_monitoring(args.gpu_monitor_interval, args.cpu_monitor_interval, args.output_dir, args.gpu)
+    # start monitoring and train
+    monitoring = start_monitoring(args.gpu_monitor_interval, args.cpu_monitor_interval, args.output_dir)
     start_time = time.time()
     res = model.fit(dataset, epochs=args.epochs, callbacks=callbacks, initial_epoch=initial_epoch)
     end_time = time.time()
     for monitor in monitoring:
         monitor.stop()
 
+    # write results
     results = {
         'history': res.history,
         'start': start_time,
@@ -77,7 +83,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--model", default="ResNet50", type=str, help="model name")
     parser.add_argument("--data-path", default="/raid/imagenet", type=str, help="dataset path")
     parser.add_argument("--n-batches", default=-1, type=int, help="number of batches to take")
-    parser.add_argument("-b", "--batch-size", default=256, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
+    parser.add_argument("-b", "--batch-size", default=32, type=int, help="images per gpu, the total batch will be $NGPU x batch_size")
 
     # output
     parser.add_argument("--use-timestamp-dir", default=True, action="store_true", help="Creates timestamp directory in data path")
@@ -106,7 +112,6 @@ def get_args_parser(add_help=True):
 
     # randomization and hardware
     parser.add_argument("--seed", type=int, default=-1, help="Seed to use (if -1, uses and logs random seed)"),
-    parser.add_argument("--gpu", default=0, type=int, help="gpu to use for computations (if available)")
 
     return parser
 

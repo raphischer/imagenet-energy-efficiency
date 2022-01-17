@@ -9,10 +9,14 @@ import time
 import numpy as np
 
 
-def start_monitoring(gpu_interval, cpu_interval, output_dir, gpu_id):
+# TODO log manufactur information for every GPU
+# TODO improve CPU logs, maybe using https://github.com/djselbeck/rapl-read-ryzen
+
+
+def start_monitoring(gpu_interval, cpu_interval, output_dir):
     monitoring = []
     if gpu_interval > 0:
-        monitoring.append(DeviceMonitor('gpu', interval=gpu_interval, outfile=os.path.join(output_dir, 'monitoring_gpu.json'), device_id=gpu_id))
+        monitoring.append(DeviceMonitor('gpu', interval=gpu_interval, outfile=os.path.join(output_dir, 'monitoring_gpu.json')))
     if cpu_interval > 0:
         monitoring.append(DeviceMonitor('cpu', interval=cpu_interval, outfile=os.path.join(output_dir, 'monitoring_cpu.json')))
     return monitoring
@@ -123,7 +127,6 @@ class DeviceMonitor:
             raise NotImplementedError('Implement using a custom tmp file if no file is given!')
         self.outfile = outfile
         self.stopper = Event()
-        # TODO log manufactur information for every GPU
         self.p = Process(target=prof_func, args=(self.interval, self.outfile, self.stopper, device_id))
         self.p.start()
 
@@ -144,7 +147,5 @@ if __name__ == "__main__":
     parser.add_argument("--logs", default="/home/fischer/mnt_imagenet/models/train_2021_12_10_15_56", type=str, help="directory with logs")
     
     args = parser.parse_args()
-    with open(os.path.join(args.log, 'config.json'), 'r') as cf:
-        config = json.read(cf)
-    cpu = aggregate_log(os.path.join(args.log, 'monitoring_cpu.json'))
-    gpu = aggregate_log(os.path.join(args.log, 'monitoring_gpu.json'))
+    print(json.dumps(aggregate_log(os.path.join(args.logs, 'monitoring_cpu.json')), indent=4))
+    print(json.dumps(aggregate_log(os.path.join(args.logs, 'monitoring_gpu.json')), indent=4))

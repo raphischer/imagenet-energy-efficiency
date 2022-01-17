@@ -18,6 +18,19 @@ QUICKNETS = {n: e for n, e in lqz.sota.__dict__.items() if callable(e)}
 MODELS = {**TF_MODELS, **QUICKNETS}
 
 
+class TimestampOnEpochEnd(tf.keras.callbacks.Callback):
+
+    def __init__(self, path):
+        super(TimestampOnEpochEnd, self).__init__()
+        self.path = path
+
+    def on_epoch_end(self, epoch, logs=None):
+        timestamp = (datetime.now() - datetime.utcfromtimestamp(0)).total_seconds() * 1000.0
+        if 'timestamp' not in self.model.history.history:
+            self.model.history.history['timestamp'] = []
+        self.model.history.history['timestamp'].append(timestamp)
+
+
 class PatchedJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.float32):
@@ -25,21 +38,9 @@ class PatchedJSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def set_gpu(gpu_id):
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    if len(gpus) > gpu_id:
-        tf.config.experimental.set_visible_devices(gpus[gpu_id], 'GPU')
-    # GPU usage might be limited by environment variable
-    if 'CUDA_VISIBLE_DEVICES' in os.environ:
-        limited_gpus = [int(g) for g in os.environ['CUDA_VISIBLE_DEVICES'].split(',')]
-        gpu_id = limited_gpus[gpu_id]
-    return gpu_id
-
-
 def fix_seed(seed):
     if seed == -1:
         seed = python_random.randint(0, 2**32 - 1)
-
     np.random.seed(seed)
     python_random.seed(seed)
     tf.random.set_seed(seed)
@@ -106,25 +107,6 @@ def prepare_lr_scheduling(lr_scheduler, lr_gamma, lr_step_size, init_lr):
             f"Invalid lr scheduler '{lr_scheduler}'. Only StepLR supported at the moment."
         )
 
-    # TODO also implement this!
-    # if args.lr_warmup_epochs > 0:
-    #     if args.lr_warmup_method == "linear":
-    #         warmup_lr_scheduler = torch.optim.lr_scheduler.LinearLR(
-    #             optimizer, start_factor=args.lr_warmup_decay, total_iters=args.lr_warmup_epochs
-    #         )
-    #     elif args.lr_warmup_method == "constant":
-    #         warmup_lr_scheduler = torch.optim.lr_scheduler.ConstantLR(
-    #             optimizer, factor=args.lr_warmup_decay, total_iters=args.lr_warmup_epochs
-    #         )
-    #     else:
-    #         raise RuntimeError(
-    #             f"Invalid warmup lr method '{args.lr_warmup_method}'. Only linear and constant are supported."
-    #         )
-    #     lr_scheduler = torch.optim.lr_scheduler.SequentialLR(
-    #         optimizer, schedulers=[warmup_lr_scheduler, main_lr_scheduler], milestones=[args.lr_warmup_epochs]
-    #     )
-    # else:
-    #     lr_scheduler = main_lr_scheduler
     return tf.keras.callbacks.LearningRateScheduler(main_lr_scheduler)
 
 
