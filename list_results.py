@@ -3,7 +3,7 @@ import argparse
 import json
 from datetime import datetime, timedelta
 
-from create_plots import create_plots
+from create_plots import create_plots, create_evaluation_plots
 from monitoring import aggregate_log
 
 
@@ -23,28 +23,21 @@ def read_metrics(filepath):
 
 
 def aggregate_results(directory):
-    # try:
+    try:
         with open(os.path.join(directory, 'config.json'), 'r') as cf:
             cfg = json.load(cf)
         cfg['gpu_monitoring'] = aggregate_log(os.path.join(directory, 'monitoring_gpu.json'))
         cfg['cpu_monitoring'] = aggregate_log(os.path.join(directory, 'monitoring_cpu.json'))
         if cfg['gpu_monitoring'] is None: # training not yet finished
             # TODO this does not read training, but logfile metrics!
-            cfg['train_metrics'] = {'accuracy': 'n.a.'}
-            cfg['duration'] = str(datetime.now() - datetime.strptime(cfg["timestamp"], "%Y_%m_%d_%H_%M_%S"))
+            cfg['results'] = {}
+            cfg['duration'] = (datetime.now() - datetime.strptime(cfg["timestamp"], "%Y_%m_%d_%H_%M_%S")).total_seconds()
         else:
-            cfg['train_metrics'] = read_metrics_from_train_log(os.path.join(directory, 'logfile.txt'))
-            cfg['duration'] = str(timedelta(seconds=list(cfg['gpu_monitoring'].values())[0]["duration"]))
-        cfg['eval_metrics'] = read_metrics(os.path.join(directory, 'results.json'))
-        # TODO move this to train (write designated results file)
-        from util import prepare_model
-        if os.path.basename(directory).startswith('train'):
-            model = prepare_model(cfg['model'], None, weights=directory)
-            cfg['model_params'] = model.count_params()
-            cfg['model_fsize'] = max([os.path.getsize(os.path.join(directory, f)) for f in os.listdir(directory) if f.startswith('check')])
+            cfg['results'] = read_metrics(os.path.join(directory, 'results.json'))
+            cfg['duration'] = cfg['results']['end'] - cfg['results']['start']
         return cfg
-    # except Exception:
-    #     return None
+    except Exception:
+        return None
 
 
 def aggregate_all_results(directory, train_directories, after=None):
@@ -63,17 +56,23 @@ def aggregate_all_results(directory, train_directories, after=None):
             if dir.startswith('train'):
                 train[dir] = res
             elif dir.startswith('eval'):
-                train_dir = os.path.basename(res["model_dir"])
-                if train_dir not in evals:
+                if res["eval_model"][-1] == '/':
+                    eval_model = os.path.basename(os.path.dirname(res["eval_model"]))
+                else:
+                    eval_model = os.path.basename(res["eval_model"])
+                train_dir = os.path.join(train_directories, eval_model)
+                if eval_model not in evals:
+                    evals[eval_model] = {}
+                if os.path.isdir(train_dir):
                     # load the training results from the stored model path
-                    train_res = os.path.join(train_directories, train_dir)
-                    evals[train_dir] = {'training': aggregate_results(train_res)}
-                assert res["split"] not in evals[train_dir], f'Error! Already aggregated {res["split"]} results for {train_dir}'
-                evals[train_dir][res["split"]] = res
+                    evals[eval_model]['training'] = aggregate_results(train_dir)
+                assert res["split"] not in evals[eval_model], f'Error! Already aggregated {res["split"]} results for {eval_model}'
+                evals[eval_model][res["split"]] = res
     return train, evals    
     
 
 def list_results(directory, train_directories, after=None, plots=''):
+    train, evals = {}, {}
     if os.path.isfile('results_train.json'):
         with open('results_train.json', 'r') as res:
             train = json.load(res)
@@ -90,45 +89,53 @@ def list_results(directory, train_directories, after=None, plots=''):
                 json.dump(evals, res, indent=4)
     # create plots
     if len(plots) > 0:
-        if not os.path.isdir(plots):
-            os.makedirs(plots)
-        create_plots(evals, plots)
-    print('\n\nTRAINING\n\n          Directory       -               Model Info                -       Configuration       -     Duration    -  Accuracy  - Power Draw')
+        train_plots = os.path.join(plots, 'train')
+        eval_plots = os.path.join(plots, 'eval')
+        if not os.path.isdir(train_plots):
+            os.makedirs(train_plots)
+            os.makedirs(eval_plots)            
+        create_evaluation_plots(evals, eval_plots)
+    print('\n\nTRAINING\n\n          Directory       -               Model Info                -        Configuration       -     Duration    -   Acc  - Power Draw')
     # parse only training directories
     for dir, res in train.items():
-        prep = 'simple' if res['use_simple'] else 'complex'
         # print different output depending on accessing train or eval directory
         gpu_draw = 'n.a.'
-        if res['gpu_monitoring'] is not None:
+        if len(res["results"]) > 0:
             gpu_id, gpu_res = list(res["gpu_monitoring"].items())[0]
-            gpu_draw = f'GPU {gpu_id} {gpu_res["total_power_draw"] / 3600000:3.1f} kWh'
-        model_info = f'{res["model"]:<16} {res["model_fsize"] * 1e-6:5.1f} MB {res["model_params"] * 1e-6:5.1f}M params'
-        cfg = f'{res["epochs"]:<3} epochs, {prep:<7} prepr'
-        acc = f'acc {res["train_metrics"]["accuracy"]:<6}'
-        print(f'{dir} - {model_info} - {cfg} - {res["duration"][:-10]:>14}h - {acc} - {gpu_draw}')
+            gpu_draw = f'GPU {gpu_id} {gpu_res["total_power_draw"] / 3600000:4.1f} kWh'
+            model_info = f'{res["model"]:<16} {res["results"]["model"]["fsize"] * 1e-6:5.1f} MB {res["results"]["model"]["params"] * 1e-6:5.1f}M params'
+            acc = f'{res["results"]["history"]["accuracy"][-1]*100:5.1f}%'
+        else:
+            gpu_draw, acc = ' n.a. ', '  n.a.'
+            model_info = f'{res["model"]:<16} n.a.     n.a.'
+        cfg = f'{res["epochs"]:<3} epochs, {res["preprocessing"]:<8} prepr'
+        duration = str(timedelta(seconds=res["duration"]))[:-10]
+        print(f'{dir} - {model_info:<39} - {cfg} - {duration:>14}h - {acc} - {gpu_draw}')
     
     # parse evaluation directories
-    print('\n\nEVALUATION\n\n          Directory       -    Model Info    -       Configuration       -            Training Info            -   Evaluation Train Data  - Evaluation Validation Data')
+    print('\n\nEVALUATION\n\n          Directory       -    Model Info    -       Configuration       -         Training Info          -   Evaluation Train Data  - Evaluation Validation Data')
     for dir, values in evals.items():
-        substrings = [dir]
-        # access training results
-        res = values['training']
-        substrings.append(f'{res["model"]:<16}')
-        substrings.append(f'{res["epochs"]:<3} epochs, {"simple" if res["use_simple"] else "complex":<7} prepr') # preprocessing args
-        acc = f'{res["train_metrics"]["accuracy"]*100:<5.1f}% acc'
-        gpu_draw = f'{list(res["gpu_monitoring"].values())[0]["total_power_draw"] / 3600000:3.1f} kWh'
-        substrings.append(f'{res["duration"][:-10]:>14}h {acc} {gpu_draw}')
+        substrings = [f'{dir:<24}']
+        if 'training' not in values:
+            substrings.append('pretrained')
+        else:
+            substrings.append(f'{values["train"]["model"]:<16}')
+            res = values['training']
+            substrings.append(f'{res["epochs"]:<3} epochs, {res["preprocessing"]:<7} prepr')
+            duration = str(timedelta(seconds=res["duration"]))[:-10]
+            acc = f'{res["results"]["history"]["accuracy"][-1]*100:5.1f}%'
+            gpu_draw = f'{res["gpu_monitoring"]["total"]["total_power_draw"] / 3600000:4.1f} kWh'
+            substrings.append(f'{duration:>13}h {acc} {gpu_draw}')
         # access evaluation results
         for split in ['train', 'validation']:
             res = values[split]
             if res['gpu_monitoring'] is not None:
-                gpu_id, gpu_res = list(res["gpu_monitoring"].items())[0]
-                gpu_draw = f'{gpu_res["total_power_draw"] / 3600:3.1f} Wh'
-            if res["eval_metrics"] is not None:
-                acc = f'{res["eval_metrics"]["accuracy"]*100:<4.1f}% acc'
+                gpu_draw = f'{res["gpu_monitoring"]["total"]["total_power_draw"] / 3600:5.1f} Wh'
+            if res["results"]["metrics"] is not None:
+                acc = f'{res["results"]["metrics"]["accuracy"]*100:<4.1f}% acc'
             else:
                 acc = f'{"n.a."} acc'
-            substrings.append(f'{res["duration"][2:-7]}m {acc} {gpu_draw}')
+            substrings.append(f'{str(timedelta(seconds=res["duration"]))[2:-7]}m {acc} {gpu_draw}')
         print(" - ".join(substrings))
 
 
