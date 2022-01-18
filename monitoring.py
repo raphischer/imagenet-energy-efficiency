@@ -42,8 +42,16 @@ def aggregate_log(fpath):
                 results[gpu_id]['total_power_draw'] = results[gpu_id]['duration'] * results[gpu_id]['power_usage']['mean']
             else:
                 results[gpu_id]['total_power_draw'] = -1
-    # if len(list(results.values())) == 1: # only results with one gpu
-    #     return list(results.values())[0]
+    # aggregate over all GPUs
+    results['total'] = {
+        'start_unix': min([val['start_unix'] for val in results.values()]),
+        'end_unix': max([val['end_unix'] for val in results.values()]),
+        'nr_measurements': sum([val['nr_measurements'] for val in results.values()]),
+        'total_power_draw': sum([val['total_power_draw'] for val in results.values()]),
+    }
+    results['start_utc'] = datetime.utcfromtimestamp(results['total']['start_unix']).strftime('%Y-%m-%d %H:%M:%S')
+    results['end_utc'] = datetime.utcfromtimestamp(results['total']['end_unix']).strftime('%Y-%m-%d %H:%M:%S')
+    results['duration'] = results['total']['end_unix'] - results['total']['start_unix']
     return results
 
 
