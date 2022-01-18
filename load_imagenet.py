@@ -6,6 +6,12 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 
 
+NUM_SAMPLES = {
+    'train': 1281167,
+    'validation': 50000
+}
+
+
 def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_size=1, n_batches=-1, variant='imagenet2012'):
     assert(variant in ['imagenet2012_subset', 'imagenet2012'])
     assert(split in ['train', 'validation'])
@@ -44,6 +50,8 @@ def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_siz
     if not batch_size is None:
         n_gpus = max(len(tf.config.list_physical_devices('GPU')), 1) # if no GPU is available, use given batch size
         ds = ds.batch(batch_size * n_gpus)
+        if n_batches <= 0:
+            info.steps_per_epoch = math.ceil(info.splits[split].num_examples / (batch_size * n_gpus))
     if n_batches > 0:
         info.steps_per_epoch 
         ds = ds.take(n_batches)
