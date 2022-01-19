@@ -2,6 +2,8 @@ import inspect
 import numpy as np
 import tensorflow as tf
 
+from larq_zoo import preprocess_input
+
 from autoaugment import ImageNetPolicy
 
 
@@ -10,6 +12,9 @@ BUILTIN_PREPR['resnet101'] = BUILTIN_PREPR['resnet']
 BUILTIN_PREPR['resnet152'] = BUILTIN_PREPR['resnet']
 BUILTIN_PREPR['mobilenetv3small'] = BUILTIN_PREPR['mobilenetv3']
 BUILTIN_PREPR['mobilenetv3large'] = BUILTIN_PREPR['mobilenetv3']
+BUILTIN_PREPR['quicknet'] = preprocess_input
+BUILTIN_PREPR['quicknetsmall'] = preprocess_input
+BUILTIN_PREPR['quicknetlarge'] = preprocess_input
 
 
 def load_preprocessing(preprocessing, model, args):

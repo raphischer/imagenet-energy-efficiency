@@ -23,15 +23,12 @@ def evaluate_single(args):
             cfg = json.load(m_cfg)
             # override fields with given args
             cfg.update(args.__dict__)
-
-        cfg['output_dir'] = create_output_dir(os.path.join(args.output_dir, 'eval'), args.use_timestamp_dir, cfg)
         args = namedtuple('CFG', cfg)(**cfg)
 
     else: # prepare to load pretrained weights
         args.model = args.eval_model
-        if args.model == 'QuickNet':
-            raise NotImplementedError() # TODO this needs to be implemented
-        args.output_dir = create_output_dir(os.path.join(args.output_dir, 'eval'), args.use_timestamp_dir, args.__dict__)
+
+    args.output_dir = create_output_dir(os.path.join(args.output_dir, 'eval'), args.use_timestamp_dir, args.__dict__)
 
     # reroute the stdout to logfile, remember to call close!
     tmp = sys.stdout
@@ -52,7 +49,7 @@ def evaluate_single(args):
             model, _ = prepare_model(args.model, None, weights='pretrained')
         else:
             # TODO check if using default (optimizer = None) makes a difference!
-            # currently, this load the optimizer from the training directory
+            # currently, this loads the optimizer from the training directory
             optimizer = prepare_optimizer(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
             model, _ = prepare_model(args.model, optimizer, weights=args.eval_model)
 
