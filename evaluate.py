@@ -1,5 +1,4 @@
 import argparse
-from collections import namedtuple
 from datetime import timedelta
 import json
 import os
@@ -23,7 +22,8 @@ def evaluate_single(args):
             cfg = json.load(m_cfg)
             # override fields with given args
             cfg.update(args.__dict__)
-        args = namedtuple('CFG', cfg)(**cfg)
+        for key, val in cfg.items():
+            setattr(args, key, val)
 
     else: # prepare to load pretrained weights
         args.model = args.eval_model
@@ -96,8 +96,8 @@ def get_args_parser(add_help=True):
     # output
     parser.add_argument("--use-timestamp-dir", default=True, action="store_true", help="Creates timestamp directory in data path")
     parser.add_argument("--output-dir", default="/raid/fischer/eval", type=str, help="path to save outputs")
-    parser.add_argument("--gpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates GPU profiling every X seconds")
-    parser.add_argument("--cpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates CPU profiling every X seconds")
+    parser.add_argument("--gpu-monitor-interval", default=.2, type=float, help="Setting to > 0 activates GPU profiling every X seconds")
+    parser.add_argument("--cpu-monitor-interval", default=.2, type=float, help="Setting to > 0 activates CPU profiling every X seconds")
 
     # randomization and hardware
     parser.add_argument("--seed", type=int, default=-1, help="Seed to use (if -1, uses and logs random seed)")
