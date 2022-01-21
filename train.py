@@ -7,9 +7,9 @@ import sys
 import tensorflow as tf
 
 from load_imagenet import load_imagenet
-from load_preprocessing import load_preprocessing
+from load_models import prepare_model, prepare_optimizer, prepare_lr_scheduling, load_preprocessing
 from monitoring import start_monitoring
-from util import fix_seed, create_output_dir, Logger, prepare_model, prepare_optimizer, prepare_lr_scheduling, PatchedJSONEncoder, TimestampOnEpochEnd
+from util import fix_seed, create_output_dir, Logger, PatchedJSONEncoder, TimestampOnEpochEnd
 
 
 def main(args):
@@ -25,8 +25,9 @@ def main(args):
     print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
     with strategy.scope():
         preproc_f = load_preprocessing(args.preprocessing, args.model, args)
-        dataset, ds_info = load_imagenet(args.data_path, None, 'train', preproc_f, args.batch_size, args.n_batches)
-        optimizer = prepare_optimizer(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
+        ds_train, ds_train_info = load_imagenet(args.data_path, None, 'train', preproc_f, args.batch_size, args.n_batches)
+        ds_valid, _ = load_imagenet(args.data_path, None, 'validation', preproc_f, args.batch_size, args.n_batches)
+        optimizer = prepare_optimizer(args.model, args.opt.lower(), args.opt_decy, args.lr, args.momentum, args.weight_decay, ds_train_info, args.epochs)
 
         if args.resume:
             model, mfile = prepare_model(args.model, optimizer, weights=args.resume)
@@ -39,20 +40,25 @@ def main(args):
     callbacks = [TimestampOnEpochEnd(os.path.join(args.output_dir, "epoch_timestamps.csv"))]
     for i in [10, 5, 2, 1]:
         if args.epochs % i == 0:
-            save_freq = ds_info.steps_per_epoch * i # checkpoints every i epochs
+            save_freq = ds_train_info.steps_per_epoch * i # checkpoints every i epochs
             break
     callbacks.append([tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(args.output_dir, 'checkpoint_{epoch:03d}.hdf5'), save_weights_only=True, save_freq=save_freq)])
-    lr_callback = prepare_lr_scheduling(args.lr_scheduler, args.lr_gamma, args.lr_step_size, args.lr)
+    lr_callback = prepare_lr_scheduling(args.model, args.lr_scheduler, args.lr_gamma, args.lr_step_size, args.lr)
     if lr_callback is not None:
         callbacks.append(lr_callback)
+    if args.early_delta > 0:
+        print(f'Will early stop after {args.early_patience} epochs with less than {args.early_delta} validation accuracy improvement!')
+        callbacks.append(tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', min_delta=args.early_delta, patience=args.early_patience, restore_best_weights=True))
 
     # start monitoring and train
     monitoring = start_monitoring(args.gpu_monitor_interval, args.cpu_monitor_interval, args.output_dir)
     start_time = time.time()
-    res = model.fit(dataset, epochs=args.epochs, callbacks=callbacks, initial_epoch=initial_epoch)
+    res = model.fit(ds_train, epochs=args.epochs, callbacks=callbacks, initial_epoch=initial_epoch, validation_data=ds_valid)
     end_time = time.time()
     for monitor in monitoring:
         monitor.stop()
+    final_epoch = len(res.history['loss'])
+    res.model.save_weights(os.path.join(args.output_dir, f'checkpoint_{final_epoch:03d}_final.hdf5'))
 
     # write results
     results = {
@@ -61,7 +67,7 @@ def main(args):
         'end': end_time,
         'model': {
             'params': res.model.count_params(),
-            'fsize': os.path.getsize(os.path.join(args.output_dir, f'checkpoint_{args.epochs:03d}.hdf5'))
+            'fsize': os.path.getsize(os.path.join(args.output_dir, f'checkpoint_{final_epoch:03d}.hdf5'))
         }
     }
     with open(os.path.join(args.output_dir, 'results.json'), 'w') as rf:
@@ -92,8 +98,11 @@ def get_args_parser(add_help=True):
     parser.add_argument("--cpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates CPU profiling every X seconds")
 
     # training parameters
-    parser.add_argument("--epochs", default=90, type=int, metavar="N", help="number of total epochs to run")
+    parser.add_argument("--epochs", default=1000, type=int, metavar="N", help="number of total epochs to run")
+    parser.add_argument("--early-patience", default=10, type=int, help="early stopping patience")
+    parser.add_argument("--early-delta", default=0.01, type=float, help="early stopping min delta")
     parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
+    parser.add_argument("--opt-decy", default=0.9, type=str, help="discounting factor rho for rmsprop")
     parser.add_argument("--lr", default=0.1, type=float, help="initial learning rate")
     parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
     parser.add_argument("--wd", "--weight-decay", default=1e-4, type=float, metavar="W", help="weight decay (default: 1e-4)", dest="weight_decay")

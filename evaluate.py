@@ -8,8 +8,8 @@ import sys
 import tensorflow as tf
 
 from load_imagenet import load_imagenet
-from load_preprocessing import load_preprocessing
-from util import fix_seed, create_output_dir, Logger, prepare_model, prepare_optimizer, PatchedJSONEncoder
+from load_models import prepare_model, load_preprocessing, prepare_optimizer
+from util import fix_seed, create_output_dir, Logger, PatchedJSONEncoder
 from monitoring import start_monitoring
 
 
@@ -50,7 +50,9 @@ def evaluate_single(args):
         else:
             # TODO check if using default (optimizer = None) makes a difference!
             # currently, this loads the optimizer from the training directory
-            optimizer = prepare_optimizer(args.model, args.opt.lower(), args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
+            if not hasattr(args, 'opt_decy'): # TODO remove, this is only necessary for older experiments
+                setattr(args, 'opt_decy', 0.9)
+            optimizer = prepare_optimizer(args.model, args.opt.lower(), args.opt_decy, args.lr, args.momentum, args.weight_decay, ds_info, args.epochs)
             model, _ = prepare_model(args.model, optimizer, weights=args.eval_model)
 
     # run monitoring and evaluation

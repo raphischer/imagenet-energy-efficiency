@@ -17,7 +17,11 @@ def create_subcommand(args):
 
 
 if __name__ == "__main__":
-    args = get_args_parser().parse_args()
+    parser = get_args_parser()
+    parser.add_argument("--timeout", default=3600, type=int, help="timeout for each evaluate subcall")
+    args = parser.parse_args()
+    timeout = args.timeout
+    delattr(args, 'timeout')
     if os.path.isdir(args.eval_model):
         # run evaluation for every subdir
         root_dir = args.eval_model
@@ -26,7 +30,11 @@ if __name__ == "__main__":
                 args_copy = deepcopy(args)
                 args_copy.eval_model = os.path.join(root_dir, subdir)
                 run_args = create_subcommand(args_copy)
-                subprocess.run(run_args)
+                try:
+                    subprocess.run(run_args, timeout=timeout)
+                except Exception as e:
+                    print(e)
+
     else:
         # comma-separated list of models given, run eval on pretrained versions
         models = args.eval_model.split(',')
@@ -34,4 +42,7 @@ if __name__ == "__main__":
             args_copy = deepcopy(args)
             args_copy.eval_model = model
             run_args = create_subcommand(args_copy)
-            subprocess.run(run_args)
+            try:
+                subprocess.run(run_args, timeout=timeout) # TODO might need to increase this later
+            except Exception as e:
+                print(e)
