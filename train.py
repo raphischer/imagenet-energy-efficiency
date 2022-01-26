@@ -67,7 +67,7 @@ def main(args):
         'end': end_time,
         'model': {
             'params': res.model.count_params(),
-            'fsize': os.path.getsize(os.path.join(args.output_dir, f'checkpoint_{final_epoch:03d}.hdf5'))
+            'fsize': os.path.getsize(os.path.join(args.output_dir, f'checkpoint_{final_epoch:03d}_final.hdf5'))
         }
     }
     with open(os.path.join(args.output_dir, 'results.json'), 'w') as rf:
@@ -99,7 +99,7 @@ def get_args_parser(add_help=True):
 
     # training parameters
     parser.add_argument("--epochs", default=1000, type=int, metavar="N", help="number of total epochs to run")
-    parser.add_argument("--early-patience", default=10, type=int, help="early stopping patience")
+    parser.add_argument("--early-patience", default=50, type=int, help="early stopping patience")
     parser.add_argument("--early-delta", default=0.01, type=float, help="early stopping min delta")
     parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
     parser.add_argument("--opt-decy", default=0.9, type=str, help="discounting factor rho for rmsprop")

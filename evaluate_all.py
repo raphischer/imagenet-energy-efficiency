@@ -18,7 +18,7 @@ def create_subcommand(args):
 
 if __name__ == "__main__":
     parser = get_args_parser()
-    parser.add_argument("--timeout", default=3600, type=int, help="timeout for each evaluate subcall")
+    parser.add_argument("--timeout", default=14400, type=int, help="timeout for each evaluate subcall")
     args = parser.parse_args()
     timeout = args.timeout
     delattr(args, 'timeout')
