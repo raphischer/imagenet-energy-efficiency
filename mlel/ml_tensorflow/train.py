@@ -30,13 +30,7 @@ def init_training(args):
         ds_train, ds_train_info = load_imagenet(args.data_path, None, 'train', preproc_f, args.batch_size, args.n_batches)
         ds_valid, _ = load_imagenet(args.data_path, None, 'validation', preproc_f, args.batch_size, args.n_batches)
         optimizer = prepare_optimizer(args.model, args.opt.lower(), args.opt_decy, args.lr, args.momentum, args.weight_decay, ds_train_info, args.epochs)
-
-        if args.resume:
-            model, mfile = prepare_model(args.model, optimizer, weights=args.resume)
-            initial_epoch = int(mfile[11:14])
-        else:
-            model, _ = prepare_model(args.model, optimizer)
-            initial_epoch = 0
+        model, _ = prepare_model(args.model, optimizer)
 
     # create callbacks
     callbacks = [TimestampOnEpochEnd(os.path.join(args.output_dir, "epoch_timestamps.csv"))]
@@ -53,7 +47,7 @@ def init_training(args):
         callbacks.append(tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', min_delta=args.early_delta, patience=args.early_patience, restore_best_weights=True))
 
 
-    return lambda: model.fit(ds_train, epochs=args.epochs, callbacks=callbacks, initial_epoch=initial_epoch, validation_data=ds_valid)
+    return lambda: model.fit(ds_train, epochs=args.epochs, callbacks=callbacks, validation_data=ds_valid)
 
 
 def finalize_training(train_res, results, args):

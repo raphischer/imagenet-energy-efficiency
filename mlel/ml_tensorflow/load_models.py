@@ -134,7 +134,8 @@ def load_preprocessing(preprocessing, model, args):
     if preprocessing == 'builtin':
         preproc_f = load_simple_prepr(model)
     elif preprocessing == 'custom':
-        preproc_f = lambda img, lab: preprocessing_preset(img, lab, args.crop_size, args.interpolation, args.auto_augment, args.random_erase)
+        crop_size = MODEL_CUSTOM_INPUT.get(model, (224, 224))[0]
+        preproc_f = lambda img, lab: preprocessing_preset(img, lab, crop_size, args.interpolation, args.auto_augment, args.random_erase)
     else:
         try:
             preproc_f = load_simple_prepr(preprocessing)

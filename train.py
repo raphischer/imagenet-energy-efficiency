@@ -55,7 +55,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--model", default="ResNet50", type=str, help="model name")
     parser.add_argument("--data-path", default="/raid/imagenet", type=str, help="dataset path")
     parser.add_argument("--n-batches", default=-1, type=int, help="number of batches to take")
-    parser.add_argument("-b", "--batch-size", default=32, type=int, help="images per gpu, the total batch will be $NGPU x batch_size")
+    parser.add_argument("--batch-size", default=32, type=int, help="images per gpu, the total batch will be $NGPU x batch_size")
 
     # output & experiment settings
     parser.add_argument("--output-dir", default="/raid/fischer/dnns", type=str, help="path to save outputs")
@@ -71,18 +71,16 @@ def get_args_parser(add_help=True):
     parser.add_argument("--opt-decy", default=0.9, type=str, help="discounting factor rho for rmsprop")
     parser.add_argument("--lr", default=0.1, type=float, help="initial learning rate")
     parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
-    parser.add_argument("--wd", "--weight-decay", default=1e-4, type=float, metavar="W", help="weight decay (default: 1e-4)", dest="weight_decay")
+    parser.add_argument("--weight-decay", default=1e-4, type=float, metavar="W", help="weight decay (default: 1e-4)", dest="weight_decay")
     parser.add_argument("--lr-scheduler", default="steplr", type=str, help="the lr scheduler (default: steplr)")
     parser.add_argument("--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs")
     parser.add_argument("--lr-gamma", default=0.1, type=float, help="decrease lr by a factor of lr-gamma")
-    parser.add_argument("--resume", default="", type=str, help="path of checkpoint")
 
-    # data preprocessing # TODO HOW TO HANDLE THIS BEST?!
+    # data preprocessing
     parser.add_argument("--preprocessing", default='builtin', type=str, help="pass 'builtin' for choosing builtin preprocessing according to model choice, or pass a specific model name, or 'custom' with using the parameters below")
     parser.add_argument("--auto-augment", default=None, type=str, help="auto augment policy (default: None)")
     parser.add_argument("--random-erase", default=0.0, type=float, help="random erasing probability (default: 0.0)")
     parser.add_argument("--interpolation", default="bilinear", type=str, help="the interpolation method (default: bilinear)")
-    parser.add_argument("--crop-size", default=224, type=int, help="the random crop size used for training (default: 224)")
 
     return parser
 

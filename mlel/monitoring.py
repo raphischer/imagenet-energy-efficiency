@@ -13,12 +13,12 @@ import numpy as np
 # TODO improve CPU logs, maybe using https://github.com/djselbeck/rapl-read-ryzen
 
 
-def start_monitoring(gpu_interval, cpu_interval, output_dir):
+def start_monitoring(gpu_interval, cpu_interval, output_dir, prefix=''):
     monitoring = []
     if gpu_interval > 0:
-        monitoring.append(DeviceMonitor('gpu', interval=gpu_interval, outfile=os.path.join(output_dir, 'monitoring_gpu.json')))
+        monitoring.append(DeviceMonitor('gpu', interval=gpu_interval, outfile=os.path.join(output_dir, f'{prefix}monitoring_gpu.json')))
     if cpu_interval > 0:
-        monitoring.append(DeviceMonitor('cpu', interval=cpu_interval, outfile=os.path.join(output_dir, 'monitoring_cpu.json')))
+        monitoring.append(DeviceMonitor('cpu', interval=cpu_interval, outfile=os.path.join(output_dir, f'{prefix}monitoring_cpu.json')))
     return monitoring
 
 
