@@ -53,8 +53,7 @@ def init_training(args):
 def finalize_training(train_res, results, args):
     final_epoch = len(train_res.history['loss'])
     train_res.model.save_weights(os.path.join(args.output_dir, f'checkpoint_{final_epoch:03d}_final.hdf5'))
-
-    history = {key.replace('categorical_', '').replace('top_k', 'top_5') : val for key, val in train_res.history.items()}
+    history = {key.replace('sparse_', '').replace('categorical_', '').replace('top_k', 'top_5') : val for key, val in train_res.history.items()}
     results.update({
         'history': history,
         'model': {

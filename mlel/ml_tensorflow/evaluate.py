@@ -39,4 +39,4 @@ def init_evaluation(args, split):
     
 
 def finalize_evaluation(results):
-    return {key.replace('categorical_', '').replace('top_k', 'top_5') : val for key, val in results.items()}
+    return {key.replace('sparse_', '').replace('categorical_', '').replace('top_k', 'top_5') : val for key, val in results.items()}

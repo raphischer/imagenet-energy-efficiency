@@ -102,7 +102,7 @@ def prepare_lr_scheduling(model_name, lr_scheduler, lr_gamma, lr_step_size, init
     return tf.keras.callbacks.LearningRateScheduler(main_lr_scheduler)
 
 
-def prepare_model(model_name, optimizer, metrics=['categorical_accuracy', 'top_k_categorical_accuracy'], weights=None):
+def prepare_model(model_name, optimizer, metrics=['sparse_categorical_accuracy', 'sparse_top_k_categorical_accuracy'], weights=None):
     mfile = None
     try:
         model = MODELS[model_name]
