@@ -1,14 +1,13 @@
 import inspect
 import math
 import os
-from collections import defaultdict
 
 import numpy as np
 import tensorflow as tf
 import larq as lq
 import larq_zoo as lqz
 from larq_zoo.training.learning_schedules import CosineDecayWithWarmup
-from autoaugment import ImageNetPolicy
+from mlel.ml_tensorflow.autoaugment import ImageNetPolicy
 
 KERAS_BUILTINS = [e for e in tf.keras.applications.__dict__.values() if inspect.ismodule(e) and hasattr(e, 'preprocess_input')]
 KERAS_MODELS = {n: e for mod in KERAS_BUILTINS for n, e in mod.__dict__.items() if callable(e) and n[0].isupper()}
@@ -103,7 +102,7 @@ def prepare_lr_scheduling(model_name, lr_scheduler, lr_gamma, lr_step_size, init
     return tf.keras.callbacks.LearningRateScheduler(main_lr_scheduler)
 
 
-def prepare_model(model_name, optimizer, metrics=['accuracy', 'sparse_categorical_accuracy', 'sparse_top_k_categorical_accuracy'], weights=None):
+def prepare_model(model_name, optimizer, metrics=['categorical_accuracy', 'top_k_categorical_accuracy'], weights=None):
     mfile = None
     try:
         model = MODELS[model_name]

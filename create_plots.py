@@ -43,15 +43,22 @@ def grouped_barplot(ax, ys, x_positions=None, padding=0.1, colors=None, labels=N
                 ax.bar(x=_x, height=_y, width=width, color=colors[i])
 
 
-def create_plots(results, directory):
+def create_train_plots(results, directory):
     import matplotlib.pyplot as plt
 
-    results = {key: res for key, res in results.items() if 'training' in res and 'train' in res and 'validation' in res}
-
-    training_results = {val['training']['model']: val['training'] for val in results.values()}
-    eval_train_results = {val['train']['model']: val['train'] for val in results.values()}
-    eval_valid_results = {val['validation']['model']: val['validation'] for val in results.values()}
-
+    for dir, res in results.items():
+        history = res['results']['history']
+        train_acc = history['accuracy']
+        valid_acc = history['val_accuracy']
+        epochs = list(range(len(train_acc)))
+        plt.clf()
+        plt.plot(epochs, train_acc, label='Training')
+        plt.plot(epochs, valid_acc, label='Validation')
+        plt.xlabel('Epoch')
+        plt.ylabel('Accuracy [%]')
+        plt.legend()
+        plt.savefig(os.path.join(directory, f'conv_{dir}.png'), bbox_inches="tight")
+    
     names = list(training_results.keys())
 
     fsizes = [val['results']['model']['fsize'] * 1e-6 for val in training_results.values()]

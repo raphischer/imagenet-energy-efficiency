@@ -3,8 +3,7 @@ import argparse
 import json
 from datetime import datetime, timedelta
 
-from create_plots import create_train_plots, create_evaluation_plots
-from monitoring import aggregate_log
+from mlel.monitoring import aggregate_log
 
 
 def read_metrics(filepath):
@@ -114,13 +113,11 @@ def main(directory, train_directories, output=''):
         if len(output) > 0:
             with open(os.path.join(output, 'results_train.json'), 'w') as rf:
                 json.dump(train, rf, indent=4)
-            create_train_plots(train, output)
         print_train_results(train)
     if len(evals) > 0:
         if len(output) > 0:
             with open(os.path.join(output, 'results_eval.json'), 'w') as rf:
                 json.dump(evals, rf, indent=4)
-            create_evaluation_plots(evals, output)
         print_eval_results(evals)
 
 
@@ -129,7 +126,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--directory", default="/raid/fischer/eval", type=str, help="directory with experiments")
-    parser.add_argument("--train-dirs", default="/raid/fischer/dnns", type=str, help="directory with training experiments, only used for eval results")
+    parser.add_argument("--train-dirs", default="/raid/fischer/dnns", type=str, help="directory with original training experiments, only used for eval results")
     parser.add_argument("--output", default="", type=str, help="form of output, either directory for generating plots, or empty string for command line")
 
     args = parser.parse_args()

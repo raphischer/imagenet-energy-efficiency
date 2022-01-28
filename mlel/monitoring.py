@@ -141,12 +141,6 @@ class DeviceMonitor:
     def stop(self):
         self.stopper.set() # stops loop in profiling processing
         self.p.join()
-        # ts = (datetime.now() - datetime.utcfromtimestamp(0)).total_seconds()
-        # print(datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S'))
-        with open(self.outfile, 'r') as tmp:
-            out = json.load(tmp)
-
-        return out
 
 
 if __name__ == "__main__":
