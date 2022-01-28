@@ -110,6 +110,9 @@ def load_data(traindir, valdir, args):
 
 def init_evaluation(args, split):
     torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        setattr(args, "batch_size", args.batch_size * torch.cuda.device_count())
+
     custom_trained = os.path.isdir(args.eval_model)
 
     torch.backends.cudnn.benchmark = False

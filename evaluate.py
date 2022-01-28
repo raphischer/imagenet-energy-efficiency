@@ -12,6 +12,8 @@ from mlel.monitoring import start_monitoring
 
 def evaluate_single(args):
     args.seed = fix_seed(args.seed)
+    if os.path.basename(args.eval_model) == '': # reformat paths ending with / behind the directory
+        setattr(args, 'eval_model', os.path.dirname(args.eval_model))
     custom_trained = os.path.isdir(args.eval_model)
 
     if custom_trained: # load cfg from training directory

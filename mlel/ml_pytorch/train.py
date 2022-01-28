@@ -188,6 +188,8 @@ def finalize_training(train_res, results, args):
 
 def init_training(args):
     torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        setattr(args, "batch_size", args.batch_size * torch.cuda.device_count())
 
     # Set missing args, depending on model name
     args.interpolation = "bilinear"
