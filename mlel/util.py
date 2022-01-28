@@ -3,6 +3,7 @@ import json
 import os
 import random as python_random
 import sys
+import pkg_resources
 
 import numpy as np
 
@@ -33,6 +34,11 @@ def create_output_dir(dir, config=None):
         with open(os.path.join(dir, 'config.json'), 'w') as cfg:
             config['timestamp'] = timestamp
             json.dump(config, cfg, indent=4)
+    # write installed packages
+    with open(os.path.join(dir, 'requirements.txt'), 'w') as req:
+        req.write(f'# {"".join(sys.version.split("\n"))}\n')
+        for pkg in pkg_resources.working_set:
+            req.write(f'{pkg.key}=={pkg.version}\n')
     return dir
 
 
