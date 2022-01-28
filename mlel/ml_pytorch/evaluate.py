@@ -188,6 +188,7 @@ def init_evaluation(args, split):
         model = torchvision.models.__dict__[model_name_mapping[args.model]](pretrained=True, num_classes=num_classes)
 
     torch.save(model.state_dict(), os.path.join(args.output_dir, f"eval_weights.pth"))
+    model = nn.DataParallel(model)
     model.to(device)
 
     model_info = {

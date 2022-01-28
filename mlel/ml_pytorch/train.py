@@ -255,6 +255,7 @@ def init_training(args):
 
     # Create model and training parameters
     model = torchvision.models.__dict__[model_name_mapping[args.model]](pretrained=False, num_classes=num_classes)
+    model = nn.DataParallel(model)
     model.to(device)
 
     criterion = nn.CrossEntropyLoss(label_smoothing=0.0)
