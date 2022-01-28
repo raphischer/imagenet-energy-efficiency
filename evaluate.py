@@ -6,8 +6,6 @@ import os
 import time
 import sys
 
-import tensorflow as tf
-
 from mlel.util import fix_seed, create_output_dir, Logger, PatchedJSONEncoder
 from mlel.monitoring import start_monitoring
 
