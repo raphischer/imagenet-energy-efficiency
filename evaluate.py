@@ -76,13 +76,12 @@ def get_args_parser(add_help=True):
     # data and model input
     parser.add_argument("--eval-model", default="/raid/fischer/dnns", type=str, help="path to training directory, or name of pretrained model")
     parser.add_argument("--backend", default="tensorflow", type=str, choices=["tensorflow", "pytorch"], help="machine learning software to use")
-    parser.add_argument("--data-path", default="/raid/imagenet", type=str, help="dataset path")
+    parser.add_argument("--data-path", default="/raid/imagenet_tensorflow", type=str, help="dataset path")
     parser.add_argument("--n-batches", default=-1, type=int, help="number of batches to take")
     parser.add_argument("--batch-size", default=32, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
     parser.add_argument("--eval-preprocessing", default='builtin', type=str, help="pass 'builtin' for choosing tf builtin preprocessing according to model choice, or pass a specific model name, or 'like-train' to preprocess like in training")
 
     # output
-    parser.add_argument("--use-timestamp-dir", default=True, action="store_true", help="Creates timestamp directory in data path")
     parser.add_argument("--output-dir", default="/raid/fischer/eval", type=str, help="path to save outputs")
     parser.add_argument("--gpu-monitor-interval", default=.2, type=float, help="Setting to > 0 activates GPU profiling every X seconds")
     parser.add_argument("--cpu-monitor-interval", default=.2, type=float, help="Setting to > 0 activates CPU profiling every X seconds")

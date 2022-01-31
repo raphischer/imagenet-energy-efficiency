@@ -53,7 +53,7 @@ def get_args_parser(add_help=True):
     # model and data input
     parser.add_argument("--backend", default="tensorflow", type=str, choices=["tensorflow", "pytorch"], help="machine learning software to use")
     parser.add_argument("--model", default="ResNet50", type=str, help="model name")
-    parser.add_argument("--data-path", default="/raid/imagenet", type=str, help="dataset path")
+    parser.add_argument("--data-path", default="/raid/imagenet_tensorflow", type=str, help="dataset path")
     parser.add_argument("--n-batches", default=-1, type=int, help="number of batches to take")
     parser.add_argument("--batch-size", default=32, type=int, help="images per gpu, the total batch will be $NGPU x batch_size")
 
@@ -73,7 +73,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
     parser.add_argument("--weight-decay", default=1e-4, type=float, metavar="W", help="weight decay (default: 1e-4)", dest="weight_decay")
     parser.add_argument("--lr-scheduler", default="steplr", type=str, help="the lr scheduler (default: steplr)")
-    parser.add_argument("--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs")
+    parser.add_argument("--lr-step-size", default=30, type=float, help="decrease lr every step-size epochs")
     parser.add_argument("--lr-gamma", default=0.1, type=float, help="decrease lr by a factor of lr-gamma")
 
     # data preprocessing
