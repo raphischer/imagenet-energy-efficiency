@@ -19,6 +19,7 @@ def start_monitoring(gpu_interval, cpu_interval, output_dir, prefix=''):
         monitoring.append(DeviceMonitor('gpu', interval=gpu_interval, outfile=os.path.join(output_dir, f'{prefix}monitoring_gpu.json')))
     if cpu_interval > 0:
         monitoring.append(DeviceMonitor('cpu', interval=cpu_interval, outfile=os.path.join(output_dir, f'{prefix}monitoring_cpu.json')))
+        monitoring.append(DeviceMonitor('rapl', interval=cpu_interval, outfile=os.path.join(output_dir, f'{prefix}monitoring_rapl.json')))
     return monitoring
 
 
@@ -34,24 +35,26 @@ def aggregate_log(fpath):
             results[gpu_id]['end_unix'] = max(meas['timestamp']) / 1000
             results[gpu_id]['start_utc'] = datetime.utcfromtimestamp(results[gpu_id]['start_unix']).strftime('%Y-%m-%d %H:%M:%S')
             results[gpu_id]['end_utc'] = datetime.utcfromtimestamp(results[gpu_id]['end_unix']).strftime('%Y-%m-%d %H:%M:%S')
-            results[gpu_id]['duration'] = results[gpu_id]['end_unix'] - results[gpu_id]['start_unix']
+            results[gpu_id]['total_duration'] = results[gpu_id]['end_unix'] - results[gpu_id]['start_unix']
             results[gpu_id]['nr_measurements'] = len(meas['timestamp'])
             for field in device_fields:
                 results[gpu_id][field] = {m.__name__: m(meas[field]) for m in [min, max, np.mean, np.std]}
             if 'power_usage' in results[gpu_id]:
-                results[gpu_id]['total_power_draw'] = results[gpu_id]['duration'] * results[gpu_id]['power_usage']['mean']
+                results[gpu_id]['total_power_draw'] = results[gpu_id]['total_duration'] * results[gpu_id]['power_usage']['mean']
+            elif 'package-0' in results[gpu_id]:
+                results[gpu_id]['total_power_draw'] = sum([d * p for d, p in zip(log[gpu_id]['duration'], log[gpu_id]['package-0'])])
             else:
                 results[gpu_id]['total_power_draw'] = -1
-    # aggregate over all GPUs
+    # aggregate over all devices
     results['total'] = {
         'start_unix': min([val['start_unix'] for val in results.values()]),
         'end_unix': max([val['end_unix'] for val in results.values()]),
         'nr_measurements': sum([val['nr_measurements'] for val in results.values()]),
         'total_power_draw': sum([val['total_power_draw'] for val in results.values()]),
     }
-    results['start_utc'] = datetime.utcfromtimestamp(results['total']['start_unix']).strftime('%Y-%m-%d %H:%M:%S')
-    results['end_utc'] = datetime.utcfromtimestamp(results['total']['end_unix']).strftime('%Y-%m-%d %H:%M:%S')
-    results['duration'] = results['total']['end_unix'] - results['total']['start_unix']
+    results['total']['start_utc'] = datetime.utcfromtimestamp(results['total']['start_unix']).strftime('%Y-%m-%d %H:%M:%S')
+    results['total']['end_utc'] = datetime.utcfromtimestamp(results['total']['end_unix']).strftime('%Y-%m-%d %H:%M:%S')
+    results['total']['total_duration'] = results['total']['end_unix'] - results['total']['start_unix']
     return results
 
 
@@ -120,6 +123,40 @@ def monitor_cpu(interval, logfile, stopper, process_id):
         json.dump(out, log)
 
 
+def monitor_rapl(interval, logfile, stopper, process_id):
+    try:
+        import rapl
+        print('PROFILING WITH RAPL')
+    except ImportError as e:
+        print('No monitoring with rapl possible!}\n', e)
+        return
+    monitor = rapl.RAPLMonitor
+    sample = monitor.sample()
+    out = defaultdict(lambda: defaultdict(list))
+    i = 0
+    while not stopper.is_set():
+        i += 1
+        start = time.time()
+        new_sample = monitor.sample()
+        diff = new_sample - sample
+        out['0']['duration'].append(diff.duration)
+        for d in diff.domains:
+            domain = diff.domains[d]
+            out['0'][domain.name].append(diff.average_power(package=domain.name))
+            for sd in domain.subdomains:
+                subdomain = domain.subdomains[sd].name
+                out['0'][f'{domain.name}.{subdomain}'].append((diff.average_power(package=domain.name, domain=subdomain)))
+        out['0']['timestamp'].append((datetime.now() - datetime.utcfromtimestamp(0)).total_seconds() * 1000.0)
+        sample = new_sample
+        profile_duration = time.time() - start
+        sleep_time = interval - profile_duration
+        if sleep_time > 0:
+            time.sleep(sleep_time)
+    print(f'Wrote {i} RAPL profilings to {logfile}')
+    with open(logfile, 'w') as log:
+        json.dump(out, log)
+
+
 class DeviceMonitor:
 
     def __init__(self, device='gpu', interval=1, outfile=None, device_id=None) -> None:
@@ -128,6 +165,8 @@ class DeviceMonitor:
         elif device == 'cpu':
             prof_func = monitor_cpu
             device_id = os.getpid()
+        elif device == 'rapl':
+            prof_func = monitor_rapl
         else:
             raise NotADirectoryError(f'Profiling for device {device} not implemented!')
         self.interval = interval
@@ -146,8 +185,9 @@ class DeviceMonitor:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Aggregates a given GPU profiling result")
 
-    parser.add_argument("--logs", default="/home/fischer/mnt_imagenet/models/train_2021_12_10_15_56", type=str, help="directory with logs")
+    parser.add_argument("--directory", default="/home/fischer/mnt_imagenet/models/train_2021_12_10_15_56", type=str, help="directory with logs")
     
     args = parser.parse_args()
-    print(json.dumps(aggregate_log(os.path.join(args.logs, 'monitoring_cpu.json')), indent=4))
-    print(json.dumps(aggregate_log(os.path.join(args.logs, 'monitoring_gpu.json')), indent=4))
+    print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_cpu.json')), indent=4))
+    print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_gpu.json')), indent=4))
+    print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_rapl.json')), indent=4))
