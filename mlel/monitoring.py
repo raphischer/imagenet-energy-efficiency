@@ -58,6 +58,56 @@ def aggregate_log(fpath):
     return results
 
 
+def log_system_info(filename):
+    sysinfo = {}
+    try:
+        import platform
+        uname = platform.uname()
+        sysinfo.update({
+            "System": uname.system,
+            "Node Name": uname.node,
+            "Release": uname.release,
+            "Version": uname.version,
+            "Machine": uname.machine,
+            "Processor": uname.processor,
+        })
+    except ImportError:
+        pass
+    try:
+        import psutil
+        cpufreq = psutil.cpu_freq()
+        svmem = psutil.virtual_memory()
+        sysinfo.update({
+            "Physical cores": psutil.cpu_count(logical=False),
+            "Total cores": psutil.cpu_count(logical=True),
+            # CPU frequencies
+            "Max Frequency": cpufreq.max,
+            "Min Frequency": cpufreq.min,
+            "Current Frequency": cpufreq.current,
+            # System memory
+            "Total": svmem.total,
+            "Available": svmem.available,
+            "Used": svmem.used
+        })
+    except ImportError:
+        pass
+    try:
+        import GPUtil
+        sysinfo["GPU"] = {}
+        gpus = GPUtil.getGPUs()
+        for gpu in gpus:
+            sysinfo["GPU"][gpu.id] = {
+                "Name": gpu.name,
+                "Memory": gpu.memoryTotal,
+                "UUID": gpu.uuid
+            }
+    except ImportError:
+        pass
+    # write file
+    with open(filename, "w") as f:
+        json.dump(sysinfo, f, indent=4)
+
+
 def monitor_gpu(interval, logfile, stopper, gpu_id):
     from pynvml import nvmlInit, nvmlDeviceGetHandleByIndex, nvmlDeviceGetPowerUsage, nvmlDeviceGetMemoryInfo
     from pynvml import nvmlDeviceGetUtilizationRates, nvmlDeviceGetTemperature, NVML_TEMPERATURE_GPU, nvmlDeviceGetCount
@@ -96,7 +146,11 @@ def monitor_gpu(interval, logfile, stopper, gpu_id):
 
 
 def monitor_cpu(interval, logfile, stopper, process_id):
-    import psutil
+    try:
+        import psutil
+    except ImportError as e:
+        print('No monitoring with psutil possible!\n', e)
+        return
     proc = psutil.Process(process_id)
     out = defaultdict(lambda: defaultdict(list))
     if not isinstance(process_id, list):
@@ -128,7 +182,7 @@ def monitor_rapl(interval, logfile, stopper, process_id):
         import rapl
         print('PROFILING WITH RAPL')
     except ImportError as e:
-        print('No monitoring with rapl possible!\n', e)
+        print('No monitoring with RAPL possible!\n', e)
         return
     monitor = rapl.RAPLMonitor
     sample = monitor.sample()

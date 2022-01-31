@@ -7,6 +7,8 @@ import pkg_resources
 
 import numpy as np
 
+from mlel.monitoring import log_system_info
+
 
 class PatchedJSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -40,6 +42,7 @@ def create_output_dir(dir, config=None):
             req.write(f'# {v}\n')
         for pkg in pkg_resources.working_set:
             req.write(f'{pkg.key}=={pkg.version}\n')
+    log_system_info(os.path.join(dir, 'execution_platform.json'))
     return dir
 
 
