@@ -36,7 +36,8 @@ def create_output_dir(dir, config=None):
             json.dump(config, cfg, indent=4)
     # write installed packages
     with open(os.path.join(dir, 'requirements.txt'), 'w') as req:
-        # req.write(f'# {sys.version}\n') TODO rework this
+        for v in sys.version.split('\n'):
+            req.write(f'# {v}\n')
         for pkg in pkg_resources.working_set:
             req.write(f'{pkg.key}=={pkg.version}\n')
     return dir

@@ -10,7 +10,7 @@ import numpy as np
 
 
 # TODO log manufactur information for every GPU
-# TODO improve CPU logs, maybe using https://github.com/djselbeck/rapl-read-ryzen
+# TODO improve RAPL compability, maybe using https://github.com/djselbeck/rapl-read-ryzen
 
 
 def start_monitoring(gpu_interval, cpu_interval, output_dir, prefix=''):
@@ -128,7 +128,7 @@ def monitor_rapl(interval, logfile, stopper, process_id):
         import rapl
         print('PROFILING WITH RAPL')
     except ImportError as e:
-        print('No monitoring with rapl possible!}\n', e)
+        print('No monitoring with rapl possible!\n', e)
         return
     monitor = rapl.RAPLMonitor
     sample = monitor.sample()
