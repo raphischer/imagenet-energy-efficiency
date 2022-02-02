@@ -17,13 +17,13 @@
             "timestamp": "2022_01_28_21_11_40"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643404389.739808,
                     "end_unix": 1643404909.587231,
                     "start_utc": "2022-01-28 21:13:09",
                     "end_utc": "2022-01-28 21:21:49",
-                    "duration": 519.8474228382111,
+                    "total_duration": 519.8474228382111,
                     "nr_measurements": 2594,
                     "temperature": {
                         "min": 28,
@@ -68,7 +68,7 @@
                     "end_unix": 1643404909.590645,
                     "start_utc": "2022-01-28 21:13:09",
                     "end_utc": "2022-01-28 21:21:49",
-                    "duration": 519.8407521247864,
+                    "total_duration": 519.8407521247864,
                     "nr_measurements": 2594,
                     "temperature": {
                         "min": 27,
@@ -113,7 +113,7 @@
                     "end_unix": 1643404909.593584,
                     "start_utc": "2022-01-28 21:13:09",
                     "end_utc": "2022-01-28 21:21:49",
-                    "duration": 519.833328962326,
+                    "total_duration": 519.833328962326,
                     "nr_measurements": 2594,
                     "temperature": {
                         "min": 27,
@@ -158,7 +158,7 @@
                     "end_unix": 1643404909.596527,
                     "start_utc": "2022-01-28 21:13:09",
                     "end_utc": "2022-01-28 21:21:49",
-                    "duration": 519.8259000778198,
+                    "total_duration": 519.8259000778198,
                     "nr_measurements": 2594,
                     "temperature": {
                         "min": 27,
@@ -203,7 +203,7 @@
                     "end_unix": 1643404909.599447,
                     "start_utc": "2022-01-28 21:13:09",
                     "end_utc": "2022-01-28 21:21:49",
-                    "duration": 519.8181440830231,
+                    "total_duration": 519.8181440830231,
                     "nr_measurements": 2594,
                     "temperature": {
                         "min": 29,
@@ -248,7 +248,7 @@
                     "end_unix": 1643404909.602502,
                     "start_utc": "2022-01-28 21:13:09",
                     "end_utc": "2022-01-28 21:21:49",
-                    "duration": 519.8094401359558,
+                    "total_duration": 519.8094401359558,
                     "nr_measurements": 2594,
                     "temperature": {
                         "min": 29,
@@ -293,7 +293,7 @@
                     "end_unix": 1643404909.605451,
                     "start_utc": "2022-01-28 21:13:09",
                     "end_utc": "2022-01-28 21:21:49",
-                    "duration": 519.8014640808105,
+                    "total_duration": 519.8014640808105,
                     "nr_measurements": 2594,
                     "temperature": {
                         "min": 28,
@@ -338,7 +338,7 @@
                     "end_unix": 1643404909.608384,
                     "start_utc": "2022-01-28 21:13:09",
                     "end_utc": "2022-01-28 21:21:49",
-                    "duration": 519.7911019325256,
+                    "total_duration": 519.7911019325256,
                     "nr_measurements": 2594,
                     "temperature": {
                         "min": 29,
@@ -382,19 +382,19 @@
                     "start_unix": 1643404389.739808,
                     "end_unix": 1643404909.608384,
                     "nr_measurements": 20752,
-                    "total_power_draw": 384755.07917770575
-                },
-                "start_utc": "2022-01-28 21:13:09",
-                "end_utc": "2022-01-28 21:21:49",
-                "duration": 519.8685758113861
+                    "total_power_draw": 384755.07917770575,
+                    "start_utc": "2022-01-28 21:13:09",
+                    "end_utc": "2022-01-28 21:21:49",
+                    "total_duration": 519.8685758113861
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3978377": {
                     "start_unix": 1643404390.700031,
                     "end_unix": 1643404910.393368,
                     "start_utc": "2022-01-28 21:13:10",
                     "end_utc": "2022-01-28 21:21:50",
-                    "duration": 519.6933369636536,
+                    "total_duration": 519.6933369636536,
                     "nr_measurements": 628,
                     "cpu_num": {
                         "min": 0,
@@ -462,12 +462,13 @@
                     "start_unix": 1643404390.700031,
                     "end_unix": 1643404910.393368,
                     "nr_measurements": 628,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 21:13:10",
-                "end_utc": "2022-01-28 21:21:50",
-                "duration": 519.6933369636536
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 21:13:10",
+                    "end_utc": "2022-01-28 21:21:50",
+                    "total_duration": 519.6933369636536
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 0.970209002494812,
@@ -484,13 +485,13 @@
             "duration": 519.4478645324707
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643404314.06559,
                     "end_unix": 1643404383.538465,
                     "start_utc": "2022-01-28 21:11:54",
                     "end_utc": "2022-01-28 21:13:03",
-                    "duration": 69.47287511825562,
+                    "total_duration": 69.47287511825562,
                     "nr_measurements": 348,
                     "temperature": {
                         "min": 27,
@@ -535,7 +536,7 @@
                     "end_unix": 1643404383.543527,
                     "start_utc": "2022-01-28 21:11:54",
                     "end_utc": "2022-01-28 21:13:03",
-                    "duration": 69.46778178215027,
+                    "total_duration": 69.46778178215027,
                     "nr_measurements": 348,
                     "temperature": {
                         "min": 25,
@@ -580,7 +581,7 @@
                     "end_unix": 1643404383.546423,
                     "start_utc": "2022-01-28 21:11:54",
                     "end_utc": "2022-01-28 21:13:03",
-                    "duration": 69.46023297309875,
+                    "total_duration": 69.46023297309875,
                     "nr_measurements": 348,
                     "temperature": {
                         "min": 25,
@@ -625,7 +626,7 @@
                     "end_unix": 1643404383.549361,
                     "start_utc": "2022-01-28 21:11:54",
                     "end_utc": "2022-01-28 21:13:03",
-                    "duration": 69.45189595222473,
+                    "total_duration": 69.45189595222473,
                     "nr_measurements": 348,
                     "temperature": {
                         "min": 25,
@@ -670,7 +671,7 @@
                     "end_unix": 1643404383.552438,
                     "start_utc": "2022-01-28 21:11:54",
                     "end_utc": "2022-01-28 21:13:03",
-                    "duration": 69.44439911842346,
+                    "total_duration": 69.44439911842346,
                     "nr_measurements": 348,
                     "temperature": {
                         "min": 27,
@@ -715,7 +716,7 @@
                     "end_unix": 1643404383.555393,
                     "start_utc": "2022-01-28 21:11:54",
                     "end_utc": "2022-01-28 21:13:03",
-                    "duration": 69.43658995628357,
+                    "total_duration": 69.43658995628357,
                     "nr_measurements": 348,
                     "temperature": {
                         "min": 27,
@@ -760,7 +761,7 @@
                     "end_unix": 1643404383.558356,
                     "start_utc": "2022-01-28 21:11:54",
                     "end_utc": "2022-01-28 21:13:03",
-                    "duration": 69.42388796806335,
+                    "total_duration": 69.42388796806335,
                     "nr_measurements": 348,
                     "temperature": {
                         "min": 26,
@@ -805,7 +806,7 @@
                     "end_unix": 1643404383.561305,
                     "start_utc": "2022-01-28 21:11:54",
                     "end_utc": "2022-01-28 21:13:03",
-                    "duration": 69.41443514823914,
+                    "total_duration": 69.41443514823914,
                     "nr_measurements": 348,
                     "temperature": {
                         "min": 27,
@@ -849,19 +850,19 @@
                     "start_unix": 1643404314.06559,
                     "end_unix": 1643404383.561305,
                     "nr_measurements": 2784,
-                    "total_power_draw": 37388.48320395397
-                },
-                "start_utc": "2022-01-28 21:11:54",
-                "end_utc": "2022-01-28 21:13:03",
-                "duration": 69.49571514129639
+                    "total_power_draw": 37388.48320395397,
+                    "start_utc": "2022-01-28 21:11:54",
+                    "end_utc": "2022-01-28 21:13:03",
+                    "total_duration": 69.49571514129639
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3978377": {
                     "start_unix": 1643404314.227413,
                     "end_unix": 1643404384.022474,
                     "start_utc": "2022-01-28 21:11:54",
                     "end_utc": "2022-01-28 21:13:04",
-                    "duration": 69.7950611114502,
+                    "total_duration": 69.7950611114502,
                     "nr_measurements": 220,
                     "cpu_num": {
                         "min": 3,
@@ -929,12 +930,13 @@
                     "start_unix": 1643404314.227413,
                     "end_unix": 1643404384.022474,
                     "nr_measurements": 220,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 21:11:54",
-                "end_utc": "2022-01-28 21:13:04",
-                "duration": 69.7950611114502
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 21:11:54",
+                    "end_utc": "2022-01-28 21:13:04",
+                    "total_duration": 69.7950611114502
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.4129691123962402,
@@ -969,13 +971,13 @@
             "timestamp": "2022_01_28_21_22_02"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643405000.454109,
                     "end_unix": 1643405522.931194,
                     "start_utc": "2022-01-28 21:23:20",
                     "end_utc": "2022-01-28 21:32:02",
-                    "duration": 522.4770851135254,
+                    "total_duration": 522.4770851135254,
                     "nr_measurements": 2610,
                     "temperature": {
                         "min": 28,
@@ -1020,7 +1022,7 @@
                     "end_unix": 1643405522.93411,
                     "start_utc": "2022-01-28 21:23:20",
                     "end_utc": "2022-01-28 21:32:02",
-                    "duration": 522.469878911972,
+                    "total_duration": 522.469878911972,
                     "nr_measurements": 2610,
                     "temperature": {
                         "min": 27,
@@ -1065,7 +1067,7 @@
                     "end_unix": 1643405522.937046,
                     "start_utc": "2022-01-28 21:23:20",
                     "end_utc": "2022-01-28 21:32:02",
-                    "duration": 522.4618339538574,
+                    "total_duration": 522.4618339538574,
                     "nr_measurements": 2610,
                     "temperature": {
                         "min": 27,
@@ -1110,7 +1112,7 @@
                     "end_unix": 1643405522.939976,
                     "start_utc": "2022-01-28 21:23:20",
                     "end_utc": "2022-01-28 21:32:02",
-                    "duration": 522.4543330669403,
+                    "total_duration": 522.4543330669403,
                     "nr_measurements": 2610,
                     "temperature": {
                         "min": 27,
@@ -1155,7 +1157,7 @@
                     "end_unix": 1643405522.942863,
                     "start_utc": "2022-01-28 21:23:20",
                     "end_utc": "2022-01-28 21:32:02",
-                    "duration": 522.4465100765228,
+                    "total_duration": 522.4465100765228,
                     "nr_measurements": 2610,
                     "temperature": {
                         "min": 29,
@@ -1200,7 +1202,7 @@
                     "end_unix": 1643405522.945828,
                     "start_utc": "2022-01-28 21:23:20",
                     "end_utc": "2022-01-28 21:32:02",
-                    "duration": 522.4387469291687,
+                    "total_duration": 522.4387469291687,
                     "nr_measurements": 2610,
                     "temperature": {
                         "min": 29,
@@ -1245,7 +1247,7 @@
                     "end_unix": 1643405522.948903,
                     "start_utc": "2022-01-28 21:23:20",
                     "end_utc": "2022-01-28 21:32:02",
-                    "duration": 522.4309091567993,
+                    "total_duration": 522.4309091567993,
                     "nr_measurements": 2610,
                     "temperature": {
                         "min": 28,
@@ -1290,7 +1292,7 @@
                     "end_unix": 1643405522.951781,
                     "start_utc": "2022-01-28 21:23:20",
                     "end_utc": "2022-01-28 21:32:02",
-                    "duration": 522.4208960533142,
+                    "total_duration": 522.4208960533142,
                     "nr_measurements": 2610,
                     "temperature": {
                         "min": 29,
@@ -1334,19 +1336,19 @@
                     "start_unix": 1643405000.454109,
                     "end_unix": 1643405522.951781,
                     "nr_measurements": 20880,
-                    "total_power_draw": 448315.2903021818
-                },
-                "start_utc": "2022-01-28 21:23:20",
-                "end_utc": "2022-01-28 21:32:02",
-                "duration": 522.4976720809937
+                    "total_power_draw": 448315.2903021818,
+                    "start_utc": "2022-01-28 21:23:20",
+                    "end_utc": "2022-01-28 21:32:02",
+                    "total_duration": 522.4976720809937
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3980349": {
                     "start_unix": 1643405001.114449,
                     "end_unix": 1643405524.101155,
                     "start_utc": "2022-01-28 21:23:21",
                     "end_utc": "2022-01-28 21:32:04",
-                    "duration": 522.9867060184479,
+                    "total_duration": 522.9867060184479,
                     "nr_measurements": 787,
                     "cpu_num": {
                         "min": 0,
@@ -1414,12 +1416,13 @@
                     "start_unix": 1643405001.114449,
                     "end_unix": 1643405524.101155,
                     "nr_measurements": 787,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 21:23:21",
-                "end_utc": "2022-01-28 21:32:04",
-                "duration": 522.9867060184479
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 21:23:21",
+                    "end_utc": "2022-01-28 21:32:04",
+                    "total_duration": 522.9867060184479
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.0020076036453247,
@@ -1436,13 +1439,13 @@
             "duration": 522.3606376647949
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643404935.98225,
                     "end_unix": 1643404994.840411,
                     "start_utc": "2022-01-28 21:22:15",
                     "end_utc": "2022-01-28 21:23:14",
-                    "duration": 58.858160972595215,
+                    "total_duration": 58.858160972595215,
                     "nr_measurements": 295,
                     "temperature": {
                         "min": 28,
@@ -1487,7 +1490,7 @@
                     "end_unix": 1643404994.843296,
                     "start_utc": "2022-01-28 21:22:15",
                     "end_utc": "2022-01-28 21:23:14",
-                    "duration": 58.85076403617859,
+                    "total_duration": 58.85076403617859,
                     "nr_measurements": 295,
                     "temperature": {
                         "min": 27,
@@ -1532,7 +1535,7 @@
                     "end_unix": 1643404994.847452,
                     "start_utc": "2022-01-28 21:22:16",
                     "end_utc": "2022-01-28 21:23:14",
-                    "duration": 58.844281911849976,
+                    "total_duration": 58.844281911849976,
                     "nr_measurements": 295,
                     "temperature": {
                         "min": 27,
@@ -1577,7 +1580,7 @@
                     "end_unix": 1643404994.850454,
                     "start_utc": "2022-01-28 21:22:16",
                     "end_utc": "2022-01-28 21:23:14",
-                    "duration": 58.83600378036499,
+                    "total_duration": 58.83600378036499,
                     "nr_measurements": 295,
                     "temperature": {
                         "min": 27,
@@ -1622,7 +1625,7 @@
                     "end_unix": 1643404994.853575,
                     "start_utc": "2022-01-28 21:22:16",
                     "end_utc": "2022-01-28 21:23:14",
-                    "duration": 58.828535079956055,
+                    "total_duration": 58.828535079956055,
                     "nr_measurements": 295,
                     "temperature": {
                         "min": 29,
@@ -1667,7 +1670,7 @@
                     "end_unix": 1643404994.8564913,
                     "start_utc": "2022-01-28 21:22:16",
                     "end_utc": "2022-01-28 21:23:14",
-                    "duration": 58.82077932357788,
+                    "total_duration": 58.82077932357788,
                     "nr_measurements": 295,
                     "temperature": {
                         "min": 29,
@@ -1712,7 +1715,7 @@
                     "end_unix": 1643404994.860752,
                     "start_utc": "2022-01-28 21:22:16",
                     "end_utc": "2022-01-28 21:23:14",
-                    "duration": 58.81422305107117,
+                    "total_duration": 58.81422305107117,
                     "nr_measurements": 295,
                     "temperature": {
                         "min": 29,
@@ -1757,7 +1760,7 @@
                     "end_unix": 1643404994.863625,
                     "start_utc": "2022-01-28 21:22:16",
                     "end_utc": "2022-01-28 21:23:14",
-                    "duration": 58.806015968322754,
+                    "total_duration": 58.806015968322754,
                     "nr_measurements": 295,
                     "temperature": {
                         "min": 30,
@@ -1801,19 +1804,19 @@
                     "start_unix": 1643404935.98225,
                     "end_unix": 1643404994.863625,
                     "nr_measurements": 2360,
-                    "total_power_draw": 35440.82893699865
-                },
-                "start_utc": "2022-01-28 21:22:15",
-                "end_utc": "2022-01-28 21:23:14",
-                "duration": 58.8813750743866
+                    "total_power_draw": 35440.82893699865,
+                    "start_utc": "2022-01-28 21:22:15",
+                    "end_utc": "2022-01-28 21:23:14",
+                    "total_duration": 58.8813750743866
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3980349": {
                     "start_unix": 1643404936.08648,
                     "end_unix": 1643404995.278681,
                     "start_utc": "2022-01-28 21:22:16",
                     "end_utc": "2022-01-28 21:23:15",
-                    "duration": 59.192201137542725,
+                    "total_duration": 59.192201137542725,
                     "nr_measurements": 231,
                     "cpu_num": {
                         "min": 14,
@@ -1881,12 +1884,13 @@
                     "start_unix": 1643404936.08648,
                     "end_unix": 1643404995.278681,
                     "nr_measurements": 231,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 21:22:16",
-                "end_utc": "2022-01-28 21:23:15",
-                "duration": 59.192201137542725
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 21:22:16",
+                    "end_utc": "2022-01-28 21:23:15",
+                    "total_duration": 59.192201137542725
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.4192876815795898,
@@ -1921,13 +1925,13 @@
             "timestamp": "2022_01_28_21_32_14"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643405623.6130831,
                     "end_unix": 1643406144.052668,
                     "start_utc": "2022-01-28 21:33:43",
                     "end_utc": "2022-01-28 21:42:24",
-                    "duration": 520.4395849704742,
+                    "total_duration": 520.4395849704742,
                     "nr_measurements": 2600,
                     "temperature": {
                         "min": 28,
@@ -1972,7 +1976,7 @@
                     "end_unix": 1643406144.055594,
                     "start_utc": "2022-01-28 21:33:43",
                     "end_utc": "2022-01-28 21:42:24",
-                    "duration": 520.4324340820312,
+                    "total_duration": 520.4324340820312,
                     "nr_measurements": 2600,
                     "temperature": {
                         "min": 27,
@@ -2017,7 +2021,7 @@
                     "end_unix": 1643406144.058573,
                     "start_utc": "2022-01-28 21:33:43",
                     "end_utc": "2022-01-28 21:42:24",
-                    "duration": 520.4251790046692,
+                    "total_duration": 520.4251790046692,
                     "nr_measurements": 2600,
                     "temperature": {
                         "min": 27,
@@ -2062,7 +2066,7 @@
                     "end_unix": 1643406144.061834,
                     "start_utc": "2022-01-28 21:33:43",
                     "end_utc": "2022-01-28 21:42:24",
-                    "duration": 520.4178850650787,
+                    "total_duration": 520.4178850650787,
                     "nr_measurements": 2600,
                     "temperature": {
                         "min": 27,
@@ -2107,7 +2111,7 @@
                     "end_unix": 1643406144.066664,
                     "start_utc": "2022-01-28 21:33:43",
                     "end_utc": "2022-01-28 21:42:24",
-                    "duration": 520.4120900630951,
+                    "total_duration": 520.4120900630951,
                     "nr_measurements": 2600,
                     "temperature": {
                         "min": 29,
@@ -2152,7 +2156,7 @@
                     "end_unix": 1643406144.0695853,
                     "start_utc": "2022-01-28 21:33:43",
                     "end_utc": "2022-01-28 21:42:24",
-                    "duration": 520.4042642116547,
+                    "total_duration": 520.4042642116547,
                     "nr_measurements": 2600,
                     "temperature": {
                         "min": 29,
@@ -2197,7 +2201,7 @@
                     "end_unix": 1643406144.077198,
                     "start_utc": "2022-01-28 21:33:43",
                     "end_utc": "2022-01-28 21:42:24",
-                    "duration": 520.3994929790497,
+                    "total_duration": 520.3994929790497,
                     "nr_measurements": 2600,
                     "temperature": {
                         "min": 29,
@@ -2242,7 +2246,7 @@
                     "end_unix": 1643406144.080132,
                     "start_utc": "2022-01-28 21:33:43",
                     "end_utc": "2022-01-28 21:42:24",
-                    "duration": 520.3913509845734,
+                    "total_duration": 520.3913509845734,
                     "nr_measurements": 2600,
                     "temperature": {
                         "min": 29,
@@ -2286,19 +2290,19 @@
                     "start_unix": 1643405623.6130831,
                     "end_unix": 1643406144.080132,
                     "nr_measurements": 20800,
-                    "total_power_draw": 359854.7129338846
-                },
-                "start_utc": "2022-01-28 21:33:43",
-                "end_utc": "2022-01-28 21:42:24",
-                "duration": 520.4670488834381
+                    "total_power_draw": 359854.7129338846,
+                    "start_utc": "2022-01-28 21:33:43",
+                    "end_utc": "2022-01-28 21:42:24",
+                    "total_duration": 520.4670488834381
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3982314": {
                     "start_unix": 1643405624.552168,
                     "end_unix": 1643406145.108033,
                     "start_utc": "2022-01-28 21:33:44",
                     "end_utc": "2022-01-28 21:42:25",
-                    "duration": 520.5558650493622,
+                    "total_duration": 520.5558650493622,
                     "nr_measurements": 655,
                     "cpu_num": {
                         "min": 0,
@@ -2366,12 +2370,13 @@
                     "start_unix": 1643405624.552168,
                     "end_unix": 1643406145.108033,
                     "nr_measurements": 655,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 21:33:44",
-                "end_utc": "2022-01-28 21:42:25",
-                "duration": 520.5558650493622
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 21:33:44",
+                    "end_utc": "2022-01-28 21:42:25",
+                    "total_duration": 520.5558650493622
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 0.6528478264808655,
@@ -2388,13 +2393,13 @@
             "duration": 520.0506222248077
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643405547.218084,
                     "end_unix": 1643405618.286429,
                     "start_utc": "2022-01-28 21:32:27",
                     "end_utc": "2022-01-28 21:33:38",
-                    "duration": 71.06834483146667,
+                    "total_duration": 71.06834483146667,
                     "nr_measurements": 356,
                     "temperature": {
                         "min": 28,
@@ -2439,7 +2444,7 @@
                     "end_unix": 1643405618.289339,
                     "start_utc": "2022-01-28 21:32:27",
                     "end_utc": "2022-01-28 21:33:38",
-                    "duration": 71.06116008758545,
+                    "total_duration": 71.06116008758545,
                     "nr_measurements": 356,
                     "temperature": {
                         "min": 27,
@@ -2484,7 +2489,7 @@
                     "end_unix": 1643405618.292228,
                     "start_utc": "2022-01-28 21:32:27",
                     "end_utc": "2022-01-28 21:33:38",
-                    "duration": 71.05383586883545,
+                    "total_duration": 71.05383586883545,
                     "nr_measurements": 356,
                     "temperature": {
                         "min": 27,
@@ -2529,7 +2534,7 @@
                     "end_unix": 1643405618.295077,
                     "start_utc": "2022-01-28 21:32:27",
                     "end_utc": "2022-01-28 21:33:38",
-                    "duration": 71.04623818397522,
+                    "total_duration": 71.04623818397522,
                     "nr_measurements": 356,
                     "temperature": {
                         "min": 27,
@@ -2574,7 +2579,7 @@
                     "end_unix": 1643405618.297923,
                     "start_utc": "2022-01-28 21:32:27",
                     "end_utc": "2022-01-28 21:33:38",
-                    "duration": 71.0384771823883,
+                    "total_duration": 71.0384771823883,
                     "nr_measurements": 356,
                     "temperature": {
                         "min": 30,
@@ -2619,7 +2624,7 @@
                     "end_unix": 1643405618.300848,
                     "start_utc": "2022-01-28 21:32:27",
                     "end_utc": "2022-01-28 21:33:38",
-                    "duration": 71.0306499004364,
+                    "total_duration": 71.0306499004364,
                     "nr_measurements": 356,
                     "temperature": {
                         "min": 30,
@@ -2664,7 +2669,7 @@
                     "end_unix": 1643405618.303704,
                     "start_utc": "2022-01-28 21:32:27",
                     "end_utc": "2022-01-28 21:33:38",
-                    "duration": 71.02255296707153,
+                    "total_duration": 71.02255296707153,
                     "nr_measurements": 356,
                     "temperature": {
                         "min": 30,
@@ -2709,7 +2714,7 @@
                     "end_unix": 1643405618.307937,
                     "start_utc": "2022-01-28 21:32:27",
                     "end_utc": "2022-01-28 21:33:38",
-                    "duration": 71.01473689079285,
+                    "total_duration": 71.01473689079285,
                     "nr_measurements": 356,
                     "temperature": {
                         "min": 30,
@@ -2753,19 +2758,19 @@
                     "start_unix": 1643405547.218084,
                     "end_unix": 1643405618.307937,
                     "nr_measurements": 2848,
-                    "total_power_draw": 36409.34319858873
-                },
-                "start_utc": "2022-01-28 21:32:27",
-                "end_utc": "2022-01-28 21:33:38",
-                "duration": 71.089852809906
+                    "total_power_draw": 36409.34319858873,
+                    "start_utc": "2022-01-28 21:32:27",
+                    "end_utc": "2022-01-28 21:33:38",
+                    "total_duration": 71.089852809906
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3982314": {
                     "start_unix": 1643405547.369312,
                     "end_unix": 1643405618.897246,
                     "start_utc": "2022-01-28 21:32:27",
                     "end_utc": "2022-01-28 21:33:38",
-                    "duration": 71.52793383598328,
+                    "total_duration": 71.52793383598328,
                     "nr_measurements": 256,
                     "cpu_num": {
                         "min": 22,
@@ -2833,12 +2838,13 @@
                     "start_unix": 1643405547.369312,
                     "end_unix": 1643405618.897246,
                     "nr_measurements": 256,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 21:32:27",
-                "end_utc": "2022-01-28 21:33:38",
-                "duration": 71.52793383598328
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 21:32:27",
+                    "end_utc": "2022-01-28 21:33:38",
+                    "total_duration": 71.52793383598328
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.3256860971450806,
@@ -2873,13 +2879,13 @@
             "timestamp": "2022_01_28_21_42_36"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643406272.550209,
                     "end_unix": 1643406816.252607,
                     "start_utc": "2022-01-28 21:44:32",
                     "end_utc": "2022-01-28 21:53:36",
-                    "duration": 543.7023980617523,
+                    "total_duration": 543.7023980617523,
                     "nr_measurements": 2716,
                     "temperature": {
                         "min": 28,
@@ -2924,7 +2930,7 @@
                     "end_unix": 1643406816.255522,
                     "start_utc": "2022-01-28 21:44:32",
                     "end_utc": "2022-01-28 21:53:36",
-                    "duration": 543.6951920986176,
+                    "total_duration": 543.6951920986176,
                     "nr_measurements": 2716,
                     "temperature": {
                         "min": 27,
@@ -2969,7 +2975,7 @@
                     "end_unix": 1643406816.261494,
                     "start_utc": "2022-01-28 21:44:32",
                     "end_utc": "2022-01-28 21:53:36",
-                    "duration": 543.6908600330353,
+                    "total_duration": 543.6908600330353,
                     "nr_measurements": 2716,
                     "temperature": {
                         "min": 27,
@@ -3014,7 +3020,7 @@
                     "end_unix": 1643406816.264334,
                     "start_utc": "2022-01-28 21:44:32",
                     "end_utc": "2022-01-28 21:53:36",
-                    "duration": 543.6832849979401,
+                    "total_duration": 543.6832849979401,
                     "nr_measurements": 2716,
                     "temperature": {
                         "min": 27,
@@ -3059,7 +3065,7 @@
                     "end_unix": 1643406816.267157,
                     "start_utc": "2022-01-28 21:44:32",
                     "end_utc": "2022-01-28 21:53:36",
-                    "duration": 543.6754951477051,
+                    "total_duration": 543.6754951477051,
                     "nr_measurements": 2716,
                     "temperature": {
                         "min": 30,
@@ -3104,7 +3110,7 @@
                     "end_unix": 1643406816.270051,
                     "start_utc": "2022-01-28 21:44:32",
                     "end_utc": "2022-01-28 21:53:36",
-                    "duration": 543.6675410270691,
+                    "total_duration": 543.6675410270691,
                     "nr_measurements": 2716,
                     "temperature": {
                         "min": 29,
@@ -3149,7 +3155,7 @@
                     "end_unix": 1643406816.272933,
                     "start_utc": "2022-01-28 21:44:32",
                     "end_utc": "2022-01-28 21:53:36",
-                    "duration": 543.659441947937,
+                    "total_duration": 543.659441947937,
                     "nr_measurements": 2716,
                     "temperature": {
                         "min": 29,
@@ -3194,7 +3200,7 @@
                     "end_unix": 1643406816.276029,
                     "start_utc": "2022-01-28 21:44:32",
                     "end_utc": "2022-01-28 21:53:36",
-                    "duration": 543.6512892246246,
+                    "total_duration": 543.6512892246246,
                     "nr_measurements": 2716,
                     "temperature": {
                         "min": 30,
@@ -3238,19 +3244,19 @@
                     "start_unix": 1643406272.550209,
                     "end_unix": 1643406816.276029,
                     "nr_measurements": 21728,
-                    "total_power_draw": 470854.7722164481
-                },
-                "start_utc": "2022-01-28 21:44:32",
-                "end_utc": "2022-01-28 21:53:36",
-                "duration": 543.7258200645447
+                    "total_power_draw": 470854.7722164481,
+                    "start_utc": "2022-01-28 21:44:32",
+                    "end_utc": "2022-01-28 21:53:36",
+                    "total_duration": 543.7258200645447
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3984279": {
                     "start_unix": 1643406273.512313,
                     "end_unix": 1643406817.06763,
                     "start_utc": "2022-01-28 21:44:33",
                     "end_utc": "2022-01-28 21:53:37",
-                    "duration": 543.5553171634674,
+                    "total_duration": 543.5553171634674,
                     "nr_measurements": 668,
                     "cpu_num": {
                         "min": 7,
@@ -3318,12 +3324,13 @@
                     "start_unix": 1643406273.512313,
                     "end_unix": 1643406817.06763,
                     "nr_measurements": 668,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 21:44:33",
-                "end_utc": "2022-01-28 21:53:37",
-                "duration": 543.5553171634674
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 21:44:33",
+                    "end_utc": "2022-01-28 21:53:37",
+                    "total_duration": 543.5553171634674
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 0.5678749680519104,
@@ -3340,13 +3347,13 @@
             "duration": 543.2871236801147
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643406172.694261,
                     "end_unix": 1643406263.794449,
                     "start_utc": "2022-01-28 21:42:52",
                     "end_utc": "2022-01-28 21:44:23",
-                    "duration": 91.10018801689148,
+                    "total_duration": 91.10018801689148,
                     "nr_measurements": 456,
                     "temperature": {
                         "min": 27,
@@ -3391,7 +3398,7 @@
                     "end_unix": 1643406263.797327,
                     "start_utc": "2022-01-28 21:42:52",
                     "end_utc": "2022-01-28 21:44:23",
-                    "duration": 91.09270715713501,
+                    "total_duration": 91.09270715713501,
                     "nr_measurements": 456,
                     "temperature": {
                         "min": 26,
@@ -3436,7 +3443,7 @@
                     "end_unix": 1643406263.800262,
                     "start_utc": "2022-01-28 21:42:52",
                     "end_utc": "2022-01-28 21:44:23",
-                    "duration": 91.08536100387573,
+                    "total_duration": 91.08536100387573,
                     "nr_measurements": 456,
                     "temperature": {
                         "min": 26,
@@ -3481,7 +3488,7 @@
                     "end_unix": 1643406263.804291,
                     "start_utc": "2022-01-28 21:42:52",
                     "end_utc": "2022-01-28 21:44:23",
-                    "duration": 91.07894706726074,
+                    "total_duration": 91.07894706726074,
                     "nr_measurements": 456,
                     "temperature": {
                         "min": 26,
@@ -3526,7 +3533,7 @@
                     "end_unix": 1643406263.807151,
                     "start_utc": "2022-01-28 21:42:52",
                     "end_utc": "2022-01-28 21:44:23",
-                    "duration": 91.07108211517334,
+                    "total_duration": 91.07108211517334,
                     "nr_measurements": 456,
                     "temperature": {
                         "min": 29,
@@ -3571,7 +3578,7 @@
                     "end_unix": 1643406263.811647,
                     "start_utc": "2022-01-28 21:42:52",
                     "end_utc": "2022-01-28 21:44:23",
-                    "duration": 91.06479001045227,
+                    "total_duration": 91.06479001045227,
                     "nr_measurements": 456,
                     "temperature": {
                         "min": 29,
@@ -3616,7 +3623,7 @@
                     "end_unix": 1643406263.814695,
                     "start_utc": "2022-01-28 21:42:52",
                     "end_utc": "2022-01-28 21:44:23",
-                    "duration": 91.05690097808838,
+                    "total_duration": 91.05690097808838,
                     "nr_measurements": 456,
                     "temperature": {
                         "min": 29,
@@ -3661,7 +3668,7 @@
                     "end_unix": 1643406263.81952,
                     "start_utc": "2022-01-28 21:42:52",
                     "end_utc": "2022-01-28 21:44:23",
-                    "duration": 91.05058097839355,
+                    "total_duration": 91.05058097839355,
                     "nr_measurements": 456,
                     "temperature": {
                         "min": 29,
@@ -3705,19 +3712,19 @@
                     "start_unix": 1643406172.694261,
                     "end_unix": 1643406263.81952,
                     "nr_measurements": 3648,
-                    "total_power_draw": 48902.79302739704
-                },
-                "start_utc": "2022-01-28 21:42:52",
-                "end_utc": "2022-01-28 21:44:23",
-                "duration": 91.1252589225769
+                    "total_power_draw": 48902.79302739704,
+                    "start_utc": "2022-01-28 21:42:52",
+                    "end_utc": "2022-01-28 21:44:23",
+                    "total_duration": 91.1252589225769
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3984279": {
                     "start_unix": 1643406172.834922,
                     "end_unix": 1643406264.428072,
                     "start_utc": "2022-01-28 21:42:52",
                     "end_utc": "2022-01-28 21:44:24",
-                    "duration": 91.5931499004364,
+                    "total_duration": 91.5931499004364,
                     "nr_measurements": 326,
                     "cpu_num": {
                         "min": 32,
@@ -3785,12 +3792,13 @@
                     "start_unix": 1643406172.834922,
                     "end_unix": 1643406264.428072,
                     "nr_measurements": 326,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 21:42:52",
-                "end_utc": "2022-01-28 21:44:24",
-                "duration": 91.5931499004364
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 21:42:52",
+                    "end_utc": "2022-01-28 21:44:24",
+                    "total_duration": 91.5931499004364
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.2592653036117554,
@@ -3825,13 +3833,13 @@
             "timestamp": "2022_01_28_21_53_56"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643406973.28334,
                     "end_unix": 1643407550.638117,
                     "start_utc": "2022-01-28 21:56:13",
                     "end_utc": "2022-01-28 22:05:50",
-                    "duration": 577.354777097702,
+                    "total_duration": 577.354777097702,
                     "nr_measurements": 2884,
                     "temperature": {
                         "min": 28,
@@ -3876,7 +3884,7 @@
                     "end_unix": 1643407550.641026,
                     "start_utc": "2022-01-28 21:56:13",
                     "end_utc": "2022-01-28 22:05:50",
-                    "duration": 577.3474900722504,
+                    "total_duration": 577.3474900722504,
                     "nr_measurements": 2884,
                     "temperature": {
                         "min": 27,
@@ -3921,7 +3929,7 @@
                     "end_unix": 1643407550.644726,
                     "start_utc": "2022-01-28 21:56:13",
                     "end_utc": "2022-01-28 22:05:50",
-                    "duration": 577.3407371044159,
+                    "total_duration": 577.3407371044159,
                     "nr_measurements": 2884,
                     "temperature": {
                         "min": 27,
@@ -3966,7 +3974,7 @@
                     "end_unix": 1643407550.647628,
                     "start_utc": "2022-01-28 21:56:13",
                     "end_utc": "2022-01-28 22:05:50",
-                    "duration": 577.3332171440125,
+                    "total_duration": 577.3332171440125,
                     "nr_measurements": 2884,
                     "temperature": {
                         "min": 27,
@@ -4011,7 +4019,7 @@
                     "end_unix": 1643407550.651134,
                     "start_utc": "2022-01-28 21:56:13",
                     "end_utc": "2022-01-28 22:05:50",
-                    "duration": 577.3261399269104,
+                    "total_duration": 577.3261399269104,
                     "nr_measurements": 2884,
                     "temperature": {
                         "min": 29,
@@ -4056,7 +4064,7 @@
                     "end_unix": 1643407550.653994,
                     "start_utc": "2022-01-28 21:56:13",
                     "end_utc": "2022-01-28 22:05:50",
-                    "duration": 577.3182730674744,
+                    "total_duration": 577.3182730674744,
                     "nr_measurements": 2884,
                     "temperature": {
                         "min": 29,
@@ -4101,7 +4109,7 @@
                     "end_unix": 1643407550.656866,
                     "start_utc": "2022-01-28 21:56:13",
                     "end_utc": "2022-01-28 22:05:50",
-                    "duration": 577.3085541725159,
+                    "total_duration": 577.3085541725159,
                     "nr_measurements": 2884,
                     "temperature": {
                         "min": 29,
@@ -4146,7 +4154,7 @@
                     "end_unix": 1643407550.659744,
                     "start_utc": "2022-01-28 21:56:13",
                     "end_utc": "2022-01-28 22:05:50",
-                    "duration": 577.3003549575806,
+                    "total_duration": 577.3003549575806,
                     "nr_measurements": 2884,
                     "temperature": {
                         "min": 29,
@@ -4190,19 +4198,19 @@
                     "start_unix": 1643406973.28334,
                     "end_unix": 1643407550.659744,
                     "nr_measurements": 23072,
-                    "total_power_draw": 584611.5636722486
-                },
-                "start_utc": "2022-01-28 21:56:13",
-                "end_utc": "2022-01-28 22:05:50",
-                "duration": 577.3764040470123
+                    "total_power_draw": 584611.5636722486,
+                    "start_utc": "2022-01-28 21:56:13",
+                    "end_utc": "2022-01-28 22:05:50",
+                    "total_duration": 577.3764040470123
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3986244": {
                     "start_unix": 1643406974.038722,
                     "end_unix": 1643407551.42045,
                     "start_utc": "2022-01-28 21:56:14",
                     "end_utc": "2022-01-28 22:05:51",
-                    "duration": 577.3817279338837,
+                    "total_duration": 577.3817279338837,
                     "nr_measurements": 840,
                     "cpu_num": {
                         "min": 5,
@@ -4270,12 +4278,13 @@
                     "start_unix": 1643406974.038722,
                     "end_unix": 1643407551.42045,
                     "nr_measurements": 840,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 21:56:14",
-                "end_utc": "2022-01-28 22:05:51",
-                "duration": 577.3817279338837
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 21:56:14",
+                    "end_utc": "2022-01-28 22:05:51",
+                    "total_duration": 577.3817279338837
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 0.5274060368537903,
@@ -4292,13 +4301,13 @@
             "duration": 577.0810856819153
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643406865.175479,
                     "end_unix": 1643406960.868089,
                     "start_utc": "2022-01-28 21:54:25",
                     "end_utc": "2022-01-28 21:56:00",
-                    "duration": 95.69261002540588,
+                    "total_duration": 95.69261002540588,
                     "nr_measurements": 479,
                     "temperature": {
                         "min": 27,
@@ -4343,7 +4352,7 @@
                     "end_unix": 1643406960.872376,
                     "start_utc": "2022-01-28 21:54:25",
                     "end_utc": "2022-01-28 21:56:00",
-                    "duration": 95.68677401542664,
+                    "total_duration": 95.68677401542664,
                     "nr_measurements": 479,
                     "temperature": {
                         "min": 26,
@@ -4388,7 +4397,7 @@
                     "end_unix": 1643406960.875402,
                     "start_utc": "2022-01-28 21:54:25",
                     "end_utc": "2022-01-28 21:56:00",
-                    "duration": 95.6793999671936,
+                    "total_duration": 95.6793999671936,
                     "nr_measurements": 479,
                     "temperature": {
                         "min": 26,
@@ -4433,7 +4442,7 @@
                     "end_unix": 1643406960.878275,
                     "start_utc": "2022-01-28 21:54:25",
                     "end_utc": "2022-01-28 21:56:00",
-                    "duration": 95.67180585861206,
+                    "total_duration": 95.67180585861206,
                     "nr_measurements": 479,
                     "temperature": {
                         "min": 26,
@@ -4478,7 +4487,7 @@
                     "end_unix": 1643406960.881147,
                     "start_utc": "2022-01-28 21:54:25",
                     "end_utc": "2022-01-28 21:56:00",
-                    "duration": 95.66409587860107,
+                    "total_duration": 95.66409587860107,
                     "nr_measurements": 479,
                     "temperature": {
                         "min": 29,
@@ -4523,7 +4532,7 @@
                     "end_unix": 1643406960.884043,
                     "start_utc": "2022-01-28 21:54:25",
                     "end_utc": "2022-01-28 21:56:00",
-                    "duration": 95.65609502792358,
+                    "total_duration": 95.65609502792358,
                     "nr_measurements": 479,
                     "temperature": {
                         "min": 29,
@@ -4568,7 +4577,7 @@
                     "end_unix": 1643406960.886883,
                     "start_utc": "2022-01-28 21:54:25",
                     "end_utc": "2022-01-28 21:56:00",
-                    "duration": 95.64797401428223,
+                    "total_duration": 95.64797401428223,
                     "nr_measurements": 479,
                     "temperature": {
                         "min": 29,
@@ -4613,7 +4622,7 @@
                     "end_unix": 1643406960.889778,
                     "start_utc": "2022-01-28 21:54:25",
                     "end_utc": "2022-01-28 21:56:00",
-                    "duration": 95.63949394226074,
+                    "total_duration": 95.63949394226074,
                     "nr_measurements": 479,
                     "temperature": {
                         "min": 30,
@@ -4657,19 +4666,19 @@
                     "start_unix": 1643406865.175479,
                     "end_unix": 1643406960.889778,
                     "nr_measurements": 3832,
-                    "total_power_draw": 55931.55733853605
-                },
-                "start_utc": "2022-01-28 21:54:25",
-                "end_utc": "2022-01-28 21:56:00",
-                "duration": 95.71429896354675
+                    "total_power_draw": 55931.55733853605,
+                    "start_utc": "2022-01-28 21:54:25",
+                    "end_utc": "2022-01-28 21:56:00",
+                    "total_duration": 95.71429896354675
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3986244": {
                     "start_unix": 1643406865.288735,
                     "end_unix": 1643406961.352759,
                     "start_utc": "2022-01-28 21:54:25",
                     "end_utc": "2022-01-28 21:56:01",
-                    "duration": 96.06402397155762,
+                    "total_duration": 96.06402397155762,
                     "nr_measurements": 369,
                     "cpu_num": {
                         "min": 70,
@@ -4737,12 +4746,13 @@
                     "start_unix": 1643406865.288735,
                     "end_unix": 1643406961.352759,
                     "nr_measurements": 369,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 21:54:25",
-                "end_utc": "2022-01-28 21:56:01",
-                "duration": 96.06402397155762
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 21:54:25",
+                    "end_utc": "2022-01-28 21:56:01",
+                    "total_duration": 96.06402397155762
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.2318034172058105,
@@ -4777,13 +4787,13 @@
             "timestamp": "2022_01_28_22_06_03"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643407653.066499,
                     "end_unix": 1643408156.414955,
                     "start_utc": "2022-01-28 22:07:33",
                     "end_utc": "2022-01-28 22:15:56",
-                    "duration": 503.3484559059143,
+                    "total_duration": 503.3484559059143,
                     "nr_measurements": 2514,
                     "temperature": {
                         "min": 27,
@@ -4828,7 +4838,7 @@
                     "end_unix": 1643408156.417871,
                     "start_utc": "2022-01-28 22:07:33",
                     "end_utc": "2022-01-28 22:15:56",
-                    "duration": 503.34119510650635,
+                    "total_duration": 503.34119510650635,
                     "nr_measurements": 2514,
                     "temperature": {
                         "min": 26,
@@ -4873,7 +4883,7 @@
                     "end_unix": 1643408156.420806,
                     "start_utc": "2022-01-28 22:07:33",
                     "end_utc": "2022-01-28 22:15:56",
-                    "duration": 503.333899974823,
+                    "total_duration": 503.333899974823,
                     "nr_measurements": 2514,
                     "temperature": {
                         "min": 26,
@@ -4918,7 +4928,7 @@
                     "end_unix": 1643408156.42376,
                     "start_utc": "2022-01-28 22:07:33",
                     "end_utc": "2022-01-28 22:15:56",
-                    "duration": 503.3263349533081,
+                    "total_duration": 503.3263349533081,
                     "nr_measurements": 2514,
                     "temperature": {
                         "min": 26,
@@ -4963,7 +4973,7 @@
                     "end_unix": 1643408156.426699,
                     "start_utc": "2022-01-28 22:07:33",
                     "end_utc": "2022-01-28 22:15:56",
-                    "duration": 503.31849002838135,
+                    "total_duration": 503.31849002838135,
                     "nr_measurements": 2514,
                     "temperature": {
                         "min": 28,
@@ -5008,7 +5018,7 @@
                     "end_unix": 1643408156.42988,
                     "start_utc": "2022-01-28 22:07:33",
                     "end_utc": "2022-01-28 22:15:56",
-                    "duration": 503.3108949661255,
+                    "total_duration": 503.3108949661255,
                     "nr_measurements": 2514,
                     "temperature": {
                         "min": 28,
@@ -5053,7 +5063,7 @@
                     "end_unix": 1643408156.432851,
                     "start_utc": "2022-01-28 22:07:33",
                     "end_utc": "2022-01-28 22:15:56",
-                    "duration": 503.3024311065674,
+                    "total_duration": 503.3024311065674,
                     "nr_measurements": 2514,
                     "temperature": {
                         "min": 28,
@@ -5098,7 +5108,7 @@
                     "end_unix": 1643408156.435779,
                     "start_utc": "2022-01-28 22:07:33",
                     "end_utc": "2022-01-28 22:15:56",
-                    "duration": 503.2939760684967,
+                    "total_duration": 503.2939760684967,
                     "nr_measurements": 2514,
                     "temperature": {
                         "min": 28,
@@ -5142,19 +5152,19 @@
                     "start_unix": 1643407653.066499,
                     "end_unix": 1643408156.435779,
                     "nr_measurements": 20112,
-                    "total_power_draw": 261362.8001994427
-                },
-                "start_utc": "2022-01-28 22:07:33",
-                "end_utc": "2022-01-28 22:15:56",
-                "duration": 503.3692800998688
+                    "total_power_draw": 261362.8001994427,
+                    "start_utc": "2022-01-28 22:07:33",
+                    "end_utc": "2022-01-28 22:15:56",
+                    "total_duration": 503.3692800998688
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3988209": {
                     "start_unix": 1643407654.029073,
                     "end_unix": 1643408157.514863,
                     "start_utc": "2022-01-28 22:07:34",
                     "end_utc": "2022-01-28 22:15:57",
-                    "duration": 503.48579001426697,
+                    "total_duration": 503.48579001426697,
                     "nr_measurements": 626,
                     "cpu_num": {
                         "min": 1,
@@ -5222,12 +5232,13 @@
                     "start_unix": 1643407654.029073,
                     "end_unix": 1643408157.514863,
                     "nr_measurements": 626,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 22:07:34",
-                "end_utc": "2022-01-28 22:15:57",
-                "duration": 503.48579001426697
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 22:07:34",
+                    "end_utc": "2022-01-28 22:15:57",
+                    "total_duration": 503.48579001426697
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.2880834341049194,
@@ -5244,13 +5255,13 @@
             "duration": 502.9763717651367
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643407575.116472,
                     "end_unix": 1643407648.790565,
                     "start_utc": "2022-01-28 22:06:15",
                     "end_utc": "2022-01-28 22:07:28",
-                    "duration": 73.67409300804138,
+                    "total_duration": 73.67409300804138,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 27,
@@ -5295,7 +5306,7 @@
                     "end_unix": 1643407648.793503,
                     "start_utc": "2022-01-28 22:06:15",
                     "end_utc": "2022-01-28 22:07:28",
-                    "duration": 73.66692996025085,
+                    "total_duration": 73.66692996025085,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 26,
@@ -5340,7 +5351,7 @@
                     "end_unix": 1643407648.7964,
                     "start_utc": "2022-01-28 22:06:15",
                     "end_utc": "2022-01-28 22:07:28",
-                    "duration": 73.65771913528442,
+                    "total_duration": 73.65771913528442,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 26,
@@ -5385,7 +5396,7 @@
                     "end_unix": 1643407648.801097,
                     "start_utc": "2022-01-28 22:06:15",
                     "end_utc": "2022-01-28 22:07:28",
-                    "duration": 73.65179300308228,
+                    "total_duration": 73.65179300308228,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 26,
@@ -5430,7 +5441,7 @@
                     "end_unix": 1643407648.804009,
                     "start_utc": "2022-01-28 22:06:15",
                     "end_utc": "2022-01-28 22:07:28",
-                    "duration": 73.64405083656311,
+                    "total_duration": 73.64405083656311,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 29,
@@ -5475,7 +5486,7 @@
                     "end_unix": 1643407648.808938,
                     "start_utc": "2022-01-28 22:06:15",
                     "end_utc": "2022-01-28 22:07:28",
-                    "duration": 73.63809108734131,
+                    "total_duration": 73.63809108734131,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 28,
@@ -5520,7 +5531,7 @@
                     "end_unix": 1643407648.811869,
                     "start_utc": "2022-01-28 22:06:15",
                     "end_utc": "2022-01-28 22:07:28",
-                    "duration": 73.62842893600464,
+                    "total_duration": 73.62842893600464,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 28,
@@ -5565,7 +5576,7 @@
                     "end_unix": 1643407648.814796,
                     "start_utc": "2022-01-28 22:06:15",
                     "end_utc": "2022-01-28 22:07:28",
-                    "duration": 73.620187997818,
+                    "total_duration": 73.620187997818,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 29,
@@ -5609,19 +5620,19 @@
                     "start_unix": 1643407575.116472,
                     "end_unix": 1643407648.814796,
                     "nr_measurements": 2952,
-                    "total_power_draw": 35243.709989021925
-                },
-                "start_utc": "2022-01-28 22:06:15",
-                "end_utc": "2022-01-28 22:07:28",
-                "duration": 73.69832396507263
+                    "total_power_draw": 35243.709989021925,
+                    "start_utc": "2022-01-28 22:06:15",
+                    "end_utc": "2022-01-28 22:07:28",
+                    "total_duration": 73.69832396507263
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3988209": {
                     "start_unix": 1643407575.263946,
                     "end_unix": 1643407649.273058,
                     "start_utc": "2022-01-28 22:06:15",
                     "end_utc": "2022-01-28 22:07:29",
-                    "duration": 74.0091118812561,
+                    "total_duration": 74.0091118812561,
                     "nr_measurements": 254,
                     "cpu_num": {
                         "min": 0,
@@ -5689,12 +5700,13 @@
                     "start_unix": 1643407575.263946,
                     "end_unix": 1643407649.273058,
                     "nr_measurements": 254,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 22:06:15",
-                "end_utc": "2022-01-28 22:07:29",
-                "duration": 74.0091118812561
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 22:06:15",
+                    "end_utc": "2022-01-28 22:07:29",
+                    "total_duration": 74.0091118812561
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.7852944135665894,
@@ -5729,13 +5741,13 @@
             "timestamp": "2022_01_28_22_16_09"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643408246.7322,
                     "end_unix": 1643408763.212218,
                     "start_utc": "2022-01-28 22:17:26",
                     "end_utc": "2022-01-28 22:26:03",
-                    "duration": 516.4800181388855,
+                    "total_duration": 516.4800181388855,
                     "nr_measurements": 2580,
                     "temperature": {
                         "min": 27,
@@ -5780,7 +5792,7 @@
                     "end_unix": 1643408763.229913,
                     "start_utc": "2022-01-28 22:17:26",
                     "end_utc": "2022-01-28 22:26:03",
-                    "duration": 516.4876410961151,
+                    "total_duration": 516.4876410961151,
                     "nr_measurements": 2580,
                     "temperature": {
                         "min": 26,
@@ -5825,7 +5837,7 @@
                     "end_unix": 1643408763.23297,
                     "start_utc": "2022-01-28 22:17:26",
                     "end_utc": "2022-01-28 22:26:03",
-                    "duration": 516.4804310798645,
+                    "total_duration": 516.4804310798645,
                     "nr_measurements": 2580,
                     "temperature": {
                         "min": 26,
@@ -5870,7 +5882,7 @@
                     "end_unix": 1643408763.236227,
                     "start_utc": "2022-01-28 22:17:26",
                     "end_utc": "2022-01-28 22:26:03",
-                    "duration": 516.4732820987701,
+                    "total_duration": 516.4732820987701,
                     "nr_measurements": 2580,
                     "temperature": {
                         "min": 26,
@@ -5915,7 +5927,7 @@
                     "end_unix": 1643408763.239181,
                     "start_utc": "2022-01-28 22:17:26",
                     "end_utc": "2022-01-28 22:26:03",
-                    "duration": 516.4656729698181,
+                    "total_duration": 516.4656729698181,
                     "nr_measurements": 2580,
                     "temperature": {
                         "min": 28,
@@ -5960,7 +5972,7 @@
                     "end_unix": 1643408763.242184,
                     "start_utc": "2022-01-28 22:17:26",
                     "end_utc": "2022-01-28 22:26:03",
-                    "duration": 516.4579179286957,
+                    "total_duration": 516.4579179286957,
                     "nr_measurements": 2580,
                     "temperature": {
                         "min": 27,
@@ -6005,7 +6017,7 @@
                     "end_unix": 1643408763.245168,
                     "start_utc": "2022-01-28 22:17:26",
                     "end_utc": "2022-01-28 22:26:03",
-                    "duration": 516.4500050544739,
+                    "total_duration": 516.4500050544739,
                     "nr_measurements": 2580,
                     "temperature": {
                         "min": 27,
@@ -6050,7 +6062,7 @@
                     "end_unix": 1643408763.250308,
                     "start_utc": "2022-01-28 22:17:26",
                     "end_utc": "2022-01-28 22:26:03",
-                    "duration": 516.4437170028687,
+                    "total_duration": 516.4437170028687,
                     "nr_measurements": 2580,
                     "temperature": {
                         "min": 28,
@@ -6094,19 +6106,19 @@
                     "start_unix": 1643408246.7322,
                     "end_unix": 1643408763.250308,
                     "nr_measurements": 20640,
-                    "total_power_draw": 245795.30412587879
-                },
-                "start_utc": "2022-01-28 22:17:26",
-                "end_utc": "2022-01-28 22:26:03",
-                "duration": 516.5181081295013
+                    "total_power_draw": 245795.30412587879,
+                    "start_utc": "2022-01-28 22:17:26",
+                    "end_utc": "2022-01-28 22:26:03",
+                    "total_duration": 516.5181081295013
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3990174": {
                     "start_unix": 1643408247.437742,
                     "end_unix": 1643408764.050246,
                     "start_utc": "2022-01-28 22:17:27",
                     "end_utc": "2022-01-28 22:26:04",
-                    "duration": 516.6125040054321,
+                    "total_duration": 516.6125040054321,
                     "nr_measurements": 805,
                     "cpu_num": {
                         "min": 9,
@@ -6174,12 +6186,13 @@
                     "start_unix": 1643408247.437742,
                     "end_unix": 1643408764.050246,
                     "nr_measurements": 805,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 22:17:27",
-                "end_utc": "2022-01-28 22:26:04",
-                "duration": 516.6125040054321
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 22:17:27",
+                    "end_utc": "2022-01-28 22:26:04",
+                    "total_duration": 516.6125040054321
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.2263052463531494,
@@ -6196,13 +6209,13 @@
             "duration": 516.3119320869446
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643408180.114115,
                     "end_unix": 1643408243.133081,
                     "start_utc": "2022-01-28 22:16:20",
                     "end_utc": "2022-01-28 22:17:23",
-                    "duration": 63.01896595954895,
+                    "total_duration": 63.01896595954895,
                     "nr_measurements": 314,
                     "temperature": {
                         "min": 28,
@@ -6247,7 +6260,7 @@
                     "end_unix": 1643408243.136024,
                     "start_utc": "2022-01-28 22:16:20",
                     "end_utc": "2022-01-28 22:17:23",
-                    "duration": 63.00923299789429,
+                    "total_duration": 63.00923299789429,
                     "nr_measurements": 314,
                     "temperature": {
                         "min": 27,
@@ -6292,7 +6305,7 @@
                     "end_unix": 1643408243.138973,
                     "start_utc": "2022-01-28 22:16:20",
                     "end_utc": "2022-01-28 22:17:23",
-                    "duration": 63.00181007385254,
+                    "total_duration": 63.00181007385254,
                     "nr_measurements": 314,
                     "temperature": {
                         "min": 27,
@@ -6337,7 +6350,7 @@
                     "end_unix": 1643408243.141919,
                     "start_utc": "2022-01-28 22:16:20",
                     "end_utc": "2022-01-28 22:17:23",
-                    "duration": 62.99433493614197,
+                    "total_duration": 62.99433493614197,
                     "nr_measurements": 314,
                     "temperature": {
                         "min": 27,
@@ -6382,7 +6395,7 @@
                     "end_unix": 1643408243.144818,
                     "start_utc": "2022-01-28 22:16:20",
                     "end_utc": "2022-01-28 22:17:23",
-                    "duration": 62.98664712905884,
+                    "total_duration": 62.98664712905884,
                     "nr_measurements": 314,
                     "temperature": {
                         "min": 29,
@@ -6427,7 +6440,7 @@
                     "end_unix": 1643408243.147725,
                     "start_utc": "2022-01-28 22:16:20",
                     "end_utc": "2022-01-28 22:17:23",
-                    "duration": 62.97551417350769,
+                    "total_duration": 62.97551417350769,
                     "nr_measurements": 314,
                     "temperature": {
                         "min": 29,
@@ -6472,7 +6485,7 @@
                     "end_unix": 1643408243.150636,
                     "start_utc": "2022-01-28 22:16:20",
                     "end_utc": "2022-01-28 22:17:23",
-                    "duration": 62.95795798301697,
+                    "total_duration": 62.95795798301697,
                     "nr_measurements": 314,
                     "temperature": {
                         "min": 28,
@@ -6517,7 +6530,7 @@
                     "end_unix": 1643408243.153528,
                     "start_utc": "2022-01-28 22:16:20",
                     "end_utc": "2022-01-28 22:17:23",
-                    "duration": 62.94959306716919,
+                    "total_duration": 62.94959306716919,
                     "nr_measurements": 314,
                     "temperature": {
                         "min": 29,
@@ -6561,19 +6574,19 @@
                     "start_unix": 1643408180.114115,
                     "end_unix": 1643408243.153528,
                     "nr_measurements": 2512,
-                    "total_power_draw": 29302.43206634966
-                },
-                "start_utc": "2022-01-28 22:16:20",
-                "end_utc": "2022-01-28 22:17:23",
-                "duration": 63.03941297531128
+                    "total_power_draw": 29302.43206634966,
+                    "start_utc": "2022-01-28 22:16:20",
+                    "end_utc": "2022-01-28 22:17:23",
+                    "total_duration": 63.03941297531128
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3990174": {
                     "start_unix": 1643408180.20013,
                     "end_unix": 1643408243.580647,
                     "start_utc": "2022-01-28 22:16:20",
                     "end_utc": "2022-01-28 22:17:23",
-                    "duration": 63.38051700592041,
+                    "total_duration": 63.38051700592041,
                     "nr_measurements": 250,
                     "cpu_num": {
                         "min": 80,
@@ -6641,12 +6654,13 @@
                     "start_unix": 1643408180.20013,
                     "end_unix": 1643408243.580647,
                     "nr_measurements": 250,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 22:16:20",
-                "end_utc": "2022-01-28 22:17:23",
-                "duration": 63.38051700592041
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 22:16:20",
+                    "end_utc": "2022-01-28 22:17:23",
+                    "total_duration": 63.38051700592041
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.6691166162490845,
@@ -6681,13 +6695,13 @@
             "timestamp": "2022_01_28_22_26_14"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643408852.402349,
                     "end_unix": 1643409349.0055392,
                     "start_utc": "2022-01-28 22:27:32",
                     "end_utc": "2022-01-28 22:35:49",
-                    "duration": 496.6031901836395,
+                    "total_duration": 496.6031901836395,
                     "nr_measurements": 2481,
                     "temperature": {
                         "min": 27,
@@ -6732,7 +6746,7 @@
                     "end_unix": 1643409349.008483,
                     "start_utc": "2022-01-28 22:27:32",
                     "end_utc": "2022-01-28 22:35:49",
-                    "duration": 496.59601497650146,
+                    "total_duration": 496.59601497650146,
                     "nr_measurements": 2481,
                     "temperature": {
                         "min": 26,
@@ -6777,7 +6791,7 @@
                     "end_unix": 1643409349.012236,
                     "start_utc": "2022-01-28 22:27:32",
                     "end_utc": "2022-01-28 22:35:49",
-                    "duration": 496.5855071544647,
+                    "total_duration": 496.5855071544647,
                     "nr_measurements": 2481,
                     "temperature": {
                         "min": 26,
@@ -6822,7 +6836,7 @@
                     "end_unix": 1643409349.015207,
                     "start_utc": "2022-01-28 22:27:32",
                     "end_utc": "2022-01-28 22:35:49",
-                    "duration": 496.57803297042847,
+                    "total_duration": 496.57803297042847,
                     "nr_measurements": 2481,
                     "temperature": {
                         "min": 26,
@@ -6867,7 +6881,7 @@
                     "end_unix": 1643409349.018128,
                     "start_utc": "2022-01-28 22:27:32",
                     "end_utc": "2022-01-28 22:35:49",
-                    "duration": 496.56851983070374,
+                    "total_duration": 496.56851983070374,
                     "nr_measurements": 2481,
                     "temperature": {
                         "min": 27,
@@ -6912,7 +6926,7 @@
                     "end_unix": 1643409349.021043,
                     "start_utc": "2022-01-28 22:27:32",
                     "end_utc": "2022-01-28 22:35:49",
-                    "duration": 496.5543370246887,
+                    "total_duration": 496.5543370246887,
                     "nr_measurements": 2481,
                     "temperature": {
                         "min": 27,
@@ -6957,7 +6971,7 @@
                     "end_unix": 1643409349.02409,
                     "start_utc": "2022-01-28 22:27:32",
                     "end_utc": "2022-01-28 22:35:49",
-                    "duration": 496.5464451313019,
+                    "total_duration": 496.5464451313019,
                     "nr_measurements": 2481,
                     "temperature": {
                         "min": 26,
@@ -7002,7 +7016,7 @@
                     "end_unix": 1643409349.027011,
                     "start_utc": "2022-01-28 22:27:32",
                     "end_utc": "2022-01-28 22:35:49",
-                    "duration": 496.5381679534912,
+                    "total_duration": 496.5381679534912,
                     "nr_measurements": 2481,
                     "temperature": {
                         "min": 27,
@@ -7046,19 +7060,19 @@
                     "start_unix": 1643408852.402349,
                     "end_unix": 1643409349.027011,
                     "nr_measurements": 19848,
-                    "total_power_draw": 252691.28112597083
-                },
-                "start_utc": "2022-01-28 22:27:32",
-                "end_utc": "2022-01-28 22:35:49",
-                "duration": 496.62466192245483
+                    "total_power_draw": 252691.28112597083,
+                    "start_utc": "2022-01-28 22:27:32",
+                    "end_utc": "2022-01-28 22:35:49",
+                    "total_duration": 496.62466192245483
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3992139": {
                     "start_unix": 1643408853.205309,
                     "end_unix": 1643409349.658575,
                     "start_utc": "2022-01-28 22:27:33",
                     "end_utc": "2022-01-28 22:35:49",
-                    "duration": 496.4532661437988,
+                    "total_duration": 496.4532661437988,
                     "nr_measurements": 707,
                     "cpu_num": {
                         "min": 17,
@@ -7126,12 +7140,13 @@
                     "start_unix": 1643408853.205309,
                     "end_unix": 1643409349.658575,
                     "nr_measurements": 707,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 22:27:33",
-                "end_utc": "2022-01-28 22:35:49",
-                "duration": 496.4532661437988
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 22:27:33",
+                    "end_utc": "2022-01-28 22:35:49",
+                    "total_duration": 496.4532661437988
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 0.7684671878814697,
@@ -7148,13 +7163,13 @@
             "duration": 496.3356382846832
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643408788.921841,
                     "end_unix": 1643408847.973846,
                     "start_utc": "2022-01-28 22:26:28",
                     "end_utc": "2022-01-28 22:27:27",
-                    "duration": 59.05200505256653,
+                    "total_duration": 59.05200505256653,
                     "nr_measurements": 296,
                     "temperature": {
                         "min": 27,
@@ -7199,7 +7214,7 @@
                     "end_unix": 1643408847.976882,
                     "start_utc": "2022-01-28 22:26:28",
                     "end_utc": "2022-01-28 22:27:27",
-                    "duration": 59.04309391975403,
+                    "total_duration": 59.04309391975403,
                     "nr_measurements": 296,
                     "temperature": {
                         "min": 26,
@@ -7244,7 +7259,7 @@
                     "end_unix": 1643408847.979796,
                     "start_utc": "2022-01-28 22:26:28",
                     "end_utc": "2022-01-28 22:27:27",
-                    "duration": 59.035725831985474,
+                    "total_duration": 59.035725831985474,
                     "nr_measurements": 296,
                     "temperature": {
                         "min": 26,
@@ -7289,7 +7304,7 @@
                     "end_unix": 1643408847.982727,
                     "start_utc": "2022-01-28 22:26:28",
                     "end_utc": "2022-01-28 22:27:27",
-                    "duration": 59.02821898460388,
+                    "total_duration": 59.02821898460388,
                     "nr_measurements": 296,
                     "temperature": {
                         "min": 26,
@@ -7334,7 +7349,7 @@
                     "end_unix": 1643408847.985641,
                     "start_utc": "2022-01-28 22:26:28",
                     "end_utc": "2022-01-28 22:27:27",
-                    "duration": 59.02050304412842,
+                    "total_duration": 59.02050304412842,
                     "nr_measurements": 296,
                     "temperature": {
                         "min": 28,
@@ -7379,7 +7394,7 @@
                     "end_unix": 1643408847.988567,
                     "start_utc": "2022-01-28 22:26:28",
                     "end_utc": "2022-01-28 22:27:27",
-                    "duration": 59.0125150680542,
+                    "total_duration": 59.0125150680542,
                     "nr_measurements": 296,
                     "temperature": {
                         "min": 28,
@@ -7424,7 +7439,7 @@
                     "end_unix": 1643408847.991498,
                     "start_utc": "2022-01-28 22:26:28",
                     "end_utc": "2022-01-28 22:27:27",
-                    "duration": 59.00448298454285,
+                    "total_duration": 59.00448298454285,
                     "nr_measurements": 296,
                     "temperature": {
                         "min": 27,
@@ -7469,7 +7484,7 @@
                     "end_unix": 1643408847.994593,
                     "start_utc": "2022-01-28 22:26:28",
                     "end_utc": "2022-01-28 22:27:27",
-                    "duration": 58.995863914489746,
+                    "total_duration": 58.995863914489746,
                     "nr_measurements": 296,
                     "temperature": {
                         "min": 28,
@@ -7513,19 +7528,19 @@
                     "start_unix": 1643408788.921841,
                     "end_unix": 1643408847.994593,
                     "nr_measurements": 2368,
-                    "total_power_draw": 28051.95828556828
-                },
-                "start_utc": "2022-01-28 22:26:28",
-                "end_utc": "2022-01-28 22:27:27",
-                "duration": 59.07275199890137
+                    "total_power_draw": 28051.95828556828,
+                    "start_utc": "2022-01-28 22:26:28",
+                    "end_utc": "2022-01-28 22:27:27",
+                    "total_duration": 59.07275199890137
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3992139": {
                     "start_unix": 1643408789.016858,
                     "end_unix": 1643408848.51513,
                     "start_utc": "2022-01-28 22:26:29",
                     "end_utc": "2022-01-28 22:27:28",
-                    "duration": 59.49827194213867,
+                    "total_duration": 59.49827194213867,
                     "nr_measurements": 243,
                     "cpu_num": {
                         "min": 45,
@@ -7593,12 +7608,13 @@
                     "start_unix": 1643408789.016858,
                     "end_unix": 1643408848.51513,
                     "nr_measurements": 243,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 22:26:29",
-                "end_utc": "2022-01-28 22:27:28",
-                "duration": 59.49827194213867
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 22:26:29",
+                    "end_utc": "2022-01-28 22:27:28",
+                    "total_duration": 59.49827194213867
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.282606840133667,
@@ -7633,13 +7649,13 @@
             "timestamp": "2022_01_28_22_36_01"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643409450.818098,
                     "end_unix": 1643409958.0929313,
                     "start_utc": "2022-01-28 22:37:30",
                     "end_utc": "2022-01-28 22:45:58",
-                    "duration": 507.27483320236206,
+                    "total_duration": 507.27483320236206,
                     "nr_measurements": 2534,
                     "temperature": {
                         "min": 27,
@@ -7684,7 +7700,7 @@
                     "end_unix": 1643409958.095929,
                     "start_utc": "2022-01-28 22:37:30",
                     "end_utc": "2022-01-28 22:45:58",
-                    "duration": 507.2677118778229,
+                    "total_duration": 507.2677118778229,
                     "nr_measurements": 2534,
                     "temperature": {
                         "min": 26,
@@ -7729,7 +7745,7 @@
                     "end_unix": 1643409958.098885,
                     "start_utc": "2022-01-28 22:37:30",
                     "end_utc": "2022-01-28 22:45:58",
-                    "duration": 507.26034808158875,
+                    "total_duration": 507.26034808158875,
                     "nr_measurements": 2534,
                     "temperature": {
                         "min": 26,
@@ -7774,7 +7790,7 @@
                     "end_unix": 1643409958.103455,
                     "start_utc": "2022-01-28 22:37:30",
                     "end_utc": "2022-01-28 22:45:58",
-                    "duration": 507.25438117980957,
+                    "total_duration": 507.25438117980957,
                     "nr_measurements": 2534,
                     "temperature": {
                         "min": 26,
@@ -7819,7 +7835,7 @@
                     "end_unix": 1643409958.10638,
                     "start_utc": "2022-01-28 22:37:30",
                     "end_utc": "2022-01-28 22:45:58",
-                    "duration": 507.2466058731079,
+                    "total_duration": 507.2466058731079,
                     "nr_measurements": 2534,
                     "temperature": {
                         "min": 28,
@@ -7864,7 +7880,7 @@
                     "end_unix": 1643409958.109307,
                     "start_utc": "2022-01-28 22:37:30",
                     "end_utc": "2022-01-28 22:45:58",
-                    "duration": 507.23881316185,
+                    "total_duration": 507.23881316185,
                     "nr_measurements": 2534,
                     "temperature": {
                         "min": 28,
@@ -7909,7 +7925,7 @@
                     "end_unix": 1643409958.112214,
                     "start_utc": "2022-01-28 22:37:30",
                     "end_utc": "2022-01-28 22:45:58",
-                    "duration": 507.2299470901489,
+                    "total_duration": 507.2299470901489,
                     "nr_measurements": 2534,
                     "temperature": {
                         "min": 27,
@@ -7954,7 +7970,7 @@
                     "end_unix": 1643409958.117085,
                     "start_utc": "2022-01-28 22:37:30",
                     "end_utc": "2022-01-28 22:45:58",
-                    "duration": 507.223739862442,
+                    "total_duration": 507.223739862442,
                     "nr_measurements": 2534,
                     "temperature": {
                         "min": 28,
@@ -7998,19 +8014,19 @@
                     "start_unix": 1643409450.818098,
                     "end_unix": 1643409958.117085,
                     "nr_measurements": 20272,
-                    "total_power_draw": 290987.54759612004
-                },
-                "start_utc": "2022-01-28 22:37:30",
-                "end_utc": "2022-01-28 22:45:58",
-                "duration": 507.2989869117737
+                    "total_power_draw": 290987.54759612004,
+                    "start_utc": "2022-01-28 22:37:30",
+                    "end_utc": "2022-01-28 22:45:58",
+                    "total_duration": 507.2989869117737
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3994104": {
                     "start_unix": 1643409451.671555,
                     "end_unix": 1643409959.160351,
                     "start_utc": "2022-01-28 22:37:31",
                     "end_utc": "2022-01-28 22:45:59",
-                    "duration": 507.4887959957123,
+                    "total_duration": 507.4887959957123,
                     "nr_measurements": 695,
                     "cpu_num": {
                         "min": 13,
@@ -8078,12 +8094,13 @@
                     "start_unix": 1643409451.671555,
                     "end_unix": 1643409959.160351,
                     "nr_measurements": 695,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 22:37:31",
-                "end_utc": "2022-01-28 22:45:59",
-                "duration": 507.4887959957123
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 22:37:31",
+                    "end_utc": "2022-01-28 22:45:59",
+                    "total_duration": 507.4887959957123
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.0786033868789673,
@@ -8100,13 +8117,13 @@
             "duration": 506.8286888599396
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643409372.306932,
                     "end_unix": 1643409445.97382,
                     "start_utc": "2022-01-28 22:36:12",
                     "end_utc": "2022-01-28 22:37:25",
-                    "duration": 73.66688799858093,
+                    "total_duration": 73.66688799858093,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 27,
@@ -8151,7 +8168,7 @@
                     "end_unix": 1643409445.976768,
                     "start_utc": "2022-01-28 22:36:12",
                     "end_utc": "2022-01-28 22:37:25",
-                    "duration": 73.65972709655762,
+                    "total_duration": 73.65972709655762,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 26,
@@ -8196,7 +8213,7 @@
                     "end_unix": 1643409445.979709,
                     "start_utc": "2022-01-28 22:36:12",
                     "end_utc": "2022-01-28 22:37:25",
-                    "duration": 73.65237879753113,
+                    "total_duration": 73.65237879753113,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 26,
@@ -8241,7 +8258,7 @@
                     "end_unix": 1643409445.982601,
                     "start_utc": "2022-01-28 22:36:12",
                     "end_utc": "2022-01-28 22:37:25",
-                    "duration": 73.64481091499329,
+                    "total_duration": 73.64481091499329,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 26,
@@ -8286,7 +8303,7 @@
                     "end_unix": 1643409445.985515,
                     "start_utc": "2022-01-28 22:36:12",
                     "end_utc": "2022-01-28 22:37:25",
-                    "duration": 73.63714623451233,
+                    "total_duration": 73.63714623451233,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 28,
@@ -8331,7 +8348,7 @@
                     "end_unix": 1643409445.988432,
                     "start_utc": "2022-01-28 22:36:12",
                     "end_utc": "2022-01-28 22:37:25",
-                    "duration": 73.62885785102844,
+                    "total_duration": 73.62885785102844,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 28,
@@ -8376,7 +8393,7 @@
                     "end_unix": 1643409445.991342,
                     "start_utc": "2022-01-28 22:36:12",
                     "end_utc": "2022-01-28 22:37:25",
-                    "duration": 73.62075400352478,
+                    "total_duration": 73.62075400352478,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 28,
@@ -8421,7 +8438,7 @@
                     "end_unix": 1643409445.994247,
                     "start_utc": "2022-01-28 22:36:12",
                     "end_utc": "2022-01-28 22:37:25",
-                    "duration": 73.61073398590088,
+                    "total_duration": 73.61073398590088,
                     "nr_measurements": 369,
                     "temperature": {
                         "min": 28,
@@ -8465,19 +8482,19 @@
                     "start_unix": 1643409372.306932,
                     "end_unix": 1643409445.994247,
                     "nr_measurements": 2952,
-                    "total_power_draw": 35878.27057410109
-                },
-                "start_utc": "2022-01-28 22:36:12",
-                "end_utc": "2022-01-28 22:37:25",
-                "duration": 73.68731498718262
+                    "total_power_draw": 35878.27057410109,
+                    "start_utc": "2022-01-28 22:36:12",
+                    "end_utc": "2022-01-28 22:37:25",
+                    "total_duration": 73.68731498718262
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3994104": {
                     "start_unix": 1643409372.399694,
                     "end_unix": 1643409446.500948,
                     "start_utc": "2022-01-28 22:36:12",
                     "end_utc": "2022-01-28 22:37:26",
-                    "duration": 74.10125398635864,
+                    "total_duration": 74.10125398635864,
                     "nr_measurements": 297,
                     "cpu_num": {
                         "min": 46,
@@ -8545,12 +8562,13 @@
                     "start_unix": 1643409372.399694,
                     "end_unix": 1643409446.500948,
                     "nr_measurements": 297,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 22:36:12",
-                "end_utc": "2022-01-28 22:37:26",
-                "duration": 74.10125398635864
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 22:36:12",
+                    "end_utc": "2022-01-28 22:37:26",
+                    "total_duration": 74.10125398635864
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.4425239562988281,
@@ -8585,13 +8603,13 @@
             "timestamp": "2022_01_28_22_46_10"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643410070.198511,
                     "end_unix": 1643410618.287179,
                     "start_utc": "2022-01-28 22:47:50",
                     "end_utc": "2022-01-28 22:56:58",
-                    "duration": 548.0886681079865,
+                    "total_duration": 548.0886681079865,
                     "nr_measurements": 2738,
                     "temperature": {
                         "min": 28,
@@ -8636,7 +8654,7 @@
                     "end_unix": 1643410618.290091,
                     "start_utc": "2022-01-28 22:47:50",
                     "end_utc": "2022-01-28 22:56:58",
-                    "duration": 548.081337928772,
+                    "total_duration": 548.081337928772,
                     "nr_measurements": 2738,
                     "temperature": {
                         "min": 26,
@@ -8681,7 +8699,7 @@
                     "end_unix": 1643410618.292976,
                     "start_utc": "2022-01-28 22:47:50",
                     "end_utc": "2022-01-28 22:56:58",
-                    "duration": 548.0738899707794,
+                    "total_duration": 548.0738899707794,
                     "nr_measurements": 2738,
                     "temperature": {
                         "min": 26,
@@ -8726,7 +8744,7 @@
                     "end_unix": 1643410618.297211,
                     "start_utc": "2022-01-28 22:47:50",
                     "end_utc": "2022-01-28 22:56:58",
-                    "duration": 548.0677018165588,
+                    "total_duration": 548.0677018165588,
                     "nr_measurements": 2738,
                     "temperature": {
                         "min": 26,
@@ -8771,7 +8789,7 @@
                     "end_unix": 1643410618.300205,
                     "start_utc": "2022-01-28 22:47:50",
                     "end_utc": "2022-01-28 22:56:58",
-                    "duration": 548.0594539642334,
+                    "total_duration": 548.0594539642334,
                     "nr_measurements": 2738,
                     "temperature": {
                         "min": 28,
@@ -8816,7 +8834,7 @@
                     "end_unix": 1643410618.30399,
                     "start_utc": "2022-01-28 22:47:50",
                     "end_utc": "2022-01-28 22:56:58",
-                    "duration": 548.0524728298187,
+                    "total_duration": 548.0524728298187,
                     "nr_measurements": 2738,
                     "temperature": {
                         "min": 28,
@@ -8861,7 +8879,7 @@
                     "end_unix": 1643410618.306878,
                     "start_utc": "2022-01-28 22:47:50",
                     "end_utc": "2022-01-28 22:56:58",
-                    "duration": 548.0444531440735,
+                    "total_duration": 548.0444531440735,
                     "nr_measurements": 2738,
                     "temperature": {
                         "min": 28,
@@ -8906,7 +8924,7 @@
                     "end_unix": 1643410618.30971,
                     "start_utc": "2022-01-28 22:47:50",
                     "end_utc": "2022-01-28 22:56:58",
-                    "duration": 548.0359420776367,
+                    "total_duration": 548.0359420776367,
                     "nr_measurements": 2738,
                     "temperature": {
                         "min": 28,
@@ -8950,19 +8968,19 @@
                     "start_unix": 1643410070.198511,
                     "end_unix": 1643410618.30971,
                     "nr_measurements": 21904,
-                    "total_power_draw": 387297.0213048209
-                },
-                "start_utc": "2022-01-28 22:47:50",
-                "end_utc": "2022-01-28 22:56:58",
-                "duration": 548.1111991405487
+                    "total_power_draw": 387297.0213048209,
+                    "start_utc": "2022-01-28 22:47:50",
+                    "end_utc": "2022-01-28 22:56:58",
+                    "total_duration": 548.1111991405487
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3996069": {
                     "start_unix": 1643410071.128324,
                     "end_unix": 1643410619.086025,
                     "start_utc": "2022-01-28 22:47:51",
                     "end_utc": "2022-01-28 22:56:59",
-                    "duration": 547.9577009677887,
+                    "total_duration": 547.9577009677887,
                     "nr_measurements": 611,
                     "cpu_num": {
                         "min": 1,
@@ -9030,12 +9048,13 @@
                     "start_unix": 1643410071.128324,
                     "end_unix": 1643410619.086025,
                     "nr_measurements": 611,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 22:47:51",
-                "end_utc": "2022-01-28 22:56:59",
-                "duration": 547.9577009677887
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 22:47:51",
+                    "end_utc": "2022-01-28 22:56:59",
+                    "total_duration": 547.9577009677887
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 0.7351099252700806,
@@ -9052,13 +9071,13 @@
             "duration": 547.6303102970123
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643409983.532745,
                     "end_unix": 1643410063.407022,
                     "start_utc": "2022-01-28 22:46:23",
                     "end_utc": "2022-01-28 22:47:43",
-                    "duration": 79.87427711486816,
+                    "total_duration": 79.87427711486816,
                     "nr_measurements": 400,
                     "temperature": {
                         "min": 27,
@@ -9103,7 +9122,7 @@
                     "end_unix": 1643410063.409938,
                     "start_utc": "2022-01-28 22:46:23",
                     "end_utc": "2022-01-28 22:47:43",
-                    "duration": 79.8662760257721,
+                    "total_duration": 79.8662760257721,
                     "nr_measurements": 400,
                     "temperature": {
                         "min": 26,
@@ -9148,7 +9167,7 @@
                     "end_unix": 1643410063.412819,
                     "start_utc": "2022-01-28 22:46:23",
                     "end_utc": "2022-01-28 22:47:43",
-                    "duration": 79.8588879108429,
+                    "total_duration": 79.8588879108429,
                     "nr_measurements": 400,
                     "temperature": {
                         "min": 26,
@@ -9193,7 +9212,7 @@
                     "end_unix": 1643410063.415716,
                     "start_utc": "2022-01-28 22:46:23",
                     "end_utc": "2022-01-28 22:47:43",
-                    "duration": 79.85120797157288,
+                    "total_duration": 79.85120797157288,
                     "nr_measurements": 400,
                     "temperature": {
                         "min": 26,
@@ -9238,7 +9257,7 @@
                     "end_unix": 1643410063.419246,
                     "start_utc": "2022-01-28 22:46:23",
                     "end_utc": "2022-01-28 22:47:43",
-                    "duration": 79.84400296211243,
+                    "total_duration": 79.84400296211243,
                     "nr_measurements": 400,
                     "temperature": {
                         "min": 29,
@@ -9283,7 +9302,7 @@
                     "end_unix": 1643410063.422456,
                     "start_utc": "2022-01-28 22:46:23",
                     "end_utc": "2022-01-28 22:47:43",
-                    "duration": 79.83336210250854,
+                    "total_duration": 79.83336210250854,
                     "nr_measurements": 400,
                     "temperature": {
                         "min": 29,
@@ -9328,7 +9347,7 @@
                     "end_unix": 1643410063.427459,
                     "start_utc": "2022-01-28 22:46:23",
                     "end_utc": "2022-01-28 22:47:43",
-                    "duration": 79.82733988761902,
+                    "total_duration": 79.82733988761902,
                     "nr_measurements": 400,
                     "temperature": {
                         "min": 28,
@@ -9373,7 +9392,7 @@
                     "end_unix": 1643410063.43039,
                     "start_utc": "2022-01-28 22:46:23",
                     "end_utc": "2022-01-28 22:47:43",
-                    "duration": 79.81917095184326,
+                    "total_duration": 79.81917095184326,
                     "nr_measurements": 400,
                     "temperature": {
                         "min": 29,
@@ -9417,19 +9436,19 @@
                     "start_unix": 1643409983.532745,
                     "end_unix": 1643410063.43039,
                     "nr_measurements": 3200,
-                    "total_power_draw": 41131.20492389884
-                },
-                "start_utc": "2022-01-28 22:46:23",
-                "end_utc": "2022-01-28 22:47:43",
-                "duration": 79.89764499664307
+                    "total_power_draw": 41131.20492389884,
+                    "start_utc": "2022-01-28 22:46:23",
+                    "end_utc": "2022-01-28 22:47:43",
+                    "total_duration": 79.89764499664307
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3996069": {
                     "start_unix": 1643409983.658047,
                     "end_unix": 1643410064.002111,
                     "start_utc": "2022-01-28 22:46:23",
                     "end_utc": "2022-01-28 22:47:44",
-                    "duration": 80.34406399726868,
+                    "total_duration": 80.34406399726868,
                     "nr_measurements": 305,
                     "cpu_num": {
                         "min": 64,
@@ -9497,12 +9516,13 @@
                     "start_unix": 1643409983.658047,
                     "end_unix": 1643410064.002111,
                     "nr_measurements": 305,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 22:46:23",
-                "end_utc": "2022-01-28 22:47:44",
-                "duration": 80.34406399726868
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 22:46:23",
+                    "end_utc": "2022-01-28 22:47:44",
+                    "total_duration": 80.34406399726868
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.1675961017608643,
@@ -9537,13 +9557,13 @@
             "timestamp": "2022_01_28_22_57_12"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643410731.182967,
                     "end_unix": 1643411242.621892,
                     "start_utc": "2022-01-28 22:58:51",
                     "end_utc": "2022-01-28 23:07:22",
-                    "duration": 511.4389250278473,
+                    "total_duration": 511.4389250278473,
                     "nr_measurements": 2555,
                     "temperature": {
                         "min": 27,
@@ -9588,7 +9608,7 @@
                     "end_unix": 1643411242.624775,
                     "start_utc": "2022-01-28 22:58:51",
                     "end_utc": "2022-01-28 23:07:22",
-                    "duration": 511.43160486221313,
+                    "total_duration": 511.43160486221313,
                     "nr_measurements": 2555,
                     "temperature": {
                         "min": 26,
@@ -9633,7 +9653,7 @@
                     "end_unix": 1643411242.62764,
                     "start_utc": "2022-01-28 22:58:51",
                     "end_utc": "2022-01-28 23:07:22",
-                    "duration": 511.42308497428894,
+                    "total_duration": 511.42308497428894,
                     "nr_measurements": 2555,
                     "temperature": {
                         "min": 26,
@@ -9678,7 +9698,7 @@
                     "end_unix": 1643411242.630531,
                     "start_utc": "2022-01-28 22:58:51",
                     "end_utc": "2022-01-28 23:07:22",
-                    "duration": 511.4155201911926,
+                    "total_duration": 511.4155201911926,
                     "nr_measurements": 2555,
                     "temperature": {
                         "min": 26,
@@ -9723,7 +9743,7 @@
                     "end_unix": 1643411242.633429,
                     "start_utc": "2022-01-28 22:58:51",
                     "end_utc": "2022-01-28 23:07:22",
-                    "duration": 511.40785813331604,
+                    "total_duration": 511.40785813331604,
                     "nr_measurements": 2555,
                     "temperature": {
                         "min": 29,
@@ -9768,7 +9788,7 @@
                     "end_unix": 1643411242.636411,
                     "start_utc": "2022-01-28 22:58:51",
                     "end_utc": "2022-01-28 23:07:22",
-                    "duration": 511.400022983551,
+                    "total_duration": 511.400022983551,
                     "nr_measurements": 2555,
                     "temperature": {
                         "min": 29,
@@ -9813,7 +9833,7 @@
                     "end_unix": 1643411242.639818,
                     "start_utc": "2022-01-28 22:58:51",
                     "end_utc": "2022-01-28 23:07:22",
-                    "duration": 511.3925139904022,
+                    "total_duration": 511.3925139904022,
                     "nr_measurements": 2555,
                     "temperature": {
                         "min": 29,
@@ -9858,7 +9878,7 @@
                     "end_unix": 1643411242.642677,
                     "start_utc": "2022-01-28 22:58:51",
                     "end_utc": "2022-01-28 23:07:22",
-                    "duration": 511.3842911720276,
+                    "total_duration": 511.3842911720276,
                     "nr_measurements": 2555,
                     "temperature": {
                         "min": 30,
@@ -9902,19 +9922,19 @@
                     "start_unix": 1643410731.182967,
                     "end_unix": 1643411242.642677,
                     "nr_measurements": 20440,
-                    "total_power_draw": 445214.02688092407
-                },
-                "start_utc": "2022-01-28 22:58:51",
-                "end_utc": "2022-01-28 23:07:22",
-                "duration": 511.4597101211548
+                    "total_power_draw": 445214.02688092407,
+                    "start_utc": "2022-01-28 22:58:51",
+                    "end_utc": "2022-01-28 23:07:22",
+                    "total_duration": 511.4597101211548
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3998034": {
                     "start_unix": 1643410731.970949,
                     "end_unix": 1643411243.748606,
                     "start_utc": "2022-01-28 22:58:51",
                     "end_utc": "2022-01-28 23:07:23",
-                    "duration": 511.77765703201294,
+                    "total_duration": 511.77765703201294,
                     "nr_measurements": 753,
                     "cpu_num": {
                         "min": 64,
@@ -9982,12 +10002,13 @@
                     "start_unix": 1643410731.970949,
                     "end_unix": 1643411243.748606,
                     "nr_measurements": 753,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 22:58:51",
-                "end_utc": "2022-01-28 23:07:23",
-                "duration": 511.77765703201294
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 22:58:51",
+                    "end_utc": "2022-01-28 23:07:23",
+                    "total_duration": 511.77765703201294
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 0.6747746467590332,
@@ -10004,13 +10025,13 @@
             "duration": 511.15557169914246
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643410645.489823,
                     "end_unix": 1643410724.765468,
                     "start_utc": "2022-01-28 22:57:25",
                     "end_utc": "2022-01-28 22:58:44",
-                    "duration": 79.27564477920532,
+                    "total_duration": 79.27564477920532,
                     "nr_measurements": 397,
                     "temperature": {
                         "min": 29,
@@ -10055,7 +10076,7 @@
                     "end_unix": 1643410724.768436,
                     "start_utc": "2022-01-28 22:57:25",
                     "end_utc": "2022-01-28 22:58:44",
-                    "duration": 79.26826906204224,
+                    "total_duration": 79.26826906204224,
                     "nr_measurements": 397,
                     "temperature": {
                         "min": 28,
@@ -10100,7 +10121,7 @@
                     "end_unix": 1643410724.774502,
                     "start_utc": "2022-01-28 22:57:25",
                     "end_utc": "2022-01-28 22:58:44",
-                    "duration": 79.26411509513855,
+                    "total_duration": 79.26411509513855,
                     "nr_measurements": 397,
                     "temperature": {
                         "min": 28,
@@ -10145,7 +10166,7 @@
                     "end_unix": 1643410724.777488,
                     "start_utc": "2022-01-28 22:57:25",
                     "end_utc": "2022-01-28 22:58:44",
-                    "duration": 79.25664710998535,
+                    "total_duration": 79.25664710998535,
                     "nr_measurements": 397,
                     "temperature": {
                         "min": 28,
@@ -10190,7 +10211,7 @@
                     "end_unix": 1643410724.780422,
                     "start_utc": "2022-01-28 22:57:25",
                     "end_utc": "2022-01-28 22:58:44",
-                    "duration": 79.24900507926941,
+                    "total_duration": 79.24900507926941,
                     "nr_measurements": 397,
                     "temperature": {
                         "min": 30,
@@ -10235,7 +10256,7 @@
                     "end_unix": 1643410724.783478,
                     "start_utc": "2022-01-28 22:57:25",
                     "end_utc": "2022-01-28 22:58:44",
-                    "duration": 79.24095606803894,
+                    "total_duration": 79.24095606803894,
                     "nr_measurements": 397,
                     "temperature": {
                         "min": 30,
@@ -10280,7 +10301,7 @@
                     "end_unix": 1643410724.786442,
                     "start_utc": "2022-01-28 22:57:25",
                     "end_utc": "2022-01-28 22:58:44",
-                    "duration": 79.23296594619751,
+                    "total_duration": 79.23296594619751,
                     "nr_measurements": 397,
                     "temperature": {
                         "min": 30,
@@ -10325,7 +10346,7 @@
                     "end_unix": 1643410724.790587,
                     "start_utc": "2022-01-28 22:57:25",
                     "end_utc": "2022-01-28 22:58:44",
-                    "duration": 79.22584199905396,
+                    "total_duration": 79.22584199905396,
                     "nr_measurements": 397,
                     "temperature": {
                         "min": 30,
@@ -10369,19 +10390,19 @@
                     "start_unix": 1643410645.489823,
                     "end_unix": 1643410724.790587,
                     "nr_measurements": 3176,
-                    "total_power_draw": 43456.76055936945
-                },
-                "start_utc": "2022-01-28 22:57:25",
-                "end_utc": "2022-01-28 22:58:44",
-                "duration": 79.30076384544373
+                    "total_power_draw": 43456.76055936945,
+                    "start_utc": "2022-01-28 22:57:25",
+                    "end_utc": "2022-01-28 22:58:44",
+                    "total_duration": 79.30076384544373
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3998034": {
                     "start_unix": 1643410645.5883,
                     "end_unix": 1643410725.263187,
                     "start_utc": "2022-01-28 22:57:25",
                     "end_utc": "2022-01-28 22:58:45",
-                    "duration": 79.67488694190979,
+                    "total_duration": 79.67488694190979,
                     "nr_measurements": 329,
                     "cpu_num": {
                         "min": 39,
@@ -10449,12 +10470,13 @@
                     "start_unix": 1643410645.5883,
                     "end_unix": 1643410725.263187,
                     "nr_measurements": 329,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 22:57:25",
-                "end_utc": "2022-01-28 22:58:45",
-                "duration": 79.67488694190979
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 22:57:25",
+                    "end_utc": "2022-01-28 22:58:45",
+                    "total_duration": 79.67488694190979
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 1.1011654138565063,
@@ -10489,13 +10511,13 @@
             "timestamp": "2022_01_28_23_07_35"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643411369.312692,
                     "end_unix": 1643411926.54553,
                     "start_utc": "2022-01-28 23:09:29",
                     "end_utc": "2022-01-28 23:18:46",
-                    "duration": 557.2328381538391,
+                    "total_duration": 557.2328381538391,
                     "nr_measurements": 2781,
                     "temperature": {
                         "min": 30,
@@ -10540,7 +10562,7 @@
                     "end_unix": 1643411926.548391,
                     "start_utc": "2022-01-28 23:09:29",
                     "end_utc": "2022-01-28 23:18:46",
-                    "duration": 557.225594997406,
+                    "total_duration": 557.225594997406,
                     "nr_measurements": 2781,
                     "temperature": {
                         "min": 29,
@@ -10585,7 +10607,7 @@
                     "end_unix": 1643411926.553574,
                     "start_utc": "2022-01-28 23:09:29",
                     "end_utc": "2022-01-28 23:18:46",
-                    "duration": 557.220498085022,
+                    "total_duration": 557.220498085022,
                     "nr_measurements": 2781,
                     "temperature": {
                         "min": 29,
@@ -10630,7 +10652,7 @@
                     "end_unix": 1643411926.556445,
                     "start_utc": "2022-01-28 23:09:29",
                     "end_utc": "2022-01-28 23:18:46",
-                    "duration": 557.212938785553,
+                    "total_duration": 557.212938785553,
                     "nr_measurements": 2781,
                     "temperature": {
                         "min": 29,
@@ -10675,7 +10697,7 @@
                     "end_unix": 1643411926.559358,
                     "start_utc": "2022-01-28 23:09:29",
                     "end_utc": "2022-01-28 23:18:46",
-                    "duration": 557.2052659988403,
+                    "total_duration": 557.2052659988403,
                     "nr_measurements": 2781,
                     "temperature": {
                         "min": 32,
@@ -10720,7 +10742,7 @@
                     "end_unix": 1643411926.562248,
                     "start_utc": "2022-01-28 23:09:29",
                     "end_utc": "2022-01-28 23:18:46",
-                    "duration": 557.1958808898926,
+                    "total_duration": 557.1958808898926,
                     "nr_measurements": 2781,
                     "temperature": {
                         "min": 32,
@@ -10765,7 +10787,7 @@
                     "end_unix": 1643411926.565379,
                     "start_utc": "2022-01-28 23:09:29",
                     "end_utc": "2022-01-28 23:18:46",
-                    "duration": 557.1880447864532,
+                    "total_duration": 557.1880447864532,
                     "nr_measurements": 2781,
                     "temperature": {
                         "min": 31,
@@ -10810,7 +10832,7 @@
                     "end_unix": 1643411926.568288,
                     "start_utc": "2022-01-28 23:09:29",
                     "end_utc": "2022-01-28 23:18:46",
-                    "duration": 557.1798453330994,
+                    "total_duration": 557.1798453330994,
                     "nr_measurements": 2781,
                     "temperature": {
                         "min": 32,
@@ -10854,19 +10876,19 @@
                     "start_unix": 1643411369.312692,
                     "end_unix": 1643411926.568288,
                     "nr_measurements": 22248,
-                    "total_power_draw": 597043.5077064555
-                },
-                "start_utc": "2022-01-28 23:09:29",
-                "end_utc": "2022-01-28 23:18:46",
-                "duration": 557.2555961608887
+                    "total_power_draw": 597043.5077064555,
+                    "start_utc": "2022-01-28 23:09:29",
+                    "end_utc": "2022-01-28 23:18:46",
+                    "total_duration": 557.2555961608887
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3999999": {
                     "start_unix": 1643411370.244215,
                     "end_unix": 1643411927.649483,
                     "start_utc": "2022-01-28 23:09:30",
                     "end_utc": "2022-01-28 23:18:47",
-                    "duration": 557.4052679538727,
+                    "total_duration": 557.4052679538727,
                     "nr_measurements": 610,
                     "cpu_num": {
                         "min": 0,
@@ -10934,12 +10956,13 @@
                     "start_unix": 1643411370.244215,
                     "end_unix": 1643411927.649483,
                     "nr_measurements": 610,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 23:09:30",
-                "end_utc": "2022-01-28 23:18:47",
-                "duration": 557.4052679538727
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 23:09:30",
+                    "end_utc": "2022-01-28 23:18:47",
+                    "total_duration": 557.4052679538727
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 0.4763021171092987,
@@ -10956,13 +10979,13 @@
             "duration": 556.8250861167908
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643411269.727068,
                     "end_unix": 1643411362.017248,
                     "start_utc": "2022-01-28 23:07:49",
                     "end_utc": "2022-01-28 23:09:22",
-                    "duration": 92.29017996788025,
+                    "total_duration": 92.29017996788025,
                     "nr_measurements": 462,
                     "temperature": {
                         "min": 28,
@@ -11007,7 +11030,7 @@
                     "end_unix": 1643411362.020146,
                     "start_utc": "2022-01-28 23:07:49",
                     "end_utc": "2022-01-28 23:09:22",
-                    "duration": 92.28062295913696,
+                    "total_duration": 92.28062295913696,
                     "nr_measurements": 462,
                     "temperature": {
                         "min": 27,
@@ -11052,7 +11075,7 @@
                     "end_unix": 1643411362.023032,
                     "start_utc": "2022-01-28 23:07:49",
                     "end_utc": "2022-01-28 23:09:22",
-                    "duration": 92.26762795448303,
+                    "total_duration": 92.26762795448303,
                     "nr_measurements": 462,
                     "temperature": {
                         "min": 27,
@@ -11097,7 +11120,7 @@
                     "end_unix": 1643411362.025919,
                     "start_utc": "2022-01-28 23:07:49",
                     "end_utc": "2022-01-28 23:09:22",
-                    "duration": 92.24449801445007,
+                    "total_duration": 92.24449801445007,
                     "nr_measurements": 462,
                     "temperature": {
                         "min": 27,
@@ -11142,7 +11165,7 @@
                     "end_unix": 1643411362.031025,
                     "start_utc": "2022-01-28 23:07:49",
                     "end_utc": "2022-01-28 23:09:22",
-                    "duration": 92.23896384239197,
+                    "total_duration": 92.23896384239197,
                     "nr_measurements": 462,
                     "temperature": {
                         "min": 29,
@@ -11187,7 +11210,7 @@
                     "end_unix": 1643411362.033862,
                     "start_utc": "2022-01-28 23:07:49",
                     "end_utc": "2022-01-28 23:09:22",
-                    "duration": 92.23059415817261,
+                    "total_duration": 92.23059415817261,
                     "nr_measurements": 462,
                     "temperature": {
                         "min": 29,
@@ -11232,7 +11255,7 @@
                     "end_unix": 1643411362.037212,
                     "start_utc": "2022-01-28 23:07:49",
                     "end_utc": "2022-01-28 23:09:22",
-                    "duration": 92.22299289703369,
+                    "total_duration": 92.22299289703369,
                     "nr_measurements": 462,
                     "temperature": {
                         "min": 29,
@@ -11277,7 +11300,7 @@
                     "end_unix": 1643411362.040083,
                     "start_utc": "2022-01-28 23:07:49",
                     "end_utc": "2022-01-28 23:09:22",
-                    "duration": 92.2145938873291,
+                    "total_duration": 92.2145938873291,
                     "nr_measurements": 462,
                     "temperature": {
                         "min": 29,
@@ -11321,19 +11344,19 @@
                     "start_unix": 1643411269.727068,
                     "end_unix": 1643411362.040083,
                     "nr_measurements": 3696,
-                    "total_power_draw": 56812.858372647286
-                },
-                "start_utc": "2022-01-28 23:07:49",
-                "end_utc": "2022-01-28 23:09:22",
-                "duration": 92.31301498413086
+                    "total_power_draw": 56812.858372647286,
+                    "start_utc": "2022-01-28 23:07:49",
+                    "end_utc": "2022-01-28 23:09:22",
+                    "total_duration": 92.31301498413086
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "3999999": {
                     "start_unix": 1643411269.866948,
                     "end_unix": 1643411362.694083,
                     "start_utc": "2022-01-28 23:07:49",
                     "end_utc": "2022-01-28 23:09:22",
-                    "duration": 92.82713508605957,
+                    "total_duration": 92.82713508605957,
                     "nr_measurements": 318,
                     "cpu_num": {
                         "min": 16,
@@ -11401,12 +11424,13 @@
                     "start_unix": 1643411269.866948,
                     "end_unix": 1643411362.694083,
                     "nr_measurements": 318,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 23:07:49",
-                "end_utc": "2022-01-28 23:09:22",
-                "duration": 92.82713508605957
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 23:07:49",
+                    "end_utc": "2022-01-28 23:09:22",
+                    "total_duration": 92.82713508605957
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 0.9478550553321838,
@@ -11441,13 +11465,13 @@
             "timestamp": "2022_01_28_23_19_00"
         },
         "train": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643412081.589852,
                     "end_unix": 1643412759.785123,
                     "start_utc": "2022-01-28 23:21:21",
                     "end_utc": "2022-01-28 23:32:39",
-                    "duration": 678.1952710151672,
+                    "total_duration": 678.1952710151672,
                     "nr_measurements": 3387,
                     "temperature": {
                         "min": 30,
@@ -11492,7 +11516,7 @@
                     "end_unix": 1643412759.787972,
                     "start_utc": "2022-01-28 23:21:21",
                     "end_utc": "2022-01-28 23:32:39",
-                    "duration": 678.187952041626,
+                    "total_duration": 678.187952041626,
                     "nr_measurements": 3387,
                     "temperature": {
                         "min": 29,
@@ -11537,7 +11561,7 @@
                     "end_unix": 1643412759.791018,
                     "start_utc": "2022-01-28 23:21:21",
                     "end_utc": "2022-01-28 23:32:39",
-                    "duration": 678.180771112442,
+                    "total_duration": 678.180771112442,
                     "nr_measurements": 3387,
                     "temperature": {
                         "min": 29,
@@ -11582,7 +11606,7 @@
                     "end_unix": 1643412759.793877,
                     "start_utc": "2022-01-28 23:21:21",
                     "end_utc": "2022-01-28 23:32:39",
-                    "duration": 678.1727788448334,
+                    "total_duration": 678.1727788448334,
                     "nr_measurements": 3387,
                     "temperature": {
                         "min": 28,
@@ -11627,7 +11651,7 @@
                     "end_unix": 1643412759.796764,
                     "start_utc": "2022-01-28 23:21:21",
                     "end_utc": "2022-01-28 23:32:39",
-                    "duration": 678.1649088859558,
+                    "total_duration": 678.1649088859558,
                     "nr_measurements": 3387,
                     "temperature": {
                         "min": 32,
@@ -11672,7 +11696,7 @@
                     "end_unix": 1643412759.799658,
                     "start_utc": "2022-01-28 23:21:21",
                     "end_utc": "2022-01-28 23:32:39",
-                    "duration": 678.1562070846558,
+                    "total_duration": 678.1562070846558,
                     "nr_measurements": 3387,
                     "temperature": {
                         "min": 32,
@@ -11717,7 +11741,7 @@
                     "end_unix": 1643412759.802581,
                     "start_utc": "2022-01-28 23:21:21",
                     "end_utc": "2022-01-28 23:32:39",
-                    "duration": 678.1482071876526,
+                    "total_duration": 678.1482071876526,
                     "nr_measurements": 3387,
                     "temperature": {
                         "min": 31,
@@ -11762,7 +11786,7 @@
                     "end_unix": 1643412759.805515,
                     "start_utc": "2022-01-28 23:21:21",
                     "end_utc": "2022-01-28 23:32:39",
-                    "duration": 678.139976978302,
+                    "total_duration": 678.139976978302,
                     "nr_measurements": 3387,
                     "temperature": {
                         "min": 32,
@@ -11806,19 +11830,19 @@
                     "start_unix": 1643412081.589852,
                     "end_unix": 1643412759.805515,
                     "nr_measurements": 27096,
-                    "total_power_draw": 952173.3392663447
-                },
-                "start_utc": "2022-01-28 23:21:21",
-                "end_utc": "2022-01-28 23:32:39",
-                "duration": 678.2156629562378
+                    "total_power_draw": 952173.3392663447,
+                    "start_utc": "2022-01-28 23:21:21",
+                    "end_utc": "2022-01-28 23:32:39",
+                    "total_duration": 678.2156629562378
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "4001964": {
                     "start_unix": 1643412082.718531,
                     "end_unix": 1643412760.976625,
                     "start_utc": "2022-01-28 23:21:22",
                     "end_utc": "2022-01-28 23:32:40",
-                    "duration": 678.2580940723419,
+                    "total_duration": 678.2580940723419,
                     "nr_measurements": 666,
                     "cpu_num": {
                         "min": 0,
@@ -11886,12 +11910,13 @@
                     "start_unix": 1643412082.718531,
                     "end_unix": 1643412760.976625,
                     "nr_measurements": 666,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 23:21:22",
-                "end_utc": "2022-01-28 23:32:40",
-                "duration": 678.2580940723419
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 23:21:22",
+                    "end_utc": "2022-01-28 23:32:40",
+                    "total_duration": 678.2580940723419
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 0.5255689024925232,
@@ -11908,13 +11933,13 @@
             "duration": 677.7470750808716
         },
         "validation": {
-            "gpu_monitoring": {
+            "monitoring_gpu": {
                 "0": {
                     "start_unix": 1643411956.719933,
                     "end_unix": 1643412072.238974,
                     "start_utc": "2022-01-28 23:19:16",
                     "end_utc": "2022-01-28 23:21:12",
-                    "duration": 115.51904106140137,
+                    "total_duration": 115.51904106140137,
                     "nr_measurements": 578,
                     "temperature": {
                         "min": 28,
@@ -11959,7 +11984,7 @@
                     "end_unix": 1643412072.24194,
                     "start_utc": "2022-01-28 23:19:16",
                     "end_utc": "2022-01-28 23:21:12",
-                    "duration": 115.51068997383118,
+                    "total_duration": 115.51068997383118,
                     "nr_measurements": 578,
                     "temperature": {
                         "min": 27,
@@ -12004,7 +12029,7 @@
                     "end_unix": 1643412072.245267,
                     "start_utc": "2022-01-28 23:19:16",
                     "end_utc": "2022-01-28 23:21:12",
-                    "duration": 115.50378584861755,
+                    "total_duration": 115.50378584861755,
                     "nr_measurements": 578,
                     "temperature": {
                         "min": 27,
@@ -12049,7 +12074,7 @@
                     "end_unix": 1643412072.251454,
                     "start_utc": "2022-01-28 23:19:16",
                     "end_utc": "2022-01-28 23:21:12",
-                    "duration": 115.49969816207886,
+                    "total_duration": 115.49969816207886,
                     "nr_measurements": 578,
                     "temperature": {
                         "min": 26,
@@ -12094,7 +12119,7 @@
                     "end_unix": 1643412072.255562,
                     "start_utc": "2022-01-28 23:19:16",
                     "end_utc": "2022-01-28 23:21:12",
-                    "duration": 115.49321413040161,
+                    "total_duration": 115.49321413040161,
                     "nr_measurements": 578,
                     "temperature": {
                         "min": 28,
@@ -12139,7 +12164,7 @@
                     "end_unix": 1643412072.258458,
                     "start_utc": "2022-01-28 23:19:16",
                     "end_utc": "2022-01-28 23:21:12",
-                    "duration": 115.48540163040161,
+                    "total_duration": 115.48540163040161,
                     "nr_measurements": 578,
                     "temperature": {
                         "min": 28,
@@ -12184,7 +12209,7 @@
                     "end_unix": 1643412072.265597,
                     "start_utc": "2022-01-28 23:19:16",
                     "end_utc": "2022-01-28 23:21:12",
-                    "duration": 115.48100519180298,
+                    "total_duration": 115.48100519180298,
                     "nr_measurements": 578,
                     "temperature": {
                         "min": 28,
@@ -12229,7 +12254,7 @@
                     "end_unix": 1643412072.268945,
                     "start_utc": "2022-01-28 23:19:16",
                     "end_utc": "2022-01-28 23:21:12",
-                    "duration": 115.47141790390015,
+                    "total_duration": 115.47141790390015,
                     "nr_measurements": 578,
                     "temperature": {
                         "min": 29,
@@ -12273,19 +12298,19 @@
                     "start_unix": 1643411956.719933,
                     "end_unix": 1643412072.268945,
                     "nr_measurements": 4624,
-                    "total_power_draw": 79854.50434067365
-                },
-                "start_utc": "2022-01-28 23:19:16",
-                "end_utc": "2022-01-28 23:21:12",
-                "duration": 115.54901194572449
+                    "total_power_draw": 79854.50434067365,
+                    "start_utc": "2022-01-28 23:19:16",
+                    "end_utc": "2022-01-28 23:21:12",
+                    "total_duration": 115.54901194572449
+                }
             },
-            "cpu_monitoring": {
+            "monitoring_cpu": {
                 "4001964": {
                     "start_unix": 1643411956.87806,
                     "end_unix": 1643412073.22665,
                     "start_utc": "2022-01-28 23:19:16",
                     "end_utc": "2022-01-28 23:21:13",
-                    "duration": 116.34858989715576,
+                    "total_duration": 116.34858989715576,
                     "nr_measurements": 355,
                     "cpu_num": {
                         "min": 13,
@@ -12353,12 +12378,13 @@
                     "start_unix": 1643411956.87806,
                     "end_unix": 1643412073.22665,
                     "nr_measurements": 355,
-                    "total_power_draw": -1
-                },
-                "start_utc": "2022-01-28 23:19:16",
-                "end_utc": "2022-01-28 23:21:13",
-                "duration": 116.34858989715576
+                    "total_power_draw": -1,
+                    "start_utc": "2022-01-28 23:19:16",
+                    "end_utc": "2022-01-28 23:21:13",
+                    "total_duration": 116.34858989715576
+                }
             },
+            "monitoring_rapl": null,
             "results": {
                 "metrics": {
                     "loss": 0.8995579481124878,
