@@ -4,9 +4,12 @@ import numpy as np
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
-from plotly.subplots import make_subplots
+from dash.dependencies import Input, Output
 import plotly.graph_objects as go
+from plotly.validators.scatter.marker import SymbolValidator
+
+raw_symbols = SymbolValidator().values
+symbols = [raw_symbols[i] for i in range(0, len(raw_symbols), 12)]
 
 
 RATINGS = ['green', 'yellow', 'orange', 'red']
@@ -27,7 +30,11 @@ def calc_accuracy(res, train=False, top5=False):
 
 
 def calc_parameters(res):
-    return res['train']['results']['model']['params']
+    return res['validation']['results']['model']['params']
+
+
+def calc_fsize(res):
+    return res['validation']['results']['model']['fsize']
 
 
 def calc_inf_time(res):
@@ -51,7 +58,7 @@ def calc_rating(x, y, bins, direction):
 
 
 def calculate_rating_bins(x, y, direction='LR', spacing=[0.05, 0.15, 0.35, 0.5], fig=None):
-    fillcols = ['black'] + RATINGS + ['white']
+    fillcols = ['green'] + RATINGS + ['red']
     if direction in ['UR', 'UL']:
         spacing = [0] + list(np.cumsum(list(reversed(spacing))))
         fillcols = list(reversed(fillcols))
@@ -93,7 +100,7 @@ def calculate_rating_bins(x, y, direction='LR', spacing=[0.05, 0.15, 0.35, 0.5],
             #     y1 += 10000
             #     y2 += 10000
             fill = None if l == 0 else 'tonexty'
-            fig.add_trace(go.Scatter(x=[x1, x2], y=[y1, y2], fill=fill, fillcolor=fillcols[l], mode='lines', line={'color': fillcols[l]}, showlegend=False, hoverinfo=None))
+            fig.add_trace(go.Scatter(x=[x1, x2], y=[y1, y2], fill=fill, mode='lines', line={'color': fillcols[l]}, showlegend=False, hoverinfo=None))
     bins = bins[1:-1]
     r_func = lambda xin, yin: calc_rating(xin, yin, bins, direction)
     ratings = []
@@ -111,14 +118,15 @@ def create_scatter_fig(x, y, axis_title, names, envs, spacing, ax_border=0.1):
         direction = 'UL' if axis_title[1] in HIGHER_BETTER else 'LL'
     bins, r_func, ratings = calculate_rating_bins(x, y, direction, spacing, fig)
     # points
-    for env_x, env_v, env_names, env, env_rating in zip(x, y, names, envs, ratings):
+    for env_i, (env_x, env_v, env_names, env, env_rating) in enumerate(zip(x, y, names, envs, ratings)):
         # TODO different line colors for the different environments
         fig.add_trace(go.Scatter(
-            x=env_x, y=env_v, text=env_names, mode='markers', name=env,
-            marker=dict(color=[RATINGS[r] for r in env_rating], size=10), marker_line=dict(width=4, color='white'))
+            x=env_x, y=env_v, text=env_names, mode='markers', name=env, marker_symbol=symbols[env_i],
+            marker=dict(color=[RATINGS[r] for r in env_rating], size=15), marker_line=dict(width=3, color='white'))
         )
     fig.update_traces(textposition='top center')
     fig.update_layout(xaxis_title=axis_title[0], yaxis_title=axis_title[1], title=direction)
+    fig.update_layout(legend=dict(x=.1, y=-.2, orientation="h"))
     min_x, max_x = np.min([min(v) for v in x]), np.max([max(v) for v in x])
     min_y, max_y = np.min([min(v) for v in y]), np.max([max(v) for v in y])
     diff_x, diff_y = max_x - min_x, max_y - min_y
@@ -145,6 +153,7 @@ class Visualization(dash.Dash):
             'Top-5 Validation Accuracy [%]': lambda res: calc_accuracy(res, top5=True),
             'Top-5 Training Accuracy [%]': lambda res: calc_accuracy(res, train=True, top5=True),
             'Parameters': calc_parameters,
+            'Model File Size [Bytes]': calc_fsize,
             'Inference time / Sample [ms]': calc_inf_time,
             'Power Draw / Sample [Ws]': calc_power_draw
         }
@@ -158,16 +167,16 @@ class Visualization(dash.Dash):
                 # config={'responsive': True},
                 # style={'height': '100%', 'width': '100%'}
             ),
-            html.Div(children=[
-                html.H2('Environments:'),
-                dcc.Checklist(
-                    id='environment',
-                    options=[
-                        {'label': env, 'value': env} for env in self.environments.keys()
-                    ],
-                    value=[list(self.environments.keys())[0]]
-                )
-            ]),
+            # html.Div(children=[
+            #     html.H2('Environments:'),
+            #     dcc.Checklist(
+            #         id='environment',
+            #         options=[
+            #             {'label': env, 'value': env} for env in self.environments.keys()
+            #         ],
+            #         value=[list(self.environments.keys())[0]]
+            #     )
+            # ]),
             html.Div(children=[
                 html.H2('X-Axis:'),
                 dcc.Dropdown(
@@ -199,11 +208,10 @@ class Visualization(dash.Dash):
                 ),
             ])
         ])
-        self.callback(Output('fig', 'figure'), [Input('environment', 'value'), Input('xaxis', 'value'), Input('yaxis', 'value'), Input('spacing', 'value')]) (self.update_fig)
+        self.callback(Output('fig', 'figure'), [Input('xaxis', 'value'), Input('yaxis', 'value'), Input('spacing', 'value')]) (self.update_fig)
 
-    def update_fig(self, env=None, xaxis=None, yaxis=None, spac=None):
-        if env is None:
-            env = [list(self.environments.keys())[0]]
+    def update_fig(self, xaxis=None, yaxis=None, spac=None):
+        env = list(self.environments.keys())
         results = [self.environments[e].values() for e in env]
         if spac is None:
             spacing = list(self.spacings.values())[0]
@@ -227,8 +235,8 @@ if __name__ == '__main__':
     result_files = {
         'A100_Tensorflow': 'results/A100/results_tf_pretrained.json',
         'A100_PyTorch': 'results/A100/results_torch_pretrained.json',
-        'RTX5000_Tensorflow': 'results/A100/results_tf_pretrained.json',
-        'RTX5000_PyTorch': 'results/A100/results_torch_pretrained.json',
+        'RTX5000_Tensorflow': 'results/RTX5000/results_tf_pretrained.json',
+        'RTX5000_PyTorch': 'results/RTX5000/results_torch_pretrained.json',
     }
     results = {}
     for name, resf in result_files.items():
