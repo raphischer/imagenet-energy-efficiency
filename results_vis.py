@@ -1,7 +1,9 @@
+import json
+
 import numpy as np
 import dash
 from dash import html, dcc
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from plotly import colors
 import plotly.graph_objects as go
 from plotly.validators.scatter.marker import SymbolValidator
@@ -67,7 +69,7 @@ class Visualization(dash.Dash):
                 # config={'responsive': True},
                 # style={'height': '100%', 'width': '100%'}
             ),
-            # html.Div(id='model_text', style={'whiteSpace': 'pre-line'}),
+            html.Div(id='model-text', style={'whiteSpace': 'pre-line'}),
             html.Div(children=[
                 html.H2('Environments:'),
                 dcc.Checklist(
@@ -117,7 +119,7 @@ class Visualization(dash.Dash):
             ]),
         ])
         self.callback(Output('fig', 'figure'), [Input('environments', 'value'), Input('scale-switch', 'value'), Input('rating', 'value'), Input('xaxis', 'value'), Input('yaxis', 'value')]) (self.update_fig)
-        # self.callback(Output('model-text', 'children'), Input('fig', 'hoverData')) (self.display_model)
+        self.callback(Output('model-text', 'children'), Input('fig', 'hoverData'), State('environments', 'value')) (self.display_model)
 
     def update_fig(self, env_names=None, scale_switch=None, rating_mode=None, xaxis=None, yaxis=None):
         if env_names is None:
@@ -136,9 +138,9 @@ class Visualization(dash.Dash):
             x.append([r[xaxis] for r in self.rated_results[env]])
             y.append([r[yaxis] for r in self.rated_results[env]])
             names.append([r['name'] for r in self.rated_results[env]])
-            x_ind.append([r['index'][xaxis]['value'] for r in self.rated_results[env]])
-            y_ind.append([r['index'][yaxis]['value'] for r in self.rated_results[env]])            
-            rating_cols.append([aggregate_rating([r['index'][xaxis]['rating'], r['index'][yaxis]['rating']], rating_mode, self.rating_colors) for r in self.rated_results[env]])
+            x_ind.append([r[xaxis]['index'] for r in self.rated_results[env]])
+            y_ind.append([r[yaxis]['index'] for r in self.rated_results[env]])            
+            rating_cols.append([aggregate_rating([r[xaxis]['rating'], r[yaxis]['rating']], rating_mode, self.rating_colors) for r in self.rated_results[env]])
         if scale_switch == 'index':
             scatter_pos = [x_ind, y_ind]
             rating_pos = [self.scales[xaxis], self.scales[yaxis]]
@@ -151,10 +153,14 @@ class Visualization(dash.Dash):
         add_rating_background(fig, rating_pos, self.rating_colors, rating_mode)
         return fig
 
-    # def display_model(self, hover_data=None):
-    #     if hover_data is None:
-    #         return 'lululu'
-    #     return 'lalala'
+    def display_model(self, hover_data=None, env_names=None):
+        if hover_data is None:
+            return 'no model info to show'
+        if env_names is None:
+            env_names = [list(self.rated_results.keys())[0]]
+        point = hover_data['points'][0]
+        model = self.rated_results[env_names[point['curveNumber']]][point['pointNumber']]
+        return json.dumps(model, indent=4)
 
 
 if __name__ == '__main__':

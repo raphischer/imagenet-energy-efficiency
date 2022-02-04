@@ -38,14 +38,10 @@ def index_to_value(index, ref, metric_key):
     return index * ref  if metric_key in HIGHER_BETTER else index / ref
 
 
-def calculate_rating(values, scale):
-    ratings = []
-    for index in values:
-        for i, (upper, lower) in enumerate(scale):
-            if index <= upper and index > lower:
-                ratings.append(i)
-                break
-    return ratings
+def calculate_rating(index, scale):
+    for i, (upper, lower) in enumerate(scale):
+        if index <= upper and index > lower:
+            return i
 
 
 def calc_accuracy(res, train=False, top5=False):
@@ -105,36 +101,32 @@ def rate_results(result_files, scales, reference_name):
         for model in resf.values():
             model_information = {}
             model_information['name'] = model['config']['model']
-            model_information['parameters'] = calc_parameters(model)
-            model_information['fsize'] = calc_fsize(model)
-            model_information['power_draw'] = calc_power_draw(model)
-            model_information['inference_time'] = calc_inf_time(model)
-            model_information['top1_val'] = calc_accuracy(model)
-            model_information['top5_val'] = calc_accuracy(model, top5=True)
+            model_information['parameters'] = {'value': calc_parameters(model)}
+            model_information['fsize'] = {'value': calc_fsize(model)}
+            model_information['power_draw'] = {'value': calc_power_draw(model)}
+            model_information['inference_time'] = {'value': calc_inf_time(model)}
+            model_information['top1_val'] = {'value': calc_accuracy(model)}
+            model_information['top5_val'] = {'value': calc_accuracy(model, top5=True)}
 
             try:
                 results[exp_name].append(model_information)
             except Exception:
                 results[exp_name] = [model_information]
 
-
     # Get reference values
     reference_values = {}
     for exp_name, model_list in results.items():
         for model in model_list:
             if model['name'] == reference_name:
-                reference_values[exp_name] = {k: v for k, v in model.items() if k != 'name'}
+                reference_values[exp_name] = {k: v['value'] for k, v in model.items() if k != 'name'}
                 break
 
     # Calculate indices using reference values and scales
     for exp_name, model_list in results.items():
         for model in model_list:
-            model['index'] = {}
-
             for key in KEYS:
-                index = value_to_index(model[key], reference_values[exp_name][key], key)
-                rating = calculate_rating([index], scales[key])[0]
-                model['index'][key] = { 'value': index, 'rating': rating }
+                model[key]['index'] = value_to_index(model[key]['value'], reference_values[exp_name][key], key)
+                model[key]['rating'] = calculate_rating(model[key]['index'], scales[key])
 
     # Calculate the real-valued scales
     real_scales = {}
