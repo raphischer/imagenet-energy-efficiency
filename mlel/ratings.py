@@ -1,15 +1,41 @@
 import json
 
+import numpy as np
+
+
 KEYS = ["parameters", "fsize", "power_draw", "inference_time", "top1_val", "top5_val"]
-RATINGS = ['green', 'yellow', 'orange', 'red', 'gray']
 HIGHER_BETTER = [
     'top1_val',
     'top5_val',
 ]
 
-def calculate_index(values, ref, axis):
+
+def aggregate_rating(ratings, mode, meanings=None):
+    if meanings is None:
+        meanings = np.arange(np.max(ratings) + 1)
+    if mode == 'best':
+        return meanings[min(ratings)]
+    if mode == 'worst':
+        return meanings[max(ratings)]
+    if mode == 'median':
+        return meanings[int(np.median(ratings))]
+    if mode == 'mean':
+        return meanings[int(np.ceil(np.mean(ratings)))]
+    if mode == 'majority':
+        return meanings[np.argmax(np.bincount(ratings))]
+    raise NotImplementedError('Rating Mode not implemented!', mode)
+
+
+# i = v / r   OR    i = r / v
+# v = i * r   OR    v = i / r
+def value_to_index(value, ref, metric_key):
     # TODO If values is integer, just return integer
-    return [val / ref for val in values] if axis in HIGHER_BETTER else [ref / val for val in values]
+    return value / ref if metric_key in HIGHER_BETTER else ref / value
+
+
+def index_to_value(index, ref, metric_key):
+    # TODO If values is integer, just return integer
+    return index * ref  if metric_key in HIGHER_BETTER else index / ref
 
 
 def calculate_rating(values, scale):
@@ -49,8 +75,8 @@ def load_scale(path="mlel/scales.json"):
         scales_json = json.load(file)
 
     # Convert boundaries to dictionary
-    max_value = 1e5
-    min_value = 1e-5
+    max_value = 100
+    min_value = 0
 
     scale_intervals = {}
 
@@ -66,13 +92,12 @@ def load_scale(path="mlel/scales.json"):
     return scale_intervals
 
 
-def load_results(result_files):
+def rate_results(result_files, scales, reference_name):
     tmp = {}
+
     for name, resf in result_files.items():
         with open(resf, 'r') as r:
             tmp[name] = json.load(r)
-
-    scales = load_scale()
 
     # Exctract all relevant metadata
     results = {}
@@ -97,17 +122,25 @@ def load_results(result_files):
     reference_values = {}
     for exp_name, model_list in results.items():
         for model in model_list:
-            if model['name'] == 'ResNet101':
+            if model['name'] == reference_name:
                 reference_values[exp_name] = {k: v for k, v in model.items() if k != 'name'}
                 break
 
     # Calculate indices using reference values and scales
     for exp_name, model_list in results.items():
         for model in model_list:
-            model['indices'] = {}
+            model['index'] = {}
 
             for key in KEYS:
-                index = calculate_index([model[key]], reference_values[exp_name][key], key)[0]
-                model['indices'][key] = {'value': index, 'rating': calculate_rating([index], scales[key])[0] }
+                index = value_to_index(model[key], reference_values[exp_name][key], key)
+                rating = calculate_rating([index], scales[key])[0]
+                model['index'][key] = { 'value': index, 'rating': rating }
+
+    # Calculate the real-valued scales
+    real_scales = {}
+    for env, ref_values in reference_values.items():
+        real_scales[env] = {}
+        for key, vals in scales.items():
+            real_scales[env][key] = [(index_to_value(start, ref_values[key], key), index_to_value(stop, ref_values[key], key)) for (start, stop) in vals]
     
-    return results
+    return results, real_scales
