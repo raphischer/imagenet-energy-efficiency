@@ -9,6 +9,74 @@ from collections import defaultdict, deque, OrderedDict
 import torch
 import torch.distributed as dist
 
+model_name_mapping = {
+    "VGG16": "vgg16",
+    "VGG19": "vgg19",
+    "ResNet50": "resnet50",
+    "ResNet101": "resnet101",
+    "ResNet152": "resnet152",
+    "MobileNetV2": "mobilenet_v2",
+    "MobileNetV3Large": "mobilenet_v3_large",
+    "MobileNetV3Small": "mobilenet_v3_small",
+    "EfficientNetB0": "efficientnet_b0",
+    "EfficientNetB1": "efficientnet_b1",
+    "EfficientNetB2": "efficientnet_b2",
+    "EfficientNetB3": "efficientnet_b3",
+    "EfficientNetB4": "efficientnet_b4",
+    "EfficientNetB5": "efficientnet_b5",
+    "EfficientNetB6": "efficientnet_b6",
+    "EfficientNetB7": "efficientnet_b7",
+    "InceptionV3": "inception_v3"
+}
+
+def set_model_args(args):
+    # Set missing args, depending on model name
+    args.interpolation = "bilinear"
+    args.val_resize_size = 224
+    args.val_crop_size = 224
+    args.train_crop_size = 224
+
+    if "EfficientNet" in args.model:
+        args.interpolation = "bicubic"
+    if args.model == "EfficientNetB0":
+        args.val_resize_size = 256
+        args.val_crop_size = 224
+        args.train_crop_size = 224
+    if args.model == "EfficientNetB1":
+        args.val_resize_size = 256
+        args.val_crop_size = 240
+        args.train_crop_size = 240
+    if args.model == "EfficientNetB2":
+        args.val_resize_size = 288
+        args.val_crop_size = 288
+        args.train_crop_size = 288
+    if args.model == "EfficientNetB3":
+        args.val_resize_size = 320
+        args.val_crop_size = 300
+        args.train_crop_size = 300
+    if args.model == "EfficientNetB4":
+        args.val_resize_size = 384
+        args.val_crop_size = 380
+        args.train_crop_size = 380
+    if args.model == "EfficientNetB5":
+        args.val_resize_size = 456
+        args.val_crop_size = 456
+        args.train_crop_size = 456
+    if args.model == "EfficientNetB6":
+        args.val_resize_size = 528
+        args.val_crop_size = 528
+        args.train_crop_size = 528
+    if args.model == "EfficientNetB7":
+        args.val_resize_size = 600
+        args.val_crop_size = 600
+        args.train_crop_size = 600
+
+    if args.model == "InceptionV3":
+        args.val_resize_size = 342
+        args.val_crop_size = 299
+        args.train_crop_size = 299
+
+    return args
 
 class SmoothedValue:
     """Track a series of values and provide access to smoothed values over a
