@@ -9,7 +9,7 @@ import torchvision
 import mlel.ml_pytorch.pt_presets as presets
 import mlel.ml_pytorch.pt_utils as utils
 
-from mlel.ml_pytorch.pt_utils import model_name_mapping
+from mlel.ml_pytorch.pt_utils import model_name_mapping, non_trainable_models
 
 from torchvision.transforms.functional import InterpolationMode
 
@@ -169,6 +169,10 @@ def finalize_training(train_res, results, args):
 
 
 def init_training(args):
+
+    if args.model in non_trainable_models:
+        raise Warning(f"{args.model} cannot be trained!")
+
     torch.manual_seed(args.seed)
     if torch.cuda.is_available():
         setattr(args, "batch_size", args.batch_size * torch.cuda.device_count())

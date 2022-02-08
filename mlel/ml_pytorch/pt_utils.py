@@ -29,6 +29,24 @@ model_name_mapping = {
     "InceptionV3": "inception_v3"
 }
 
+non_trainable_models = {
+    "ResNext50": "resnext50_32x4d",
+    "ResNext101": "resnext101_32x8d",
+    "RegNetX400MF": "regnet_x_400mf",
+    "RegNetX8GF": "regnet_x_8gf",
+    "RegNetX32GF": "regnet_x_32gf",
+    # "ViTB16": "vit_b_16",
+    # "ViTB32": "vit_b_32",
+    # "ViTL16": "vit_l_16",
+    # "ViTL32": "vit_l_32",
+    # "ConvNeXtTiny": "convnext_tiny",
+    # "ConvNeXtSmall": "convnext_small",
+    # "ConvNeXtBase": "convnext_base",
+    # "ConvNeXtLarge": "convnext_large",
+}
+
+model_name_mapping.update(non_trainable_models)
+
 def set_model_args(args):
     # Set missing args, depending on model name
     args.interpolation = "bilinear"
@@ -75,6 +93,22 @@ def set_model_args(args):
         args.val_resize_size = 342
         args.val_crop_size = 299
         args.train_crop_size = 299
+
+    if args.model == "ViTL16":
+        args.val_resize_size = 232
+
+    if "ConvNeXtTiny" in args.model:
+        args.train_crop_size = 176
+        args.val_resize_size = 232
+    if "ConvNeXtSmall" in args.model:
+        args.train_crop_size = 176
+        args.val_resize_size = 232
+    if "ConvNeXtBase" in args.model:
+        args.train_crop_size = 176
+        args.val_resize_size = 232
+    if "ConvNeXtLarge" in args.model:
+        args.train_crop_size = 176
+        args.val_resize_size = 232
 
     return args
 

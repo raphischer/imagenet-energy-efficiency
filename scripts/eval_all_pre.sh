@@ -34,3 +34,13 @@ do
 python evaluate.py --backend $2 --data-path $3_$2 --output-dir $1 --eval-model $model
 done
 fi
+
+#  Available For Pytorch Only
+if [ $2 == "pytorch" ]
+then
+for model in ResNext50 ResNext101 RegNetX400MF RegNetX8GF RegNetX32GF
+do
+python evaluate.py --backend $2 --data-path $3_$2 --output-dir $1 --eval-model $model
+rm -rf ~/.cache/torch/hub/checkpoints
+done
+fi
