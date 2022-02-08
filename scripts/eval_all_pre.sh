@@ -14,19 +14,22 @@ do
 python evaluate.py --backend $2 --data-path $3_$2 --output-dir $1 --eval-model $model
 done
 
-python evaluate.py --backend $2 --data-path $3_$2 --output-dir $1 --eval-model MobileNetV2
-python evaluate.py --backend $2 --data-path $3_$2 --output-dir $1 --eval-model MobileNetV3Small
-python evaluate.py --backend $2 --data-path $3_$2 --output-dir $1 --eval-model MobileNetV3Large
+for model in MobileNetV2 MobileNetV3Small MobileNetV3Large
+do
+python evaluate.py --backend $2 --data-path $3_$2 --output-dir $1 --eval-model $model
+done
 
 for model in EfficientNetB0 EfficientNetB1 EfficientNetB2 EfficientNetB3 EfficientNetB4 EfficientNetB5 EfficientNetB6 EfficientNetB7
 do
 python evaluate.py --backend $2 --data-path $3_$2 --output-dir $1 --eval-model $model
 done
 
+python evaluate.py --backend $2 --data-path $3_$2 --output-dir $1 --eval-model InceptionV3
+
 #  Available For Tensorflow Only
 if [ $2 == "tensorflow" ]
 then
-for model in DenseNet121 DenseNet169 DenseNet201 InceptionResNetV2 InceptionV3 Xception NASNetMobile QuickNet QuickNetSmall QuickNetLarge
+for model in DenseNet121 DenseNet169 DenseNet201 InceptionResNetV2 Xception NASNetMobile QuickNet QuickNetSmall QuickNetLarge
 do
 python evaluate.py --backend $2 --data-path $3_$2 --output-dir $1 --eval-model $model
 done
