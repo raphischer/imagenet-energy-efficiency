@@ -94,6 +94,7 @@ def init_evaluation(args, split):
     torch.manual_seed(args.seed)
     if torch.cuda.is_available():
         setattr(args, "batch_size", args.batch_size * torch.cuda.device_count())
+        torch.cuda.manual_seed_all(args.seed)
 
     custom_trained = os.path.isdir(args.eval_model)
 

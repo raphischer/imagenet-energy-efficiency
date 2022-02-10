@@ -176,6 +176,7 @@ def init_training(args):
     torch.manual_seed(args.seed)
     if torch.cuda.is_available():
         setattr(args, "batch_size", args.batch_size * torch.cuda.device_count())
+        torch.cuda.manual_seed_all(args.seed)
 
     # Set missing args, depending on model name
     args = utils.set_model_args(args)
