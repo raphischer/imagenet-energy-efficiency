@@ -8,37 +8,53 @@ from plotly import colors
 import plotly.graph_objects as go
 from plotly.validators.scatter.marker import SymbolValidator
 
-from mlel.ratings import HIGHER_BETTER, rate_results, load_scale, aggregate_rating, KEYS
+from mlel.ratings import rate_results, load_scale, aggregate_rating, KEYS
 
 
 ENV_SYMBOLS = [SymbolValidator().values[i] for i in range(0, len(SymbolValidator().values), 12)]
 RATING_COLOR_SCALE = colors.make_colorscale(['rgb(0,255,0)', 'rgb(255,255,0)', 'rgb(255,0,0))'])
+AXIS_NAMES = {
+    "parameters": "Number of Parameters",
+    "fsize": "Model File Size [B]", 
+    "power_draw": "Power Draw / Sample [Ws]",
+    "inference_time": "Inference Time / Sample [ms]",
+    "top1_val": "Top-1 Validation Accuracy [%]",
+    "top5_val": "Top-5 Validation Accuracy [%]"
+}
 
 
 def add_rating_background(fig, rating_pos, r_colors, mode):
     for xi, (x0, x1) in enumerate(rating_pos[0]):
-        for yi, (y0, y1) in enumerate(rating_pos[0]):
+        for yi, (y0, y1) in enumerate(rating_pos[1]):
             color = aggregate_rating([xi, yi], mode, r_colors)
             fig.add_shape(type="rect", layer='below', fillcolor=color, x0=x0, x1=x1, y0=y0, y1=y1, opacity=.8)
 
 
+def model_results_to_str(model, environment, rating_mode):
+    all_ratings = [val['rating'] for val in model.values() if 'rating' in val]
+    final_rating = aggregate_rating(all_ratings, rating_mode)
+    environment = f"({environment} Environment)"
+    ret_str = [f'Name: {model["name"]:17} {environment:<34} - Final Rating {final_rating}']
+    for key, val in model.items():
+        if key != 'name':
+            ret_str.append(f'{AXIS_NAMES[key]:<30}: {val["value"]:<13.3f} - Index {val["index"]:4.2f} - Rating {val["rating"]}')
+    full_str = '\n'.join(ret_str)
+    # print(full_str)
+    return full_str
+
+
 def create_scatter_fig(scatter_pos, axis_title, names, env_names, r_colors, ax_border=0.1):
     fig = go.Figure()
-    # areas
-    if axis_title[0] in HIGHER_BETTER:
-        direction = 'UR' if axis_title[1] in HIGHER_BETTER else 'LR'
-    else:
-        direction = 'UL' if axis_title[1] in HIGHER_BETTER else 'LL'
-    # points
     posx, posy = scatter_pos
     for env_i, (x, y, env_name, env, rcol) in enumerate(zip(posx, posy, names, env_names, r_colors)):
         fig.add_trace(go.Scatter(
             x=x, y=y, text=env_name, mode='markers', name=env, marker_symbol=ENV_SYMBOLS[env_i],
-            marker=dict(color=rcol, size=15), marker_line=dict(width=3, color='white'))
+            marker=dict(color=rcol, size=15), marker_line=dict(width=3, color='black'))
         )
     fig.update_traces(textposition='top center')
-    fig.update_layout(xaxis_title=axis_title[0], yaxis_title=axis_title[1], title=direction)
+    fig.update_layout(xaxis_title=axis_title[0], yaxis_title=axis_title[1])
     fig.update_layout(legend=dict(x=.1, y=-.2, orientation="h"))
+    fig.update_layout(xaxis=dict(showgrid=False), yaxis=dict(showgrid=False))
     # fig.update_layout(clickmode='event')
     min_x, max_x = np.min([min(v) for v in scatter_pos[0]]), np.max([max(v) for v in scatter_pos[0]])
     min_y, max_y = np.min([min(v) for v in scatter_pos[1]]), np.max([max(v) for v in scatter_pos[1]])
@@ -56,7 +72,7 @@ class Visualization(dash.Dash):
         super().__init__(__name__)
         self.results = results
         self.xaxis_default = 'top1_val'
-        self.yaxis_default = 'parameters'
+        self.yaxis_default = 'power_draw'
         self.reference_name = 'ResNet101'
         self.scales = load_scale()
         self.rating_colors = colors.sample_colorscale(RATING_COLOR_SCALE, samplepoints=[float(c) / (len(list((self.scales.values()))[0]) - 1) for c in range(len(list((self.scales.values()))[0]))])
@@ -90,7 +106,7 @@ class Visualization(dash.Dash):
                 )
             ]),
             html.Div(children=[
-                html.H2('Rating visualization:'),
+                html.H2('Rating mode:'),
                 dcc.RadioItems(
                     id='rating',
                     options=[{'label': opt, 'value': opt.lower()} for opt in ['Mean', 'Best', 'Worst', 'Majority', 'Median']],
@@ -102,7 +118,7 @@ class Visualization(dash.Dash):
                 dcc.Dropdown(
                     id='xaxis',
                     options=[
-                        {'label': env, 'value': env} for env in KEYS
+                        {'label': AXIS_NAMES[env], 'value': env} for env in KEYS
                     ],
                     value=self.xaxis_default
                 ),
@@ -112,14 +128,14 @@ class Visualization(dash.Dash):
                 dcc.Dropdown(
                     id='yaxis',
                     options=[
-                        {'label': env, 'value': env} for env in KEYS
+                        {'label': AXIS_NAMES[env], 'value': env} for env in KEYS
                     ],
                     value=self.yaxis_default
                 ),
             ]),
         ])
         self.callback(Output('fig', 'figure'), [Input('environments', 'value'), Input('scale-switch', 'value'), Input('rating', 'value'), Input('xaxis', 'value'), Input('yaxis', 'value')]) (self.update_fig)
-        self.callback(Output('model-text', 'children'), Input('fig', 'hoverData'), State('environments', 'value')) (self.display_model)
+        self.callback(Output('model-text', 'children'), Input('fig', 'hoverData'), State('environments', 'value'), State('rating', 'value')) (self.display_model)
 
     def update_fig(self, env_names=None, scale_switch=None, rating_mode=None, xaxis=None, yaxis=None):
         if env_names is None:
@@ -135,32 +151,36 @@ class Visualization(dash.Dash):
         x, x_ind, y, y_ind, rating_cols, names = [], [], [], [], [], [],
         # access real values
         for env in env_names:
-            x.append([r[xaxis] for r in self.rated_results[env]])
-            y.append([r[yaxis] for r in self.rated_results[env]])
             names.append([r['name'] for r in self.rated_results[env]])
+            x.append([r[xaxis]['value'] for r in self.rated_results[env]])
+            y.append([r[yaxis]['value'] for r in self.rated_results[env]])
             x_ind.append([r[xaxis]['index'] for r in self.rated_results[env]])
             y_ind.append([r[yaxis]['index'] for r in self.rated_results[env]])            
             rating_cols.append([aggregate_rating([r[xaxis]['rating'], r[yaxis]['rating']], rating_mode, self.rating_colors) for r in self.rated_results[env]])
+        xaxis_name, yaxis_name = AXIS_NAMES[xaxis], AXIS_NAMES[yaxis]
         if scale_switch == 'index':
             scatter_pos = [x_ind, y_ind]
             rating_pos = [self.scales[xaxis], self.scales[yaxis]]
-            xaxis = xaxis.split('[')[0].strip() + ' Index'
-            yaxis = yaxis.split('[')[0].strip() + ' Index'
+            xaxis_name = xaxis_name.split('[')[0].strip() + ' Index'
+            yaxis_name = yaxis_name.split('[')[0].strip() + ' Index'
         else:
             scatter_pos = [x, y]
             rating_pos = [self.scales_real[env_names[0]][xaxis], self.scales_real[env_names[0]][yaxis]]
-        fig = create_scatter_fig(scatter_pos, [xaxis, yaxis], names, env_names, rating_cols)
+        fig = create_scatter_fig(scatter_pos, [xaxis_name, yaxis_name], names, env_names, rating_cols)
         add_rating_background(fig, rating_pos, self.rating_colors, rating_mode)
         return fig
 
-    def display_model(self, hover_data=None, env_names=None):
+    def display_model(self, hover_data=None, env_names=None, rating_mode=None):
         if hover_data is None:
             return 'no model info to show'
         if env_names is None:
             env_names = [list(self.rated_results.keys())[0]]
+        if rating_mode is None:
+            rating_mode = 'mean'
         point = hover_data['points'][0]
-        model = self.rated_results[env_names[point['curveNumber']]][point['pointNumber']]
-        return json.dumps(model, indent=4)
+        env_name = env_names[point['curveNumber']]
+        model = self.rated_results[env_name][point['pointNumber']]
+        return model_results_to_str(model, env_name, rating_mode)
 
 
 if __name__ == '__main__':

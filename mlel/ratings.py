@@ -26,16 +26,17 @@ def aggregate_rating(ratings, mode, meanings=None):
     raise NotImplementedError('Rating Mode not implemented!', mode)
 
 
-# i = v / r   OR    i = r / v
-# v = i * r   OR    v = i / r
 def value_to_index(value, ref, metric_key):
     # TODO If values is integer, just return integer
+    #      i = v / r                     OR                i = r / v
     return value / ref if metric_key in HIGHER_BETTER else ref / value
 
 
 def index_to_value(index, ref, metric_key):
-    # TODO If values is integer, just return integer
-    return index * ref  if metric_key in HIGHER_BETTER else index / ref
+    if index == 0:
+        index = 10e-4
+    #      v = i * r                            OR          v = r / i
+    return index * ref  if metric_key in HIGHER_BETTER else ref / index
 
 
 def calculate_rating(index, scale):
