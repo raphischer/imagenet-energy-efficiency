@@ -1,4 +1,5 @@
-import json
+import os
+import xml.etree.ElementTree as ET
 
 import numpy as np
 import dash
@@ -66,6 +67,25 @@ def create_scatter_fig(scatter_pos, axis_title, names, env_names, r_colors, ax_b
     return fig
 
 
+def create_label(results, env):
+    designfile = os.path.join(os.path.dirname(__file__), 'label_design', 'label.svg')
+    fname = f"label_{results['name']}_{env}.svg"
+    tree = ET.parse(designfile)
+    root = tree.getroot()
+    for child in root.iter():
+        if 'id' in child.attrib:
+            tag = child.attrib['id']
+            if tag in results:
+                if 'text' in child.tag or 'tspan' in child.tag:
+                    if isinstance(results[tag], str):
+                        child.text = results[tag]
+                    else:
+                        child.text = f"{results[tag]['value']:4.2f}"
+
+    tree.write(os.path.join("assets", fname))
+    return os.path.join("assets", fname)
+
+
 class Visualization(dash.Dash):
 
     def __init__(self, results):
@@ -86,6 +106,7 @@ class Visualization(dash.Dash):
                 # style={'height': '100%', 'width': '100%'}
             ),
             html.Div(id='model-text', style={'whiteSpace': 'pre-line'}),
+            html.Img(id='model-label', style={"height": "300px"}),
             html.Div(children=[
                 html.H2('Environments:'),
                 dcc.Checklist(
@@ -135,7 +156,7 @@ class Visualization(dash.Dash):
             ]),
         ])
         self.callback(Output('fig', 'figure'), [Input('environments', 'value'), Input('scale-switch', 'value'), Input('rating', 'value'), Input('xaxis', 'value'), Input('yaxis', 'value')]) (self.update_fig)
-        self.callback(Output('model-text', 'children'), Input('fig', 'hoverData'), State('environments', 'value'), State('rating', 'value')) (self.display_model)
+        self.callback([Output('model-text', 'children'), Output('model-label', "src")], Input('fig', 'hoverData'), State('environments', 'value'), State('rating', 'value')) (self.display_model)
 
     def update_fig(self, env_names=None, scale_switch=None, rating_mode=None, xaxis=None, yaxis=None):
         if env_names is None:
@@ -172,7 +193,7 @@ class Visualization(dash.Dash):
 
     def display_model(self, hover_data=None, env_names=None, rating_mode=None):
         if hover_data is None:
-            return 'no model info to show'
+            return 'no model info to show', None
         if env_names is None:
             env_names = [list(self.rated_results.keys())[0]]
         if rating_mode is None:
@@ -180,7 +201,8 @@ class Visualization(dash.Dash):
         point = hover_data['points'][0]
         env_name = env_names[point['curveNumber']]
         model = self.rated_results[env_name][point['pointNumber']]
-        return model_results_to_str(model, env_name, rating_mode)
+        label = create_label(model, env_name)
+        return model_results_to_str(model, env_name, rating_mode), label
 
 
 if __name__ == '__main__':

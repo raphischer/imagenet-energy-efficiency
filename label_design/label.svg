@@ -145,31 +145,31 @@
 <g>
 	<polygon class="st0" points="1192.8,80 1133.2,80 1110.1,157 1149.9,155.6 1121.5,231.1 1183.7,138.9 1146.1,140.4 	"/>
 </g>
-<text transform="matrix(1 0 0 1 57.2917 416.1867)" class="st2 st3">Modelname</text>
+<text id="name" transform="matrix(1 0 0 1 57.2917 416.1867)" class="st2 st3">Modelname</text>
 <g>
-	<text transform="matrix(1 0 0 1 467.8134 1444.6443)" class="st2 st3">XYZ</text>
+	<text id="power_draw" transform="matrix(1 0 0 1 467.8134 1444.6443)" class="st2 st3">XYZ</text>
 	<text transform="matrix(1 0 0 1 718.3196 1445.9128)" class="st4 st5">Ws/sample</text>
 </g>
 <g>
 	<g>
-		<text transform="matrix(1 0 0 1 645.7915 2250.1279)" class="st2 st6">XYZ</text>
+		<text id="top1_val" transform="matrix(1 0 0 1 645.7915 2250.1279)" class="st2 st6">XYZ</text>
 		<text transform="matrix(1 0 0 1 831.1289 2251.0664)" class="st4 st7">[%]</text>
 	</g>
 	<text transform="matrix(1 0 0 1 581.4102 2313.3037)" class="st4 st7">Top-1 Accuracy</text>
 </g>
 <g>
 	<g>
-		<text transform="matrix(1 0 0 1 146.569 2003.7733)" class="st2 st6">XYZ</text>
+		<text id="inference_time" transform="matrix(1 0 0 1 146.569 2003.7733)" class="st2 st6">XYZ</text>
 		<text transform="matrix(1 0 0 1 331.9064 2004.7118)" class="st4 st7">ms</text>
 	</g>
 	<text transform="matrix(1 0 0 1 61.6603 2066.949)" class="st4 st7">Runtime / sample</text>
 </g>
 <g>
-	<text transform="matrix(1 0 0 1 1001.8538 2003.7733)" class="st2 st6">XYZ</text>
+	<text id="parameters" transform="matrix(1 0 0 1 1001.8538 2003.7733)" class="st2 st6">XYZ</text>
 	<text transform="matrix(1 0 0 1 1187.1912 2004.7118)" class="st4 st7">Parameters</text>
 </g>
 <text transform="matrix(1 0 0 1 1101.908 2066.949)" class="st4 st7">Model Size</text>
-<text transform="matrix(1 0 0 1 1155.3304 416.1867)" class="st4 st3">Dataset</text>
+<text id="DATASET" transform="matrix(1 0 0 1 1155.3304 416.1867)" class="st4 st3">Dataset</text>
 <line class="st8" x1="63.8" y1="436.2" x2="1484.4" y2="436.2"/>
 <line class="st8" x1="63.8" y1="1338.9" x2="1484.4" y2="1338.9"/>
 <line class="st8" x1="57.3" y1="1478.9" x2="1477.9" y2="1478.9"/>
