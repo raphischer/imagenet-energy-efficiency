@@ -1,4 +1,6 @@
+import base64
 import os
+from unittest import result
 import xml.etree.ElementTree as ET
 
 import numpy as np
@@ -67,23 +69,50 @@ def create_scatter_fig(scatter_pos, axis_title, names, env_names, r_colors, ax_b
     return fig
 
 
-def create_label(results, env):
-    designfile = os.path.join(os.path.dirname(__file__), 'label_design', 'label.svg')
-    fname = f"label_{results['name']}_{env}.svg"
-    tree = ET.parse(designfile)
-    root = tree.getroot()
-    for child in root.iter():
-        if 'id' in child.attrib:
-            tag = child.attrib['id']
-            if tag in results:
-                if 'text' in child.tag or 'tspan' in child.tag:
-                    if isinstance(results[tag], str):
-                        child.text = results[tag]
-                    else:
-                        child.text = f"{results[tag]['value']:4.2f}"
+def create_label(results, env, rating_mode):
+    all_ratings = [val['rating'] for val in results.values() if 'rating' in val]
+    frate = aggregate_rating(all_ratings, rating_mode, 'ABCDE')
 
-    tree.write(os.path.join("assets", fname))
-    return os.path.join("assets", fname)
+    from reportlab.pdfgen.canvas import Canvas
+    from reportlab.lib.colors import black
+    import fitz # PyMuPDF
+
+    C_SIZE = (1560, 2411)
+    POS_TEXT = {
+        "name":             ('L', 90, '-Bold', .05, .83, None),
+        "environment":      ('L', 90, '', .05, .41, env),
+        "dataset":          ('R', 90, '', .95, .83, 'ImageNet'),
+        "power_draw":       ('R', 90, '-Bold', .44, .35, None),
+        "parameters":       ('R', 68, '-Bold', .73, .17, None),
+        "inference_time":   ('R', 68, '-Bold', .19, .17, None),
+        "top1_val":         ('R', 68, '-Bold', .51, .06, None),
+    }
+    POS_RATINGS = { char: (.66, y) for char, y in zip('ABCDE', reversed(np.linspace(.461, .727, 5))) }
+
+    canvas = Canvas("result.pdf", pagesize=C_SIZE)
+    canvas.drawInlineImage(os.path.join("label_design", "parts", "bg.png"), 0, 0)
+    canvas.drawInlineImage(os.path.join("label_design", "parts", f"Rating_{frate}.png"), POS_RATINGS[frate][0] * C_SIZE[0], POS_RATINGS[frate][1] * C_SIZE[1])
+    canvas.setFillColor(black)
+    canvas.setLineWidth(3) # add stroke to make even bigger letters
+    canvas.setStrokeColor(black)
+    text=canvas.beginText()
+    text.setTextRenderMode(2)
+    canvas._code.append(text.getCode())
+    for key, (lr, fsize, style, x, y, text) in POS_TEXT.items():
+        if text is None:
+            text = results[key] if isinstance(results[key], str) else f'{results[key]["value"]:4.3f}'
+        canvas.setFont('Helvetica' + style, fsize)
+        if lr == 'R':
+            canvas.drawRightString(int(C_SIZE[0] * x), int(C_SIZE[1] * y), text)
+        elif lr == 'L':
+            canvas.drawString(int(C_SIZE[0] * x), int(C_SIZE[1] * y), text)
+        else:
+            canvas.drawCentredString(int(C_SIZE[0] * x), int(C_SIZE[1] * y), text)
+
+    pdf_doc = fitz.Document(stream=canvas.getpdfdata(), filetype='pdf')
+    label_bytes = pdf_doc.load_page(0).get_pixmap().tobytes()
+    base64_enc = base64.b64encode(label_bytes).decode('ascii')
+    return 'data:image/png;base64,{}'.format(base64_enc)
 
 
 class Visualization(dash.Dash):
@@ -201,7 +230,7 @@ class Visualization(dash.Dash):
         point = hover_data['points'][0]
         env_name = env_names[point['curveNumber']]
         model = self.rated_results[env_name][point['pointNumber']]
-        label = create_label(model, env_name)
+        label = create_label(model, env_name, rating_mode)
         return model_results_to_str(model, env_name, rating_mode), label
 
 
@@ -215,4 +244,4 @@ if __name__ == '__main__':
     }
 
     app = Visualization(result_files)
-    app.run_server(debug=True, host='0.0.0.0', port=8888)
+    app.run_server(debug=True)# , host='0.0.0.0', port=8888)
