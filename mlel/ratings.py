@@ -52,7 +52,7 @@ def calc_accuracy(res, train=False, top5=False):
 
 
 def calc_parameters(res):
-    return res['validation']['results']['model']['params']
+    return res['validation']['results']['model']['params'] * 1e-6
 
 
 def calc_fsize(res):
@@ -89,19 +89,22 @@ def load_scale(path="mlel/scales.json"):
     return scale_intervals
 
 
-def rate_results(result_files, scales, reference_name):
-    tmp = {}
+def rate_results(result_files, reference_name, scales=None):
+    if scales is None:
+        scales = load_scale()
+    logs = {}
 
     for name, resf in result_files.items():
         with open(resf, 'r') as r:
-            tmp[name] = json.load(r)
+            logs[name] = json.load(r)
+
+    logs_to_return = {exp_name: [] for exp_name in logs.keys()}
 
     # Exctract all relevant metadata
-    results = {}
-    for exp_name, resf in tmp.items():
-        for model in resf.values():
-            model_information = {}
-            model_information['name'] = model['config']['model']
+    summaries = {}
+    for exp_name, resf in logs.items():
+        for dirname, model in resf.items():
+            model_information = {'environment': exp_name, 'name': model['config']['model'], 'dataset': 'ImageNet'}
             model_information['parameters'] = {'value': calc_parameters(model)}
             model_information['fsize'] = {'value': calc_fsize(model)}
             model_information['power_draw'] = {'value': calc_power_draw(model)}
@@ -110,20 +113,23 @@ def rate_results(result_files, scales, reference_name):
             model_information['top5_val'] = {'value': calc_accuracy(model, top5=True)}
 
             try:
-                results[exp_name].append(model_information)
+                summaries[exp_name].append(model_information)
             except Exception:
-                results[exp_name] = [model_information]
+                summaries[exp_name] = [model_information]
+
+            # update logs by replacing the directory key with model name key
+            logs_to_return[exp_name].append(model)
 
     # Get reference values
     reference_values = {}
-    for exp_name, model_list in results.items():
+    for exp_name, model_list in summaries.items():
         for model in model_list:
             if model['name'] == reference_name:
-                reference_values[exp_name] = {k: v['value'] for k, v in model.items() if k != 'name'}
+                reference_values[exp_name] = {k: v['value'] for k, v in model.items() if isinstance(v, dict) }
                 break
 
     # Calculate indices using reference values and scales
-    for exp_name, model_list in results.items():
+    for exp_name, model_list in summaries.items():
         for model in model_list:
             for key in KEYS:
                 model[key]['index'] = value_to_index(model[key]['value'], reference_values[exp_name][key], key)
@@ -136,4 +142,4 @@ def rate_results(result_files, scales, reference_name):
         for key, vals in scales.items():
             real_scales[env][key] = [(index_to_value(start, ref_values[key], key), index_to_value(stop, ref_values[key], key)) for (start, stop) in vals]
     
-    return results, real_scales
+    return logs_to_return, summaries, scales, real_scales
