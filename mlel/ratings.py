@@ -11,6 +11,8 @@ HIGHER_BETTER = [
 
 
 def aggregate_rating(ratings, mode, meanings=None):
+    if isinstance(ratings, dict): # model summary given instead of list of ratings
+        ratings = [val['rating'] for val in ratings.values() if 'rating' in val]
     if meanings is None:
         meanings = np.arange(np.max(ratings) + 1)
     if mode == 'best':
