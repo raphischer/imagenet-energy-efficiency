@@ -115,9 +115,9 @@ def create_scatter_fig(scatter_pos, axis_title, names, env_names, ratings, ax_bo
 
 class Visualization(dash.Dash):
 
-    def __init__(self, results, reference_name='ResNet101'):
+    def __init__(self, results_directory, reference_name='ResNet101'):
         super().__init__(__name__)
-        self.logs, self.summaries, self.scales, self.scales_real = rate_results(results, reference_name)
+        self.logs, self.summaries, self.scales, self.scales_real = rate_results(results_directory, reference_name)
         self.xaxis_default, self.yaxis_default = 'top1_val', 'power_draw'
         self.reference_name = reference_name
         self.current = { 'summary': None, 'label': None, 'logs': None }
@@ -136,13 +136,6 @@ class Visualization(dash.Dash):
                 # config={'responsive': True},
                 # style={'height': '100%', 'width': '100%'}
             ),
-            # dcc.Graph(
-            #     id='fig-bars',
-            #     figure=bars,
-            #     # responsive=True,
-            #     # config={'responsive': True},
-            #     # style={'height': '100%', 'width': '100%'}
-            # ),
             html.Div(id='model-text', style={'whiteSpace': 'pre-line'}),
             html.Img(id='model-label', style={"height": "300px"}),
             html.Button("Save Label", id="btn-save-label"),
@@ -247,12 +240,5 @@ class Visualization(dash.Dash):
 
 if __name__ == '__main__':
 
-    result_files = {
-        'A100 Tensorflow': 'results/A100/results_tf_pretrained.json',
-        'A100 PyTorch': 'results/A100/results_torch_pretrained.json',
-        'RTX5000 Tensorflow': 'results/RTX5000/results_tf_pretrained.json',
-        'RTX5000 PyTorch': 'results/RTX5000/results_torch_pretrained.json',
-    }
-
-    app = Visualization(result_files)
+    app = Visualization('results')
     app.run_server(debug=True)# , host='0.0.0.0', port=8888)
