@@ -10,6 +10,12 @@ import numpy as np
 from mlel.monitoring import log_system_info
 
 
+def basename(directory):
+    if len(os.path.basename(directory)) == 0:
+        directory = os.path.dirname(directory)
+    return os.path.basename(directory)
+
+
 class PatchedJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.float32):

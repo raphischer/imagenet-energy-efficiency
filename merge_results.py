@@ -2,23 +2,41 @@ import os
 import argparse
 import json
 from datetime import datetime, timedelta
+import shutil
+import tarfile
 
 from mlel.monitoring import aggregate_log
+from mlel.util import basename
 
 
-def read_metrics(filepath):
+def read_metrics(filepath, default_path=None):
     if not os.path.isfile(filepath):
-        return {}
+        if default_path is not None:
+            shutil.copyfile(os.path.join(default_path, basename(filepath)), filepath)
+        else:
+            return {}
     with open(filepath, 'r') as logf:
         return json.load(logf)
 
 
+def read_requirements(filepath, default_path=None):
+    if not os.path.isfile(filepath):
+        if default_path is not None:
+            shutil.copyfile(os.path.join(default_path, basename(filepath)), filepath)
+        else:
+            return {}
+    with open(filepath, 'r') as reqf:
+        return [line.strip() for line in reqf.readlines()]
+
+
 def aggregate_results(directory, train_directories=None):
-    res = {'directory': directory}
+    res = {'directory_name': basename(directory)}
     try:
         with open(os.path.join(directory, 'config.json'), 'r') as cf:
             res['config'] = json.load(cf)
-        if os.path.basename(directory).startswith('eval'):
+            res['execution_platform'] = read_metrics(os.path.join(directory, 'execution_platform.json'))
+            res['requirements'] = read_requirements(os.path.join(directory, 'requirements.txt'))
+        if basename(directory).startswith('eval'):
             for split in ['train', 'validation']:
                 res[split] = {}
                 res[split]['monitoring_gpu'] = aggregate_log(os.path.join(directory, f'{split}_monitoring_gpu.json'))
@@ -29,9 +47,7 @@ def aggregate_results(directory, train_directories=None):
                     res[split]['duration'] = (datetime.now() - datetime.strptime(res["config"]["timestamp"], "%Y_%m_%d_%H_%M_%S")).total_seconds()
                 else:
                     res[split]['duration'] = res[split]['results']['end'] - res[split]['results']['start']
-            if os.path.basename(res['config']['eval_model']) == '': # reformat paths ending with / behind the directory TODO remove later
-                res['config']['eval_model'] = os.path.dirname(res['config']['eval_model'])
-            train_dir = os.path.join(train_directories, os.path.basename(res['config']['eval_model']))
+            train_dir = os.path.join(train_directories, basename(res['config']['eval_model']))
             if os.path.isdir(train_dir):
                 res['training'] = aggregate_results(train_dir)
         else:
@@ -48,10 +64,39 @@ def aggregate_results(directory, train_directories=None):
     return res
 
 
-def aggregate_all_results(directory, train_directories=None):
+def process_directory(directory, train_directories=None, output_log_dir=None, output_agglog_dir=None):
+    # create summary
+    print('Processing', directory)
+    if output_agglog_dir is not None and os.path.isdir(output_agglog_dir):
+        agglog_name = os.path.join(output_agglog_dir, basename(directory) + '.json')
+        if os.path.isfile(agglog_name):
+            print('WARNING!', agglog_name, 'already exists, so will not create new!')
+            with open(agglog_name, 'r') as agglog:
+                res = json.load(agglog)
+        else:
+            res = aggregate_results(directory, train_directories)
+            if output_log_dir is not None and os.path.isdir(output_log_dir):
+                res['log_directory'] = os.path.join(output_log_dir, basename(directory) + '.tar.gz')
+            with open(agglog_name, 'w') as agglog:
+                json.dump(res, agglog, indent=4)
+    else:
+        res = aggregate_results(directory, train_directories)
+    # create tar
+    if output_log_dir is not None and os.path.isdir(output_log_dir):
+        log_tar_name = os.path.join(output_log_dir, basename(directory) + '.tar.gz')
+        if not os.path.exists(log_tar_name):
+            with tarfile.open(log_tar_name, 'w:gz') as tar:
+                for fname in os.listdir(directory):
+                    tar.add(os.path.join(directory, fname))
+        else:
+            print('WARNING!', log_tar_name, 'already exists, so will not create new!')
+    return res
+
+
+def process_all_subdirectories(directory, train_directories=None, output_log_dir=None, output_agglog_dir=None):
     results = {}
     for dir in sorted(os.listdir(directory)):
-        results[dir] = aggregate_results(os.path.join(directory, dir), train_directories)
+        results[dir] = process_directory(os.path.join(directory, dir), train_directories, output_log_dir, output_agglog_dir)
     return results
 
 
@@ -115,11 +160,17 @@ def print_eval_results(results):
             print(" - ".join(substrings))
 
 
-def main(directory, train_directories, output):
-    results = aggregate_all_results(directory, train_directories)
+def main(directory, train_directories, output_log_dir=None, output_agglog_dir=None, clean=False):
+    if clean:
+        for rootdir in [output_log_dir, output_agglog_dir]:
+            if os.path.isdir(rootdir):
+                for subdir in os.listdir(rootdir):
+                    if os.path.isfile(os.path.join(rootdir, subdir)):
+                        os.remove(os.path.join(rootdir, subdir))
+                    else:
+                        shutil.rmtree(os.path.join(rootdir, subdir))
+    results = process_all_subdirectories(directory, train_directories, output_log_dir, output_agglog_dir)
     if len(results) > 0:
-        with open(output, 'w') as rf:
-            json.dump(results, rf, indent=4)
         print_train_results({key: res for key, res in results.items() if key.startswith('train')})
         print_eval_results({key: res for key, res in results.items() if key.startswith('eval')})
 
@@ -129,8 +180,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--directory", default="/raid/fischer/eval", type=str, help="directory with experiments")
-    parser.add_argument("--train-dirs", default="/raid/fischer/train50", type=str, help="directory with original training experiments, only used for eval results")
-    parser.add_argument("--output", default="results.json", type=str, help="form of output, either directory for generating plots, or empty string for command line")
+    parser.add_argument("--train-dirs", default="/raid/fischer/train50", type=str, help="directory with original training experiments, can be used for eval results")
+    parser.add_argument("--output-log-dir", default="/rdata/s01b_ls8_000/fischer/energy_results_tar", type=str, help="directory where the logs shall be stored (.tar.gz archives)")
+    parser.add_argument("--output-agglog-dir", default="results", type=str, help="directory where experiments log aggregates (json format) are created")
+    parser.add_argument("--clean", action='store_true', help="set to first delete all content in given output directories")
 
     args = parser.parse_args()
-    main(args.directory, args.train_dirs, args.output)
+    main(args.directory, args.train_dirs, args.output_log_dir, args.output_agglog_dir, args.clean)
