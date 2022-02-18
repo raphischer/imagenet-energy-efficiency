@@ -1,5 +1,6 @@
 import os
 import json
+import base64
 
 import numpy as np
 
@@ -87,9 +88,12 @@ def calc_power_draw(res):
     return res['train']["monitoring_gpu"]["total"]["total_power_draw"] / 1281167
 
 
-def load_scale(path="mlel/scales.json"):
-    with open(path, "r") as file:
-        scales_json = json.load(file)
+def load_scale(content="mlel/scales.json"):
+    if isinstance(content, dict):
+        scales_json = content
+    elif isinstance(content, str):
+        with open(content, "r") as file:
+            scales_json = json.load(file)
 
     # Convert boundaries to dictionary
     max_value = 100
@@ -107,6 +111,18 @@ def load_scale(path="mlel/scales.json"):
         scale_intervals[key] = intervals
 
     return scale_intervals
+
+
+def save_scale(scale_intervals, output="scales.json"):
+    scale = {}
+    for key in KEYS:
+        scale[key] = [sc[0] for sc in scale_intervals[key][1:]]
+
+    if output is not None:
+        with open(output, 'w') as out:
+            json.dump(scale, out, indent=4)
+    
+    return json.dumps(scale, indent=4)
 
 
 def load_results(results_directory):
@@ -148,8 +164,7 @@ def load_results(results_directory):
 
 def rate_results(summaries, reference_name, scales=None):
     if scales is None:
-        scales = load_scale()
-    
+        scales = load_scale()    
 
     # Get reference values
     reference_values = {}
