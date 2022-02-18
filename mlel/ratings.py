@@ -11,7 +11,11 @@ HIGHER_BETTER = [
 ]
 BACKENDS = {
     'tensorflow': ('TensorFlow', 'tensorflow'),
-    'pytorch': ('Torch', 'torch')
+    'pytorch': ('Torch', 'torch'),
+}
+GPU_NAMES = {
+    'NVIDIA A100-SXM4-40GB': 'A100',
+    'Quadro RTX 5000': 'RTX 5000',
 }
 
 
@@ -19,8 +23,9 @@ def get_environment_key(log):
     backend_name, pip_name = BACKENDS[log['config']['backend']]
     backend_version = [r.split('==')[1] for r in log['requirements'] if r.split('==')[0] == pip_name][0]
     n_gpus = len(log['execution_platform']['GPU'])
-    gpu_name = log['execution_platform']['GPU']['0']['Name']
-    return f'{gpu_name} x{n_gpus} - {backend_name} {backend_version}'
+    gpu_name = GPU_NAMES[log['execution_platform']['GPU']['0']['Name']]
+    gpu_str = f'{gpu_name} x{n_gpus}' if n_gpus > 1 else gpu_name
+    return f'{gpu_str} - {backend_name} {backend_version}'
 
 
 def aggregate_rating(ratings, mode, meanings=None):
@@ -94,19 +99,17 @@ def load_scale(path="mlel/scales.json"):
 
     for key in KEYS:
         boundaries = scales_json[key]
-        intervals = [(max_value, boundaries[0])]
+        intervals = [[max_value, boundaries[0]]]
         for i in range(len(boundaries)-1):
-            intervals.append((boundaries[i], boundaries[i+1]))
-        intervals.append((boundaries[-1], min_value))
+            intervals.append([boundaries[i], boundaries[i+1]])
+        intervals.append([boundaries[-1], min_value])
         
         scale_intervals[key] = intervals
 
     return scale_intervals
 
 
-def rate_results(results_directory, reference_name, scales=None):
-    if scales is None:
-        scales = load_scale()
+def load_results(results_directory):
     logs = {}
 
     for fname in os.listdir(results_directory):
@@ -140,6 +143,14 @@ def rate_results(results_directory, reference_name, scales=None):
     for env_key, env_logs in logs.items():
         logs[env_key] = [model_logs for model_logs in env_logs.values()]
 
+    return logs, summaries
+
+
+def rate_results(summaries, reference_name, scales=None):
+    if scales is None:
+        scales = load_scale()
+    
+
     # Get reference values
     reference_values = {}
     for env_key, env_logs in summaries.items():
@@ -162,4 +173,4 @@ def rate_results(results_directory, reference_name, scales=None):
         for key, vals in scales.items():
             real_scales[env][key] = [(index_to_value(start, ref_values[key], key), index_to_value(stop, ref_values[key], key)) for (start, stop) in vals]
     
-    return logs, summaries, scales, real_scales
+    return summaries, scales, real_scales
