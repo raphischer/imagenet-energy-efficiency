@@ -1,4 +1,6 @@
+import os
 import json
+import base64
 
 import numpy as np
 
@@ -8,6 +10,23 @@ HIGHER_BETTER = [
     'top1_val',
     'top5_val',
 ]
+BACKENDS = {
+    'tensorflow': ('TensorFlow', 'tensorflow'),
+    'pytorch': ('Torch', 'torch'),
+}
+GPU_NAMES = {
+    'NVIDIA A100-SXM4-40GB': 'A100',
+    'Quadro RTX 5000': 'RTX 5000',
+}
+
+
+def get_environment_key(log):
+    backend_name, pip_name = BACKENDS[log['config']['backend']]
+    backend_version = [r.split('==')[1] for r in log['requirements'] if r.split('==')[0] == pip_name][0]
+    n_gpus = len(log['execution_platform']['GPU'])
+    gpu_name = GPU_NAMES[log['execution_platform']['GPU']['0']['Name']]
+    gpu_str = f'{gpu_name} x{n_gpus}' if n_gpus > 1 else gpu_name
+    return f'{gpu_str} - {backend_name} {backend_version}'
 
 
 def aggregate_rating(ratings, mode, meanings=None):
@@ -69,9 +88,12 @@ def calc_power_draw(res):
     return res['train']["monitoring_gpu"]["total"]["total_power_draw"] / 1281167
 
 
-def load_scale(path="mlel/scales.json"):
-    with open(path, "r") as file:
-        scales_json = json.load(file)
+def load_scale(content="mlel/scales.json"):
+    if isinstance(content, dict):
+        scales_json = content
+    elif isinstance(content, str):
+        with open(content, "r") as file:
+            scales_json = json.load(file)
 
     # Convert boundaries to dictionary
     max_value = 100
@@ -81,60 +103,82 @@ def load_scale(path="mlel/scales.json"):
 
     for key in KEYS:
         boundaries = scales_json[key]
-        intervals = [(max_value, boundaries[0])]
+        intervals = [[max_value, boundaries[0]]]
         for i in range(len(boundaries)-1):
-            intervals.append((boundaries[i], boundaries[i+1]))
-        intervals.append((boundaries[-1], min_value))
+            intervals.append([boundaries[i], boundaries[i+1]])
+        intervals.append([boundaries[-1], min_value])
         
         scale_intervals[key] = intervals
 
     return scale_intervals
 
 
-def rate_results(result_files, reference_name, scales=None):
-    if scales is None:
-        scales = load_scale()
+def save_scale(scale_intervals, output="scales.json"):
+    scale = {}
+    for key in KEYS:
+        scale[key] = [sc[0] for sc in scale_intervals[key][1:]]
+
+    if output is not None:
+        with open(output, 'w') as out:
+            json.dump(scale, out, indent=4)
+    
+    return json.dumps(scale, indent=4)
+
+
+def load_results(results_directory):
     logs = {}
 
-    for name, resf in result_files.items():
-        with open(resf, 'r') as r:
-            logs[name] = json.load(r)
-
-    logs_to_return = {exp_name: [] for exp_name in logs.keys()}
+    for fname in os.listdir(results_directory):
+        with open(os.path.join(results_directory, fname), 'r') as rf:
+            log = json.load(rf)
+            env_key = get_environment_key(log)
+            if env_key not in logs:
+                logs[env_key] = {}
+            if log['config']['model'] in logs[env_key]:
+                raise NotImplementedError(f'Already found results for {log["config"]["model"]} on {env_key}, averaging runs is not implemented (yet)!')
+            logs[env_key][log['config']['model']] = log
 
     # Exctract all relevant metadata
     summaries = {}
-    for exp_name, resf in logs.items():
-        for dirname, model in resf.items():
-            model_information = {'environment': exp_name, 'name': model['config']['model'], 'dataset': 'ImageNet'}
-            model_information['parameters'] = {'value': calc_parameters(model)}
-            model_information['fsize'] = {'value': calc_fsize(model)}
-            model_information['power_draw'] = {'value': calc_power_draw(model)}
-            model_information['inference_time'] = {'value': calc_inf_time(model)}
-            model_information['top1_val'] = {'value': calc_accuracy(model)}
-            model_information['top5_val'] = {'value': calc_accuracy(model, top5=True)}
+    for env_key, env_logs in logs.items():
+        for model_name, model_log in env_logs.items():
+            model_information = {'environment': env_key, 'name': model_name, 'dataset': 'ImageNet'}
+            model_information['parameters'] = {'value': calc_parameters(model_log)}
+            model_information['fsize'] = {'value': calc_fsize(model_log)}
+            model_information['power_draw'] = {'value': calc_power_draw(model_log)}
+            model_information['inference_time'] = {'value': calc_inf_time(model_log)}
+            model_information['top1_val'] = {'value': calc_accuracy(model_log)}
+            model_information['top5_val'] = {'value': calc_accuracy(model_log, top5=True)}
 
             try:
-                summaries[exp_name].append(model_information)
+                summaries[env_key].append(model_information)
             except Exception:
-                summaries[exp_name] = [model_information]
+                summaries[env_key] = [model_information]
 
-            # update logs by replacing the directory key with model name key
-            logs_to_return[exp_name].append(model)
+    # Transform logs dict for one environment to list of logs
+    for env_key, env_logs in logs.items():
+        logs[env_key] = [model_logs for model_logs in env_logs.values()]
+
+    return logs, summaries
+
+
+def rate_results(summaries, reference_name, scales=None):
+    if scales is None:
+        scales = load_scale()    
 
     # Get reference values
     reference_values = {}
-    for exp_name, model_list in summaries.items():
-        for model in model_list:
+    for env_key, env_logs in summaries.items():
+        for model in env_logs:
             if model['name'] == reference_name:
-                reference_values[exp_name] = {k: v['value'] for k, v in model.items() if isinstance(v, dict) }
+                reference_values[env_key] = {k: v['value'] for k, v in model.items() if isinstance(v, dict) }
                 break
 
     # Calculate indices using reference values and scales
-    for exp_name, model_list in summaries.items():
-        for model in model_list:
+    for env_key, env_logs in summaries.items():
+        for model in env_logs:
             for key in KEYS:
-                model[key]['index'] = value_to_index(model[key]['value'], reference_values[exp_name][key], key)
+                model[key]['index'] = value_to_index(model[key]['value'], reference_values[env_key][key], key)
                 model[key]['rating'] = calculate_rating(model[key]['index'], scales[key])
 
     # Calculate the real-valued scales
@@ -144,4 +188,4 @@ def rate_results(result_files, reference_name, scales=None):
         for key, vals in scales.items():
             real_scales[env][key] = [(index_to_value(start, ref_values[key], key), index_to_value(stop, ref_values[key], key)) for (start, stop) in vals]
     
-    return logs_to_return, summaries, scales, real_scales
+    return summaries, scales, real_scales

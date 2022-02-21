@@ -10,8 +10,9 @@ from plotly.subplots import make_subplots
 from plotly import colors
 import plotly.graph_objects as go
 from plotly.validators.scatter.marker import SymbolValidator
+from torch import save
 
-from mlel.ratings import rate_results, aggregate_rating, KEYS
+from mlel.ratings import load_results, load_scale, save_scale, rate_results, aggregate_rating, KEYS
 
 
 ENV_SYMBOLS = [SymbolValidator().values[i] for i in range(0, len(SymbolValidator().values), 12)]
@@ -115,17 +116,29 @@ def create_scatter_fig(scatter_pos, axis_title, names, env_names, ratings, ax_bo
 
 class Visualization(dash.Dash):
 
-    def __init__(self, results, reference_name='ResNet101'):
+    def __init__(self, results_directory, reference_name='ResNet101'):
         super().__init__(__name__)
-        self.logs, self.summaries, self.scales, self.scales_real = rate_results(results, reference_name)
-        self.xaxis_default, self.yaxis_default = 'top1_val', 'power_draw'
+        self.logs, summaries = load_results(results_directory)
+        self.summaries, self.scales, self.scales_real = rate_results(summaries, reference_name)
+        self.xaxis, self.yaxis = 'top1_val', 'power_draw'
         self.reference_name = reference_name
         self.current = { 'summary': None, 'label': None, 'logs': None }
         # setup page and create callbacks
         self.layout = self.create_page()
-        self.callback(Output('figures', 'figure'), [Input('environments', 'value'), Input('scale-switch', 'value'), Input('rating', 'value'), Input('xaxis', 'value'), Input('yaxis', 'value')]) (self.update_figures)
-        self.callback([Output('model-text', 'children'), Output('model-label', "src")], Input('figures', 'hoverData'), State('environments', 'value'), State('rating', 'value')) (self.display_model)
+        self.callback(
+            [Output(sl_id, prop) for sl_id in ['scaleslider-x', 'scaleslider-y'] for prop in ['min', 'max', 'value', 'marks']],
+            [Input('xaxis', 'value'), Input('yaxis', 'value'), Input('scales-upload', 'contents')]
+        ) (self.update_sliders)
+        self.callback(
+            Output('figures', 'figure'),
+            [Input('environments', 'value'), Input('scale-switch', 'value'), Input('rating', 'value'), Input('scaleslider-x', 'value'), Input('scaleslider-y', 'value')]
+        ) (self.update_figures)
+        self.callback(
+            [Output('model-text', 'children'), Output('model-label', "src")],
+            Input('figures', 'hoverData'), State('environments', 'value'), State('rating', 'value')
+        ) (self.display_model)
         self.callback(Output('save-label', 'data'), [Input('btn-save-label', 'n_clicks'), Input('btn-save-summary', 'n_clicks'), Input('btn-save-logs', 'n_clicks')]) (self.save_label)
+        self.callback(Output('save-scales', 'data'), Input('btn-save-scales', 'n_clicks')) (self.save_scales)
         
     def create_page(self):
         return html.Div(children=[
@@ -136,13 +149,41 @@ class Visualization(dash.Dash):
                 # config={'responsive': True},
                 # style={'height': '100%', 'width': '100%'}
             ),
-            # dcc.Graph(
-            #     id='fig-bars',
-            #     figure=bars,
-            #     # responsive=True,
-            #     # config={'responsive': True},
-            #     # style={'height': '100%', 'width': '100%'}
-            # ),
+            html.Div(children=[
+                html.H2('X-Axis:'),
+                dcc.Dropdown(
+                    id='xaxis', value=self.xaxis,
+                    options=[
+                        {'label': AXIS_NAMES[env], 'value': env} for env in KEYS
+                    ]
+                ),
+                dcc.RangeSlider(id='scaleslider-x', min=0, max=1, value=[.2, .4, .6, .8], step=.01, pushable=.01, tooltip={"placement": "bottom", "always_visible": True})
+            ]),
+            html.Div(children=[
+                html.H2('Y-Axis:'),
+                dcc.Dropdown(
+                    id='yaxis', value=self.yaxis,
+                    options=[
+                        {'label': AXIS_NAMES[env], 'value': env} for env in KEYS
+                    ]
+                ),
+                dcc.RangeSlider(id='scaleslider-y', min=0, max=1, value=[.2, .4, .6, .8], step=.01, pushable=.01, tooltip={"placement": "bottom", "always_visible": True})
+            ]),
+            html.Button("Save Current Scales", id="btn-save-scales"),
+            dcc.Download(id="save-scales"),
+            dcc.Upload(
+                id="scales-upload",
+                children=['Drag and Drop or ', html.A('Select a Scales File (.json)')],
+                style={
+                    'width': '100%',
+                    'height': '60px',
+                    'lineHeight': '60px',
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '5px',
+                    'textAlign': 'center'
+                }
+            ),
             html.Div(id='model-text', style={'whiteSpace': 'pre-line'}),
             html.Img(id='model-label', style={"height": "300px"}),
             html.Button("Save Label", id="btn-save-label"),
@@ -173,66 +214,81 @@ class Visualization(dash.Dash):
                     id='rating', value='mean',
                     options=[{'label': opt, 'value': opt.lower()} for opt in ['Mean', 'Best', 'Worst', 'Majority', 'Median']],
                 )
-            ]),
-            html.Div(children=[
-                html.H2('X-Axis:'),
-                dcc.Dropdown(
-                    id='xaxis', value=self.xaxis_default,
-                    options=[
-                        {'label': AXIS_NAMES[env], 'value': env} for env in KEYS
-                    ]
-                ),
-            ]),
-            html.Div(children=[
-                html.H2('Y-Axis:'),
-                dcc.Dropdown(
-                    id='yaxis', value=self.yaxis_default,
-                    options=[
-                        {'label': AXIS_NAMES[env], 'value': env} for env in KEYS
-                    ]
-                ),
-            ]),
+            ])
         ])
 
-
-    def update_figures(self, env_names=None, scale_switch=None, rating_mode=None, xaxis=None, yaxis=None):
+    def update_figures(self, env_names=None, scale_switch=None, rating_mode=None, *slider_args):
+        if any(slider_args) and 'slider' in dash.callback_context.triggered[0]['prop_id']:
+            self.update_scales(slider_args)
         env_names = [list(self.summaries.keys())[0]] if env_names is None else env_names
         scale_switch = 'index' if scale_switch is None else scale_switch
         rating_mode = 'mean' if rating_mode is None else rating_mode
-        xaxis = self.xaxis_default if xaxis is None else xaxis
-        yaxis = self.yaxis_default if yaxis is None else yaxis
         x, x_ind, y, y_ind, ratings, names = [], [], [], [], [], [],
         for env in env_names:
             names.append([r['name'] for r in self.summaries[env]])
-            x.append([r[xaxis]['value'] for r in self.summaries[env]])
-            y.append([r[yaxis]['value'] for r in self.summaries[env]])
-            x_ind.append([r[xaxis]['index'] for r in self.summaries[env]])
-            y_ind.append([r[yaxis]['index'] for r in self.summaries[env]])            
+            x.append([r[self.xaxis]['value'] for r in self.summaries[env]])
+            y.append([r[self.yaxis]['value'] for r in self.summaries[env]])
+            x_ind.append([r[self.xaxis]['index'] for r in self.summaries[env]])
+            y_ind.append([r[self.yaxis]['index'] for r in self.summaries[env]])            
             ratings.append([aggregate_rating(summary, rating_mode) for summary in self.summaries[env]])
-        scale_names = [AXIS_NAMES[xaxis], AXIS_NAMES[yaxis]]
+        scale_names = [AXIS_NAMES[self.xaxis], AXIS_NAMES[self.yaxis]]
         if scale_switch == 'index':
             scatter_pos = [x_ind, y_ind]
-            rating_pos = [self.scales[xaxis], self.scales[yaxis]]
+            rating_pos = [self.scales[self.xaxis], self.scales[self.yaxis]]
             scale_names = [name.split('[')[0].strip() + ' Index' for name in scale_names]
         else:
             scatter_pos = [x, y]
-            rating_pos = [self.scales_real[env_names[0]][xaxis], self.scales_real[env_names[0]][yaxis]]
+            rating_pos = [self.scales_real[env_names[0]][self.xaxis], self.scales_real[env_names[0]][self.yaxis]]
         figures = create_scatter_fig(scatter_pos, scale_names, names, env_names, ratings)
         add_rating_background(figures, rating_pos, rating_mode)
         return figures
 
+    def update_sliders(self, xaxis=None, yaxis=None, uploaded_scales=None):
+        if uploaded_scales is not None:
+            scales_dict = json.loads(base64.b64decode(uploaded_scales.split(',')[-1]))
+            self.scales = load_scale(scales_dict)
+        # [Output(sl_id, prop) for sl_id in ['scaleslider-x', 'scaleslider-y'] for prop in ['min', 'max', 'value', 'step', 'marks']],
+        self.xaxis = xaxis or self.xaxis
+        self.yaxis = yaxis or self.yaxis
+        values = []
+        for axis in [self.xaxis, self.yaxis]:
+            all_ratings = [ sums[axis]['index'] for env_sums in self.summaries.values() for sums in env_sums ]
+            min_v = min(all_ratings) # if sl_idx == 0 else self.scales[axis][4 - sl_idx][1]
+            max_v = max(all_ratings) # if sl_idx == 3 else self.scales[axis][3 - sl_idx][0]
+            value = [entry[0] for entry in reversed(self.scales[axis][1:])]
+            marks={ val: {'label': str(val)} for val in np.round(np.linspace(min_v, max_v, 10), 2)}
+            values.extend([min_v, max_v, value, marks])
+        return values
+    
+    def update_scales(self, scale_slider_values):
+        # check if sliders were updated from selecting axes, or if value was changed
+        update_necessary = False
+        for axis, values in zip([self.xaxis, self.yaxis], scale_slider_values):
+            for sl_idx, sl_val in enumerate(values):
+                if self.scales[axis][4 - sl_idx][0] != sl_val:
+                    self.scales[axis][4 - sl_idx][0] = sl_val
+                    self.scales[axis][3 - sl_idx][1] = sl_val
+                    update_necessary = True
+        if update_necessary:
+            self.summaries, self.scales, self.scales_real = rate_results(self.summaries, self.reference_name, self.scales)
+
     def display_model(self, hover_data=None, env_names=None, rating_mode=None):
-        if hover_data is None:
-            return 'no model summary to show', None
-        env_names = [list(self.summaries.keys())[0]] if env_names is None else env_names
-        rating_mode = 'mean' if rating_mode is None else rating_mode
-        point = hover_data['points'][0]
-        if point['curveNumber'] % 2 == 0: # otherwise hovered on bars
-            env_name = env_names[point['curveNumber'] // 2]
-            self.current['summary'] = self.summaries[env_name][point['pointNumber']]
-            self.current['logs'] = self.logs[env_name][point['pointNumber']]
-            self.current['label_img'], self.current['label'] = summary_to_label(self.current['summary'], rating_mode)
-        return summary_to_str(self.current['summary'], rating_mode), self.current['label_img']
+        if hover_data is not None:
+            env_names = [list(self.summaries.keys())[0]] if env_names is None else env_names
+            rating_mode = 'mean' if rating_mode is None else rating_mode
+            point = hover_data['points'][0]
+            if point['curveNumber'] % 2 == 0: # otherwise hovered on bars
+                env_name = env_names[point['curveNumber'] // 2]
+                self.current['summary'] = self.summaries[env_name][point['pointNumber']]
+                self.current['logs'] = self.logs[env_name][point['pointNumber']]
+                self.current['label_img'], self.current['label'] = summary_to_label(self.current['summary'], rating_mode)
+            if self.current['summary'] is not None:
+                return summary_to_str(self.current['summary'], rating_mode), self.current['label_img']
+        return 'no model summary to show', None
+
+    def save_scales(self, save_labels_clicks=None):
+        if save_labels_clicks is not None:
+            return dict(content=save_scale(self.scales, None), filename=f'scales.json')
 
     def save_label(self, lbl_clicks=None, sum_clicks=None, log_clicks=None):
         if self.current['summary'] is not None:
@@ -247,12 +303,5 @@ class Visualization(dash.Dash):
 
 if __name__ == '__main__':
 
-    result_files = {
-        'A100 Tensorflow': 'results/A100/results_tf_pretrained.json',
-        'A100 PyTorch': 'results/A100/results_torch_pretrained.json',
-        'RTX5000 Tensorflow': 'results/RTX5000/results_tf_pretrained.json',
-        'RTX5000 PyTorch': 'results/RTX5000/results_torch_pretrained.json',
-    }
-
-    app = Visualization(result_files)
+    app = Visualization('results')
     app.run_server(debug=True)# , host='0.0.0.0', port=8888)
