@@ -110,8 +110,7 @@ def print_train_results(results):
             print(f'{dir} - ERROR - {res["Error"]}')
         else:
             if len(res["results"]) > 0:
-                checkpoints = sorted([cp for cp in os.listdir(res['directory']) if 'checkpoint' in cp])
-                epochs = f'{int(checkpoints[-1].split("_")[1]):>4}'
+                epochs = f'{len(res["results"]["history"]["loss"]):>4}'
                 gpu_draw = f'GPU {res["monitoring_gpu"]["total"]["total_power_draw"] / 3600000:4.1f} kWh'
                 model_info = f'{res["config"]["model"]:<16} {res["results"]["model"]["fsize"] * 1e-6:5.1f} MB {res["results"]["model"]["params"] * 1e-6:5.1f}M params'
                 acc = f'{res["results"]["history"]["accuracy"][-1]*100:5.1f}%'
