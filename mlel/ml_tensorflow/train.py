@@ -44,7 +44,7 @@ def init_training(args):
         callbacks.append(lr_callback)
     if args.early_delta > 0:
         print(f'Will early stop after {args.early_patience} epochs with less than {args.early_delta} validation accuracy improvement!')
-        callbacks.append(tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', min_delta=args.early_delta, patience=args.early_patience, restore_best_weights=True))
+        callbacks.append(tf.keras.callbacks.EarlyStopping(monitor='sparse_categorical_accuracy', min_delta=args.early_delta, patience=args.early_patience, restore_best_weights=True))
 
 
     return lambda: model.fit(ds_train, epochs=args.epochs, callbacks=callbacks, validation_data=ds_valid)
