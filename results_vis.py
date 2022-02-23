@@ -1,3 +1,4 @@
+import argparse
 import base64
 import json
 import os
@@ -10,9 +11,9 @@ from plotly.subplots import make_subplots
 from plotly import colors
 import plotly.graph_objects as go
 from plotly.validators.scatter.marker import SymbolValidator
-from torch import save
 
-from mlel.ratings import load_results, load_scale, save_scale, rate_results, aggregate_rating, KEYS
+from mlel.ratings import load_results, load_scale, save_scale, rate_results, aggregate_rating
+from mlel.label_generator import summary_to_label
 
 
 ENV_SYMBOLS = [SymbolValidator().values[i] for i in range(0, len(SymbolValidator().values), 12)]
@@ -21,8 +22,12 @@ RATING_COLORS = colors.sample_colorscale(RATING_COLOR_SCALE, samplepoints=[float
 AXIS_NAMES = {
     "parameters": "Number of Parameters",
     "fsize": "Model File Size [B]", 
-    "power_draw": "Power Draw / Sample [Ws]",
+    "inference_power_draw": "Inference Power Draw / Sample [Ws]",
     "inference_time": "Inference Time / Sample [ms]",
+    "train_power_draw": "Full Training Power Draw [Ws]",
+    "train_power_draw_epoch": "Training Power Draw per Epoch [Ws]",
+    "train_time": "Full Training Time [s]",
+    "train_time_epoch": "Training Time per Epoch [s]",
     "top1_val": "Top-1 Validation Accuracy [%]",
     "top5_val": "Top-5 Validation Accuracy [%]"
 }
@@ -46,43 +51,6 @@ def summary_to_str(summary, rating_mode):
     full_str = '\n'.join(ret_str)
     # print(full_str)
     return full_str
-
-
-def summary_to_label(summary, rating_mode):
-    from reportlab.pdfgen.canvas import Canvas
-    from reportlab.lib.colors import black
-    import fitz # PyMuPDF
-
-    C_SIZE = (1560, 2411)
-    canvas = Canvas("result.pdf", pagesize=C_SIZE)
-    POS_TEXT = {
-        "name":             (canvas.drawString,      90, '-Bold', .05, .83),
-        "environment":      (canvas.drawString,      90, '',      .05, .41),
-        "dataset":          (canvas.drawRightString, 90, '',      .95, .83),
-        "power_draw":       (canvas.drawRightString, 90, '-Bold', .44, .35),
-        "parameters":       (canvas.drawRightString, 68, '-Bold', .73, .17),
-        "inference_time":   (canvas.drawRightString, 68, '-Bold', .19, .17),
-        "top1_val":         (canvas.drawRightString, 68, '-Bold', .51, .06),
-    }
-    POS_RATINGS = { char: (.66, y) for char, y in zip('ABCDE', reversed(np.linspace(.461, .727, 5))) }
-    frate = aggregate_rating(summary, rating_mode, 'ABCDE')
-    canvas.drawInlineImage(os.path.join("label_design", "parts", "bg.png"), 0, 0)
-    canvas.drawInlineImage(os.path.join("label_design", "parts", f"Rating_{frate}.png"), POS_RATINGS[frate][0] * C_SIZE[0], POS_RATINGS[frate][1] * C_SIZE[1])
-    canvas.setFillColor(black)
-    canvas.setLineWidth(3) # add stroke to make even bigger letters
-    canvas.setStrokeColor(black)
-    text=canvas.beginText()
-    text.setTextRenderMode(2)
-    canvas._code.append(text.getCode())
-    # draw text parts
-    for key, (draw_method, fsize, style, x, y) in POS_TEXT.items():
-        text = summary[key] if isinstance(summary[key], str) else f'{summary[key]["value"]:3.2f}'
-        canvas.setFont('Helvetica' + style, fsize)
-        draw_method(int(C_SIZE[0] * x), int(C_SIZE[1] * y), text)
-    pdf_doc = fitz.Document(stream=canvas.getpdfdata(), filetype='pdf')
-    label_bytes = pdf_doc.load_page(0).get_pixmap().tobytes()
-    base64_enc = base64.b64encode(label_bytes).decode('ascii')
-    return 'data:image/png;base64,{}'.format(base64_enc), pdf_doc
 
 
 def create_scatter_fig(scatter_pos, axis_title, names, env_names, ratings, ax_border=0.1):
@@ -120,11 +88,19 @@ class Visualization(dash.Dash):
         super().__init__(__name__)
         self.logs, summaries = load_results(results_directory)
         self.summaries, self.scales, self.scales_real = rate_results(summaries, reference_name)
-        self.xaxis, self.yaxis = 'top1_val', 'power_draw'
+        self.keys = {
+            'inference': [key for key, vals in list(self.summaries.values())[0]['inference'][0].items() if isinstance(vals, dict)],
+            'training': [key for key, vals in list(self.summaries.values())[0]['training'][0].items() if isinstance(vals, dict)]
+        }
+        self.type, self.xaxis, self.yaxis = 'inference', 'top1_val', 'inference_power_draw'
         self.reference_name = reference_name
         self.current = { 'summary': None, 'label': None, 'logs': None }
         # setup page and create callbacks
         self.layout = self.create_page()
+        self.callback(
+            [Output('xaxis', 'options'), Output('xaxis', 'value'), Output('yaxis', 'options'),  Output('yaxis', 'value')],
+            Input('type-switch', 'value')
+        ) (self.update_type)
         self.callback(
             [Output(sl_id, prop) for sl_id in ['scaleslider-x', 'scaleslider-y'] for prop in ['min', 'max', 'value', 'marks']],
             [Input('xaxis', 'value'), Input('yaxis', 'value'), Input('scales-upload', 'contents')]
@@ -154,7 +130,7 @@ class Visualization(dash.Dash):
                 dcc.Dropdown(
                     id='xaxis', value=self.xaxis,
                     options=[
-                        {'label': AXIS_NAMES[env], 'value': env} for env in KEYS
+                        {'label': AXIS_NAMES[env], 'value': env} for env in self.keys[self.type]
                     ]
                 ),
                 dcc.RangeSlider(id='scaleslider-x', min=0, max=1, value=[.2, .4, .6, .8], step=.01, pushable=.01, tooltip={"placement": "bottom", "always_visible": True})
@@ -164,7 +140,7 @@ class Visualization(dash.Dash):
                 dcc.Dropdown(
                     id='yaxis', value=self.yaxis,
                     options=[
-                        {'label': AXIS_NAMES[env], 'value': env} for env in KEYS
+                        {'label': AXIS_NAMES[env], 'value': env} for env in self.keys[self.type]
                     ]
                 ),
                 dcc.RangeSlider(id='scaleslider-y', min=0, max=1, value=[.2, .4, .6, .8], step=.01, pushable=.01, tooltip={"placement": "bottom", "always_visible": True})
@@ -199,6 +175,13 @@ class Visualization(dash.Dash):
                 )
             ]),
             html.Div(children=[
+                html.H2('Results Type:'),
+                dcc.RadioItems(
+                    id='type-switch', value=self.type,
+                    options=[{'label': restype.capitalize(), 'value': restype} for restype in self.keys.keys()],
+                )
+            ]),
+            html.Div(children=[
                 html.H2('Axis Scales:'),
                 dcc.RadioItems(
                     id='scale-switch', value='index',
@@ -212,7 +195,7 @@ class Visualization(dash.Dash):
                 html.H2('Rating mode:'),
                 dcc.RadioItems(
                     id='rating', value='mean',
-                    options=[{'label': opt, 'value': opt.lower()} for opt in ['Mean', 'Best', 'Worst', 'Majority', 'Median']],
+                    options=[{'label': opt, 'value': opt.lower()} for opt in ['Mean', 'Median', 'Best', 'Worst']],
                 )
             ])
         ])
@@ -225,12 +208,12 @@ class Visualization(dash.Dash):
         rating_mode = 'mean' if rating_mode is None else rating_mode
         x, x_ind, y, y_ind, ratings, names = [], [], [], [], [], [],
         for env in env_names:
-            names.append([r['name'] for r in self.summaries[env]])
-            x.append([r[self.xaxis]['value'] for r in self.summaries[env]])
-            y.append([r[self.yaxis]['value'] for r in self.summaries[env]])
-            x_ind.append([r[self.xaxis]['index'] for r in self.summaries[env]])
-            y_ind.append([r[self.yaxis]['index'] for r in self.summaries[env]])            
-            ratings.append([aggregate_rating(summary, rating_mode) for summary in self.summaries[env]])
+            names.append([r['name'] for r in self.summaries[env][self.type]])
+            x.append([r[self.xaxis]['value'] for r in self.summaries[env][self.type]])
+            y.append([r[self.yaxis]['value'] for r in self.summaries[env][self.type]])
+            x_ind.append([r[self.xaxis]['index'] for r in self.summaries[env][self.type]])
+            y_ind.append([r[self.yaxis]['index'] for r in self.summaries[env][self.type]])
+            ratings.append([aggregate_rating(summary, rating_mode) for summary in self.summaries[env][self.type]])
         scale_names = [AXIS_NAMES[self.xaxis], AXIS_NAMES[self.yaxis]]
         if scale_switch == 'index':
             scatter_pos = [x_ind, y_ind]
@@ -252,7 +235,7 @@ class Visualization(dash.Dash):
         self.yaxis = yaxis or self.yaxis
         values = []
         for axis in [self.xaxis, self.yaxis]:
-            all_ratings = [ sums[axis]['index'] for env_sums in self.summaries.values() for sums in env_sums ]
+            all_ratings = [ sums[axis]['index'] for env_sums in self.summaries.values() for sums in env_sums[self.type] ]
             min_v = min(all_ratings) # if sl_idx == 0 else self.scales[axis][4 - sl_idx][1]
             max_v = max(all_ratings) # if sl_idx == 3 else self.scales[axis][3 - sl_idx][0]
             value = [entry[0] for entry in reversed(self.scales[axis][1:])]
@@ -272,6 +255,12 @@ class Visualization(dash.Dash):
         if update_necessary:
             self.summaries, self.scales, self.scales_real = rate_results(self.summaries, self.reference_name, self.scales)
 
+    def update_type(self, type=None):
+        self.type = type or self.type
+        options = [{'label': AXIS_NAMES[env], 'value': env} for env in self.keys[self.type]]
+        xaxis = 'inference_power_draw' if self.type == 'inference' else 'train_power_draw'
+        return options, xaxis, options, 'top1_val'
+
     def display_model(self, hover_data=None, env_names=None, rating_mode=None):
         if hover_data is not None:
             env_names = [list(self.summaries.keys())[0]] if env_names is None else env_names
@@ -279,8 +268,8 @@ class Visualization(dash.Dash):
             point = hover_data['points'][0]
             if point['curveNumber'] % 2 == 0: # otherwise hovered on bars
                 env_name = env_names[point['curveNumber'] // 2]
-                self.current['summary'] = self.summaries[env_name][point['pointNumber']]
-                self.current['logs'] = self.logs[env_name][point['pointNumber']]
+                self.current['summary'] = self.summaries[env_name][self.type][point['pointNumber']]
+                self.current['logs'] = self.logs[env_name][self.type][point['pointNumber']]
                 self.current['label_img'], self.current['label'] = summary_to_label(self.current['summary'], rating_mode)
             if self.current['summary'] is not None:
                 return summary_to_str(self.current['summary'], rating_mode), self.current['label_img']
@@ -303,5 +292,9 @@ class Visualization(dash.Dash):
 
 if __name__ == '__main__':
 
-    app = Visualization('results')
+    parser = argparse.ArgumentParser(description="Interactive energy index explorer")
+    parser.add_argument("--directory", default='results', type=str, help="path directory with aggregated logs")
+    args = parser.parse_args()
+
+    app = Visualization(args.directory)
     app.run_server(debug=True)# , host='0.0.0.0', port=8888)
