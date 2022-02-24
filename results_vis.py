@@ -54,18 +54,16 @@ def summary_to_str(summary, rating_mode):
     return full_str
 
 
-def create_scatter_fig(scatter_pos, axis_title, names, env_names, ratings, ax_border=0.1):
+def create_scatter_fig(plot_data, axis_title, ax_border=0.1):
     fig = make_subplots(rows=1, cols=2)
-    posx, posy = scatter_pos
-    for env_i, (x, y, name, env_name, rating) in enumerate(zip(posx, posy, names, env_names, ratings)):
-        x = [xv if xv is not None else 0 for xv in x]
-        y = [yv if yv is not None else 0 for yv in y]
+    for env_i, (env_name, data) in enumerate(plot_data.items()):
         fig.add_trace(go.Scatter(
-            x=x, y=y, text=name, mode='markers', name=env_name, marker_symbol=ENV_SYMBOLS[env_i],
-            legendgroup=env_name, marker=dict(color=[RATING_COLORS[r] for r in rating], size=15),
+            x=data['x'], y=data['y'], text=data['names'], name=env_name, 
+            mode='markers', marker_symbol=ENV_SYMBOLS[env_i],
+            legendgroup=env_name, marker=dict(color=[RATING_COLORS[r] for r in data['ratings']], size=15),
             marker_line=dict(width=3, color='black')), row=1, col=1
         )
-        counts = np.bincount(rating)
+        counts = np.bincount(data['ratings'])
         fig.add_trace(go.Bar(
             name=env_name, x=['A', 'B', 'C', 'D', 'E'], y=counts, legendgroup=env_name,
             marker_pattern_shape=PATTERNS[env_i], marker_color=RATING_COLORS), row=1, col=2)
@@ -75,8 +73,8 @@ def create_scatter_fig(scatter_pos, axis_title, names, env_names, ratings, ax_bo
     fig.update_layout(xaxis=dict(showgrid=False), yaxis=dict(showgrid=False))
     fig.update_layout(barmode='stack')
     # fig.update_layout(clickmode='event')
-    min_x, max_x = np.min([min([vv for vv in v if vv is not None]) for v in scatter_pos[0]]), np.max([max([vv for vv in v if vv is not None]) for v in scatter_pos[0]])
-    min_y, max_y = np.min([min([vv for vv in v if vv is not None]) for v in scatter_pos[1]]), np.max([max([vv for vv in v if vv is not None]) for v in scatter_pos[1]])
+    min_x, max_x = np.min([min(data['x']) for data in plot_data.values()]), np.max([max(data['x']) for data in plot_data.values()])
+    min_y, max_y = np.min([min(data['y']) for data in plot_data.values()]), np.max([max(data['y']) for data in plot_data.values()])
     diff_x, diff_y = max_x - min_x, max_y - min_y
     fig.update_layout(
         xaxis_range=[min_x - ax_border * diff_x, max_x + ax_border * diff_x],
@@ -198,7 +196,7 @@ class Visualization(dash.Dash):
                 html.H2('Rating mode:'),
                 dcc.RadioItems(
                     id='rating', value='optimistic median',
-                    options=[{'label': opt, 'value': opt.lower()} for opt in ['Optimistic Median', 'Pessimistics Median', 'Optimistic Mean', 'Pessimistic Mean', 'Best', 'Worst']],
+                    options=[{'label': opt, 'value': opt.lower()} for opt in ['Optimistic Median', 'Pessimistic Median', 'Optimistic Mean', 'Pessimistic Mean', 'Best', 'Worst']],
                 )
             ])
         ])
@@ -209,23 +207,27 @@ class Visualization(dash.Dash):
         env_names = [list(self.summaries.keys())[0]] if env_names is None else env_names
         scale_switch = 'index' if scale_switch is None else scale_switch
         rating_mode = 'mean' if rating_mode is None else rating_mode
-        x, x_ind, y, y_ind, ratings, names = [], [], [], [], [], [],
+        plot_data = {}
         for env in env_names:
-            names.append([r['name'] for r in self.summaries[env][self.type]])
-            x.append([r[self.xaxis]['value'] for r in self.summaries[env][self.type]])
-            y.append([r[self.yaxis]['value'] for r in self.summaries[env][self.type]])
-            x_ind.append([r[self.xaxis]['index'] for r in self.summaries[env][self.type]])
-            y_ind.append([r[self.yaxis]['index'] for r in self.summaries[env][self.type]])
-            ratings.append([aggregate_rating(summary, rating_mode) for summary in self.summaries[env][self.type]])
+            if len(self.summaries[env][self.type]) > 0:
+                env_data = { 'names': [], 'ratings':[], 'x': [], 'y': [] }
+                for sum in self.summaries[env][self.type]:
+                    env_data['names'].append(sum['name'])
+                    env_data['ratings'].append(aggregate_rating(sum, rating_mode))
+                    if scale_switch == 'index':
+                        env_data['x'].append(sum[self.xaxis]['index'] or 0)
+                        env_data['y'].append(sum[self.yaxis]['index'] or 0)
+                    else:
+                        env_data['x'].append(sum[self.xaxis]['value'] or 0)
+                        env_data['y'].append(sum[self.yaxis]['value'] or 0)
+                plot_data[env] = env_data
         scale_names = [AXIS_NAMES[self.xaxis], AXIS_NAMES[self.yaxis]]
         if scale_switch == 'index':
-            scatter_pos = [x_ind, y_ind]
             rating_pos = [self.scales[self.xaxis], self.scales[self.yaxis]]
             scale_names = [name.split('[')[0].strip() + ' Index' for name in scale_names]
         else:
-            scatter_pos = [x, y]
             rating_pos = [self.scales_real[env_names[0]][self.xaxis], self.scales_real[env_names[0]][self.yaxis]]
-        figures = create_scatter_fig(scatter_pos, scale_names, names, env_names, ratings)
+        figures = create_scatter_fig(plot_data, scale_names)
         add_rating_background(figures, rating_pos, rating_mode)
         return figures
 
