@@ -18,37 +18,65 @@ GPU_NAMES = {
     'Quadro RTX 5000': 'RTX 5000',
 }
 FULL_TRAIN_EPOCHS = {
-    'ResNet50': 90, # https://github.com/pytorch/vision/tree/main/references/classification
-    'ResNet101': 90, # https://github.com/pytorch/vision/tree/main/references/classification
-    'ResNet152': 90, # https://github.com/pytorch/vision/tree/main/references/classification
-    'VGG16': 90, # https://github.com/pytorch/vision/tree/main/references/classification
-    'VGG19': 90, # https://github.com/pytorch/vision/tree/main/references/classification
-    'EfficientNetB0': -1,
-    'EfficientNetB1': -1,
-    'EfficientNetB2': -1,
-    'EfficientNetB3': -1,
-    'EfficientNetB4': -1,
-    'EfficientNetB5': -1,
-    'EfficientNetB6': -1,
-    'EfficientNetB7': -1,
-    'RegNetX400MF': 100, # https://github.com/pytorch/vision/tree/main/references/classification
-    'RegNetX32GF': 100, # https://github.com/pytorch/vision/tree/main/references/classification
-    'RegNetX8GF': 100, # https://github.com/pytorch/vision/tree/main/references/classification
-    'ResNext50': 100, # https://github.com/pytorch/vision/tree/main/references/classification
-    'ResNext101': 100, # https://github.com/pytorch/vision/tree/main/references/classification
-    'DenseNet121': 90, # Densely Connected Convolutional Networks https://arxiv.org/pdf/1608.06993.pdf
-    'DenseNet169': 90, # Densely Connected Convolutional Networks https://arxiv.org/pdf/1608.06993.pdf
-    'DenseNet201': 90, # Densely Connected Convolutional Networks https://arxiv.org/pdf/1608.06993.pdf
-    'Xception': -1,
-    'InceptionResNetV2': 200, # Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning https://arxiv.org/pdf/1602.07261.pdf
-    'InceptionV3': 100, # Rethinking the Inception Architecture for Computer Vision https://arxiv.org/pdf/1512.00567.pdf
-    'NASNetMobile': 100, # Learning Transferable Architectures for Scalable Image Recognition https://arxiv.org/pdf/1707.07012.pdf
-    'MobileNetV2': 300, # https://github.com/pytorch/vision/tree/main/references/classification
-    'MobileNetV3Small': 600, # https://github.com/pytorch/vision/tree/main/references/classification
-    'MobileNetV3Large': 600, # https://github.com/pytorch/vision/tree/main/references/classification
-    'QuickNetSmall': 600, # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
-    'QuickNet': 600, # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
-    'QuickNetLarge': 600 # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
+    'ResNet50':             90, # https://github.com/pytorch/vision/tree/main/references/classification
+    'ResNet101':            90, # https://github.com/pytorch/vision/tree/main/references/classification
+    'ResNet152':            90, # https://github.com/pytorch/vision/tree/main/references/classification
+    'VGG16':                90, # https://github.com/pytorch/vision/tree/main/references/classification
+    'VGG19':                90, # https://github.com/pytorch/vision/tree/main/references/classification
+    'EfficientNetB0':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
+    'EfficientNetB1':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
+    'EfficientNetB2':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
+    'EfficientNetB3':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
+    'EfficientNetB4':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
+    'EfficientNetB5':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
+    'EfficientNetB6':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
+    'EfficientNetB7':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
+    'RegNetX400MF':         100, # https://github.com/pytorch/vision/tree/main/references/classification
+    'RegNetX32GF':          100, # https://github.com/pytorch/vision/tree/main/references/classification
+    'RegNetX8GF':           100, # https://github.com/pytorch/vision/tree/main/references/classification
+    'ResNext50':            100, # https://github.com/pytorch/vision/tree/main/references/classification
+    'ResNext101':           100, # https://github.com/pytorch/vision/tree/main/references/classification
+    'DenseNet121':          90, # Densely Connected Convolutional Networks https://arxiv.org/pdf/1608.06993.pdf
+    'DenseNet169':          90, # Densely Connected Convolutional Networks https://arxiv.org/pdf/1608.06993.pdf
+    'DenseNet201':          90, # Densely Connected Convolutional Networks https://arxiv.org/pdf/1608.06993.pdf
+    'Xception':             None, # no information found
+    'InceptionResNetV2':    200, # Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning https://arxiv.org/pdf/1602.07261.pdf
+    'InceptionV3':          100, # Rethinking the Inception Architecture for Computer Vision https://arxiv.org/pdf/1512.00567.pdf
+    'NASNetMobile':         100, # Learning Transferable Architectures for Scalable Image Recognition https://arxiv.org/pdf/1707.07012.pdf
+    'MobileNetV2':          300, # https://github.com/pytorch/vision/tree/main/references/classification
+    'MobileNetV3Small':     600, # https://github.com/pytorch/vision/tree/main/references/classification
+    'MobileNetV3Large':     600, # https://github.com/pytorch/vision/tree/main/references/classification
+    'QuickNetSmall':        600, # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
+    'QuickNet':             600, # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
+    'QuickNetLarge':        600 # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
+}
+TASK_TYPES = {
+    'eval': 'inference',
+    'train': 'training',
+}
+TASK_METRICS_CALCULATION = {        # boolean informs whether given task log is used (True), or if the corresponding inference log shall be used instead
+    'inference': {
+        'parameters':               (True,  lambda model_log: calc_parameters(model_log)),
+        'fsize':                    (True,  lambda model_log: calc_fsize(model_log)),
+        'inference_power_draw':     (True,  lambda model_log: calc_power_draw(model_log)),
+        'inference_time':           (True,  lambda model_log: calc_inf_time(model_log)),
+        'top1_val':                 (True,  lambda model_log: calc_accuracy(model_log)),
+        'top5_val':                 (True,  lambda model_log: calc_accuracy(model_log, top5=True))
+    },
+    'training': {
+        'parameters':               (True,  lambda model_log: calc_parameters(model_log)),
+        'fsize':                    (True,  lambda model_log: calc_fsize(model_log)),
+        'train_power_draw_epoch':   (True,  lambda model_log: calc_power_draw_train(model_log, True)),
+        'train_power_draw':         (True,  lambda model_log: calc_power_draw_train(model_log)),
+        'train_time_epoch':         (True,  lambda model_log: calc_time_train(model_log, True)),
+        'train_time':               (True,  lambda model_log: calc_time_train(model_log)),
+        'top1_val':                 (False, lambda model_val_log: calc_accuracy(model_val_log)),
+        'top5_val':                 (False, lambda model_val_log: calc_accuracy(model_val_log, top5=True))
+    }
+}
+METRICS_FOR_FINAL_RATING = {        # boolean informs whether given task log is used (True), or if the corresponding inference log shall be used instead
+    'inference': ['parameters', 'inference_power_draw', 'inference_time', 'top1_val'],
+    'training': ['parameters', 'train_power_draw', 'train_time', 'top1_val']
 }
 
 
@@ -63,17 +91,18 @@ def get_environment_key(log):
 
 def aggregate_rating(ratings, mode, meanings=None):
     if isinstance(ratings, dict): # model summary given instead of list of ratings
-        ratings = [val['rating'] for val in ratings.values() if 'rating' in val]
+        ratings = [val['rating'] for key, val in ratings.items() if key in METRICS_FOR_FINAL_RATING[ratings['task_type'].lower()]]
     if meanings is None:
         meanings = np.arange(np.max(ratings) + 1)
+    round_m = np.ceil if 'pessimistic' in mode else np.floor # optimistic
     if mode == 'best':
         return meanings[min(ratings)]
     if mode == 'worst':
         return meanings[max(ratings)]
-    if mode == 'median':
-        return meanings[int(np.median(ratings))]
-    if mode == 'mean':
-        return meanings[int(np.ceil(np.mean(ratings)))]
+    if 'median' in mode:
+        return meanings[int(round_m(np.median(ratings)))]
+    if 'mean' in mode:
+        return meanings[int(round_m(np.mean(ratings)))]
     if mode == 'majority':
         return meanings[np.argmax(np.bincount(ratings))]
     raise NotImplementedError('Rating Mode not implemented!', mode)
@@ -178,46 +207,41 @@ def save_scale(scale_intervals, output="scales.json"):
 
 def load_results(results_directory):
     logs = {}
-
     for fname in os.listdir(results_directory):
         with open(os.path.join(results_directory, fname), 'r') as rf:
             log = json.load(rf)
             env_key = get_environment_key(log)
             if env_key not in logs:
-                logs[env_key] = {'inference': {}, 'training': {}}
-            res_type = 'inference' if fname.startswith('eval') else 'training'
-            if log['config']['model'] in logs[env_key][res_type]:
+                logs[env_key] = {task: {} for task in TASK_TYPES.values()}
+            task_type = TASK_TYPES[fname.split('_')[0]]
+            if log['config']['model'] in logs[env_key][task_type]:
                 raise NotImplementedError(f'Already found results for {log["config"]["model"]} on {env_key}, averaging runs is not implemented (yet)!')
-            logs[env_key][res_type][log['config']['model']] = log
+            logs[env_key][task_type][log['config']['model']] = log
 
     # Exctract all relevant metadata
     summaries = {}
     for env_key, env_logs in logs.items():
-        # Calculate inference metrics for rating
         if env_key not in summaries:
-            summaries[env_key] = {'inference': [], 'training': []}
-        for model_name, model_log in env_logs['inference'].items():
-            model_information = {'environment': env_key, 'name': model_name, 'dataset': 'ImageNet', 'result_type': 'Inference'}
-            model_information['parameters'] = {'value': calc_parameters(model_log)}
-            model_information['fsize'] = {'value': calc_fsize(model_log)}
-            model_information['inference_power_draw'] = {'value': calc_power_draw(model_log)}
-            model_information['inference_time'] = {'value': calc_inf_time(model_log)}
-            model_information['top1_val'] = {'value': calc_accuracy(model_log)}
-            model_information['top5_val'] = {'value': calc_accuracy(model_log, top5=True)}
-            summaries[env_key]['inference'].append(model_information)
+            summaries[env_key] = {task: [] for task in TASK_TYPES.values()}
         
-        # Calculate training metrics for rating
-        for model_name, model_log in env_logs['training'].items():
-            model_information = {'environment': env_key, 'name': model_name, 'dataset': 'ImageNet', 'result_type': 'Training'}
-            model_information['parameters'] = {'value': calc_parameters(model_log)}
-            model_information['fsize'] = {'value': calc_fsize(model_log)}
-            model_information['train_power_draw_epoch'] = {'value': calc_power_draw_train(model_log, True)}
-            model_information['train_power_draw'] = {'value': calc_power_draw_train(model_log)}
-            model_information['train_time_epoch'] = {'value': calc_time_train(model_log, True)}
-            model_information['train_time'] = {'value': calc_time_train(model_log)}
-            model_information['top1_val'] = {'value': calc_accuracy(logs[env_key]['inference'][model_name])}
-            model_information['top5_val'] = {'value': calc_accuracy(logs[env_key]['inference'][model_name], top5=True)}
-            summaries[env_key]['training'].append(model_information)
+        # Calculate inference metrics for rating
+        for task, metrics in TASK_METRICS_CALCULATION.items():
+            for model_name, model_log in env_logs[task].items():
+                model_information = {
+                    'environment': env_key,
+                    'name': model_name,
+                    'dataset': 'ImageNet',
+                    'task_type': task.capitalize()
+                }
+                for metrics_key, (use_log, metrics_calculation) in metrics.items():
+                    try:
+                        if not use_log: # calculate based on the inference log
+                            model_information[metrics_key] = {'value': metrics_calculation(logs[env_key]['inference'][model_name])}
+                        else:
+                            model_information[metrics_key] = {'value': metrics_calculation(model_log)}
+                    except Exception:
+                        model_information[metrics_key] = {'value': None}
+                summaries[env_key][task].append(model_information)
 
     # Transform logs dict for one environment to list of logs
     for env_key, env_logs in logs.items():
@@ -231,31 +255,39 @@ def rate_results(summaries, reference_name, scales=None):
     if scales is None:
         scales = load_scale()
 
-    # Get reference values
+    # Get reference values for each environment and task
     reference_values = {}
     for env_key, env_logs in summaries.items():
-        type_ref_values = {}
-        for res_type, type_logs in env_logs.items():
+        type_ref_values = {task_type: {} for task_type in TASK_TYPES.values()}
+        for task_type, type_logs in env_logs.items():
             for model in type_logs:
                 if model['name'] == reference_name:
-                    type_ref_values[res_type] = {k: v['value'] for k, v in model.items() if isinstance(v, dict) }
+                    for metrics_key, metrics_val in model.items():
+                        if isinstance(metrics_val, dict):
+                            if metrics_val['value'] is None:
+                                raise RuntimeError(f'Found unratable metric {metrics_key} for reference model {reference_name} on {env_key} {task_type}!')
+                            type_ref_values[task_type][metrics_key] = metrics_val['value']
                     break
         reference_values[env_key] = type_ref_values
 
-    # Calculate indices using reference values and scales
+    # Calculate value indices using reference values and scales
     for env_key, env_logs in summaries.items():
-        for res_type, type_logs in env_logs.items():
+        for task_type, type_logs in env_logs.items():
             for model in type_logs:
                 for key in model.keys():
                     if isinstance(model[key], dict):
-                        model[key]['index'] = value_to_index(model[key]['value'], reference_values[env_key][res_type][key], key)
-                        model[key]['rating'] = calculate_rating(model[key]['index'], scales[key])
+                        if model[key]['value'] is None:
+                            model[key]['index'] = None
+                            model[key]['rating'] = 4
+                        else:
+                            model[key]['index'] = value_to_index(model[key]['value'], reference_values[env_key][task_type][key], key)
+                            model[key]['rating'] = calculate_rating(model[key]['index'], scales[key])
 
     # Calculate the real-valued scales
     real_scales = {}
     for env_key, ref_values in reference_values.items():
         real_scales[env_key] = {'inference': {}, 'training': {}}
-        for res_type, type_ref_values in ref_values.items():
+        for task_type, type_ref_values in ref_values.items():
             for key, val in type_ref_values.items():
                 real_scales[env_key][key] = [(index_to_value(start, val, key), index_to_value(stop, val, key)) for (start, stop) in scales[key]]
     

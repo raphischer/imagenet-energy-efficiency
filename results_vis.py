@@ -1,7 +1,6 @@
 import argparse
 import base64
 import json
-import os
 
 import numpy as np
 import dash
@@ -13,7 +12,7 @@ import plotly.graph_objects as go
 from plotly.validators.scatter.marker import SymbolValidator
 
 from mlel.ratings import load_results, load_scale, save_scale, rate_results, aggregate_rating
-from mlel.label_generator import summary_to_label
+from mlel.label_generator import EnergyLabel
 
 
 ENV_SYMBOLS = [SymbolValidator().values[i] for i in range(0, len(SymbolValidator().values), 12)]
@@ -47,9 +46,11 @@ def summary_to_str(summary, rating_mode):
     ret_str = [f'Name: {summary["name"]:17} {environment:<34} - Final Rating {final_rating}']
     for key, val in summary.items():
         if isinstance(val, dict):
-            ret_str.append(f'{AXIS_NAMES[key]:<30}: {val["value"]:<13.3f} - Index {val["index"]:4.2f} - Rating {val["rating"]}')
+            if val["value"] is None:
+                ret_str.append(f'{AXIS_NAMES[key]:<30}: {"n.a.":<13} - Index n.a. - Rating {val["rating"]}')
+            else:
+                ret_str.append(f'{AXIS_NAMES[key]:<30}: {val["value"]:<13.3f} - Index {val["index"]:4.2f} - Rating {val["rating"]}')
     full_str = '\n'.join(ret_str)
-    # print(full_str)
     return full_str
 
 
@@ -57,6 +58,8 @@ def create_scatter_fig(scatter_pos, axis_title, names, env_names, ratings, ax_bo
     fig = make_subplots(rows=1, cols=2)
     posx, posy = scatter_pos
     for env_i, (x, y, name, env_name, rating) in enumerate(zip(posx, posy, names, env_names, ratings)):
+        x = [xv if xv is not None else 0 for xv in x]
+        y = [yv if yv is not None else 0 for yv in y]
         fig.add_trace(go.Scatter(
             x=x, y=y, text=name, mode='markers', name=env_name, marker_symbol=ENV_SYMBOLS[env_i],
             legendgroup=env_name, marker=dict(color=[RATING_COLORS[r] for r in rating], size=15),
@@ -72,8 +75,8 @@ def create_scatter_fig(scatter_pos, axis_title, names, env_names, ratings, ax_bo
     fig.update_layout(xaxis=dict(showgrid=False), yaxis=dict(showgrid=False))
     fig.update_layout(barmode='stack')
     # fig.update_layout(clickmode='event')
-    min_x, max_x = np.min([min(v) for v in scatter_pos[0]]), np.max([max(v) for v in scatter_pos[0]])
-    min_y, max_y = np.min([min(v) for v in scatter_pos[1]]), np.max([max(v) for v in scatter_pos[1]])
+    min_x, max_x = np.min([min([vv for vv in v if vv is not None]) for v in scatter_pos[0]]), np.max([max([vv for vv in v if vv is not None]) for v in scatter_pos[0]])
+    min_y, max_y = np.min([min([vv for vv in v if vv is not None]) for v in scatter_pos[1]]), np.max([max([vv for vv in v if vv is not None]) for v in scatter_pos[1]])
     diff_x, diff_y = max_x - min_x, max_y - min_y
     fig.update_layout(
         xaxis_range=[min_x - ax_border * diff_x, max_x + ax_border * diff_x],
@@ -194,8 +197,8 @@ class Visualization(dash.Dash):
             html.Div(children=[
                 html.H2('Rating mode:'),
                 dcc.RadioItems(
-                    id='rating', value='mean',
-                    options=[{'label': opt, 'value': opt.lower()} for opt in ['Mean', 'Median', 'Best', 'Worst']],
+                    id='rating', value='optimistic median',
+                    options=[{'label': opt, 'value': opt.lower()} for opt in ['Optimistic Median', 'Pessimistics Median', 'Optimistic Mean', 'Pessimistic Mean', 'Best', 'Worst']],
                 )
             ])
         ])
@@ -230,16 +233,16 @@ class Visualization(dash.Dash):
         if uploaded_scales is not None:
             scales_dict = json.loads(base64.b64decode(uploaded_scales.split(',')[-1]))
             self.scales = load_scale(scales_dict)
-        # [Output(sl_id, prop) for sl_id in ['scaleslider-x', 'scaleslider-y'] for prop in ['min', 'max', 'value', 'step', 'marks']],
         self.xaxis = xaxis or self.xaxis
         self.yaxis = yaxis or self.yaxis
         values = []
         for axis in [self.xaxis, self.yaxis]:
-            all_ratings = [ sums[axis]['index'] for env_sums in self.summaries.values() for sums in env_sums[self.type] ]
+            all_ratings = [ sums[axis]['index'] for env_sums in self.summaries.values() for sums in env_sums[self.type] if sums[axis]['index'] is not None ]
             min_v = min(all_ratings) # if sl_idx == 0 else self.scales[axis][4 - sl_idx][1]
             max_v = max(all_ratings) # if sl_idx == 3 else self.scales[axis][3 - sl_idx][0]
             value = [entry[0] for entry in reversed(self.scales[axis][1:])]
             marks={ val: {'label': str(val)} for val in np.round(np.linspace(min_v, max_v, 10), 2)}
+            # (sl_id, prop) for sl_id in ['scaleslider-x', 'scaleslider-y'] for prop in ['min', 'max', 'value', 'step', 'marks']]
             values.extend([min_v, max_v, value, marks])
         return values
     
@@ -270,9 +273,9 @@ class Visualization(dash.Dash):
                 env_name = env_names[point['curveNumber'] // 2]
                 self.current['summary'] = self.summaries[env_name][self.type][point['pointNumber']]
                 self.current['logs'] = self.logs[env_name][self.type][point['pointNumber']]
-                self.current['label_img'], self.current['label'] = summary_to_label(self.current['summary'], rating_mode)
+                self.current['label'] = EnergyLabel(self.current['summary'], rating_mode)
             if self.current['summary'] is not None:
-                return summary_to_str(self.current['summary'], rating_mode), self.current['label_img']
+                return summary_to_str(self.current['summary'], rating_mode), self.current['label'].to_encoded_image()
         return 'no model summary to show', None
 
     def save_scales(self, save_labels_clicks=None):
