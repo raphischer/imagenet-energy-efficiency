@@ -150,10 +150,12 @@ def calc_inf_time(res):
 
 
 def calc_power_draw(res):
+    # TODO add the RAPL measurements if available
     return res['train']["monitoring_gpu"]["total"]["total_power_draw"] / 1281167
 
 
-def calc_power_draw_train(res, per_epoch=False):    
+def calc_power_draw_train(res, per_epoch=False):
+    # TODO add the RAPL measurements if available
     val_per_epoch = res["monitoring_gpu"]["total"]["total_power_draw"] / len(res["results"]["history"]["loss"])
     val_per_epoch /= 3600000 # Ws to kWh
     if not per_epoch:
@@ -167,6 +169,18 @@ def calc_time_train(res, per_epoch=False):
     if not per_epoch:
         val_per_epoch *= FULL_TRAIN_EPOCHS[res["config"]["model"]]
     return val_per_epoch
+
+
+def characterize_monitoring(summary):
+    sources = {
+        'GPU': ['NVML'] if summary['monitoring_gpu'] is not None else [],
+        'CPU': ['RAPL'] if summary['monitoring_rapl'] is not None else [],
+        'Extern': []
+    }
+    # TODO also make use of summary['monitoring_cpu']
+    # if summary['monitoring_cpu'] is not None:
+    #     sources['CPU'].append('psutil')
+    return sources
 
 
 def load_scale(content="mlel/scales.json"):
@@ -231,7 +245,8 @@ def load_results(results_directory):
                     'environment': env_key,
                     'name': model_name,
                     'dataset': 'ImageNet',
-                    'task_type': task.capitalize()
+                    'task_type': task.capitalize(),
+                    'power_draw_sources': characterize_monitoring(model_log if 'monitoring_gpu' in model_log else model_log['train'])
                 }
                 for metrics_key, (use_log, metrics_calculation) in metrics.items():
                     try:
@@ -263,7 +278,7 @@ def rate_results(summaries, reference_name, scales=None):
             for model in type_logs:
                 if model['name'] == reference_name:
                     for metrics_key, metrics_val in model.items():
-                        if isinstance(metrics_val, dict):
+                        if isinstance(metrics_val, dict) and 'value' in metrics_val:
                             if metrics_val['value'] is None:
                                 raise RuntimeError(f'Found unratable metric {metrics_key} for reference model {reference_name} on {env_key} {task_type}!')
                             type_ref_values[task_type][metrics_key] = metrics_val['value']
@@ -275,7 +290,7 @@ def rate_results(summaries, reference_name, scales=None):
         for task_type, type_logs in env_logs.items():
             for model in type_logs:
                 for key in model.keys():
-                    if isinstance(model[key], dict):
+                    if isinstance(model[key], dict) and 'value' in model[key]:
                         if model[key]['value'] is None:
                             model[key]['index'] = None
                             model[key]['rating'] = 4

@@ -11,7 +11,7 @@ from plotly import colors
 import plotly.graph_objects as go
 from plotly.validators.scatter.marker import SymbolValidator
 
-from mlel.ratings import load_results, load_scale, save_scale, rate_results, aggregate_rating
+from mlel.ratings import load_results, load_scale, save_scale, rate_results, aggregate_rating, TASK_TYPES
 from mlel.label_generator import EnergyLabel
 
 
@@ -45,7 +45,7 @@ def summary_to_str(summary, rating_mode):
     environment = f"({summary['environment']} Environment)"
     ret_str = [f'Name: {summary["name"]:17} {environment:<34} - Final Rating {final_rating}']
     for key, val in summary.items():
-        if isinstance(val, dict):
+        if isinstance(val, dict) and "value" in val :
             if val["value"] is None:
                 ret_str.append(f'{AXIS_NAMES[key]:<30}: {"n.a.":<13} - Index n.a. - Rating {val["rating"]}')
             else:
@@ -89,10 +89,7 @@ class Visualization(dash.Dash):
         super().__init__(__name__)
         self.logs, summaries = load_results(results_directory)
         self.summaries, self.scales, self.scales_real = rate_results(summaries, reference_name)
-        self.keys = {
-            'inference': [key for key, vals in list(self.summaries.values())[0]['inference'][0].items() if isinstance(vals, dict)],
-            'training': [key for key, vals in list(self.summaries.values())[0]['training'][0].items() if isinstance(vals, dict)]
-        }
+        self.keys = {task: [key for key, vals in list(self.summaries.values())[0][task][0].items() if isinstance(vals, dict) and 'rating' in vals] for task in TASK_TYPES.values()}
         self.type, self.xaxis, self.yaxis = 'inference', 'top1_val', 'inference_power_draw'
         self.reference_name = reference_name
         self.current = { 'summary': None, 'label': None, 'logs': None }

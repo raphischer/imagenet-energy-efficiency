@@ -9,7 +9,6 @@ import time
 import numpy as np
 
 
-# TODO log manufactur information for every GPU
 # TODO improve RAPL compability, maybe using https://github.com/djselbeck/rapl-read-ryzen
 
 

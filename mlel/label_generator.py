@@ -6,38 +6,41 @@ from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.colors import black
 import fitz # PyMuPDF
 
-from mlel.ratings import aggregate_rating
+from mlel.ratings import aggregate_rating, load_results, rate_results
 
 
 C_SIZE = (1560, 2411)
 POS_TEXT = {
+    # infos that are directly taken from summary via keys
     "name":                                     ('drawString',        90, '-Bold', .04,  .855, None),
     "task_type":                                ('drawString',        90, '',      .04,  .815, None),
     "environment":                              ('drawString',        90, '',      .04,  .42,  None),
     "dataset":                                  ('drawRightString',   90, '',      .95,  .815, None),
-    "inference_power_draw":                     ('drawRightString',   68, '-Bold', .25,  .25,  None),
-    "parameters":                               ('drawRightString',   68, '-Bold', .69,  .05,  None),
+    "inference_power_draw":                     ('drawRightString',   68, '-Bold', .25,  .28,  None),
     "inference_time":                           ('drawRightString',   68, '-Bold', .75,  .25,  None),
+    "parameters":                               ('drawRightString',   68, '-Bold', .69,  .05,  None),
     "train_time":                               ('drawRightString',   68, '-Bold', .7,  .25,  '{} /'),
     "train_time_epoch":                         ('drawString',        68, '-Bold', .715, .25,  None),
-    "train_power_draw":                         ('drawRightString',   68, '-Bold', .2,  .25,  '{} /'),
-    "train_power_draw_epoch":                   ('drawString',        68, '-Bold', .215,  .25,  None),
+    "train_power_draw":                         ('drawRightString',   68, '-Bold', .2,  .28,  '{} /'),
+    "train_power_draw_epoch":                   ('drawString',        68, '-Bold', .215,  .28,  None),
     "top1_val":                                 ('drawRightString',   68, '-Bold', .22,  .05,  '{} /'),
     "top5_val":                                 ('drawString',        68, '-Bold', .235, .05,  None),
-    # TODO add field for power draw sources
-    "$Inference Power Draw per Sample":         ('drawCentredString', 56, '',      .25,  .22,  None),
+    # infos that are extracted via methods
+    'format_power_draw_sources':                ('drawCentredString', 56, '',      .25,  .22,  None),
+    # static infos, depending on $task
+    "$Inference Power Draw per Sample":         ('drawCentredString', 56, '',      .25,  .25,  None),
     "$Inference Runtime per Sample":            ('drawCentredString', 56, '',      .75,  .22,  None),
     "$Inference Top-1 / Top-5 Accuracy":        ('drawCentredString', 56, '',      .25,  .02,  None),
     "$Inference Model Size":                    ('drawCentredString', 56, '',      .75,  .02,  None),
-    "$Inference Ws":                            ('drawString',        56, '',      .27,  .25,  None),
+    "$Inference Ws":                            ('drawString',        56, '',      .27,  .28,  None),
     "$Inference ms":                            ('drawString',        56, '',      .77,  .25,  None),
     "$Inference [%]":                           ('drawString',        56, '',      .34,  .05,  None),
     "$Inference M Parameters":                  ('drawString',        56, '',      .7,   .05,  None),
-    "$Training Power Draw Total / per Epoch":   ('drawCentredString', 56, '',      .25,  .22,  None),
+    "$Training Power Draw Total / per Epoch":   ('drawCentredString', 56, '',      .25,  .25,  None),
     "$Training Runtime Total / per Epoch":      ('drawCentredString', 56, '',      .75,  .22,  None),
     "$Training Top-1 / Top-5 Accuracy":         ('drawCentredString', 56, '',      .25,  .02,  None),
     "$Training Model Size":                     ('drawCentredString', 56, '',      .75,  .02,  None),
-    "$Training kWh":                            ('drawString',        56, '',      .31,  .25,  None),
+    "$Training kWh":                            ('drawString',        56, '',      .31,  .28,  None),
     "$Training h":                              ('drawString',        56, '',      .81,  .25,  None),
     "$Training [%]":                            ('drawString',        56, '',      .34,  .05,  None),
     "$Training M Parameters":                   ('drawString',        56, '',      .7,   .05,  None),
@@ -65,6 +68,14 @@ ICON_POS = {
 }
 
 
+def format_power_draw_sources(summary):
+    sources = 'Sources:'
+    for key, vals in summary['power_draw_sources'].items():
+        if len(vals) > 0:
+            sources += f' {key},'
+    return sources[:-1]
+
+
 class EnergyLabel(fitz.Document):
 
     def __init__(self, summary, rating_mode):
@@ -90,7 +101,9 @@ class EnergyLabel(fitz.Document):
         for key, (draw_method, fsize, style, x, y, fmt) in POS_TEXT.items():
             draw_method = getattr(canvas, draw_method)
             canvas.setFont('Helvetica' + style, fsize)
-            if key.startswith(f"${summary['task_type']} "):
+            if key in globals():
+                text = globals()[key](summary)
+            elif key.startswith(f"${summary['task_type']} "):
                 # Static text on label depending on the task type
                 text = key.replace(f"${summary['task_type']} ", "")
             elif key in summary:
@@ -114,8 +127,10 @@ class EnergyLabel(fitz.Document):
 
 
 if __name__ == "__main__":
-    test_inf = {'environment': 'A100 x8 - TensorFlow 2.6.2', 'name': 'MobileNetV3Large', 'dataset': 'ImageNet', 'task_type': 'Inference', 'parameters': {'value': 5.507432, 'index': 8.117608351769027, 'rating': 0}, 'fsize': {'value': 22733832, 'index': 7.903654782000676, 'rating': 0}, 'inference_power_draw': {'value': 0.19723524031291068, 'index': 1.8633597887444289, 'rating': 0}, 'inference_time': {'value': 0.3874090093521635, 'index': 1.094596240474881, 'rating': 1}, 'top1_val': {'value': 0.7107800245285034, 'index': 0.9904961488720718, 'rating': 2}, 'top5_val': {'value': 0.8927800059318542, 'index': 0.9963840212294235, 'rating': 2}}
-    test_train = {'environment': 'A100 x8 - TensorFlow 2.6.2', 'name': 'MobileNetV3Small', 'dataset': 'ImageNet', 'task_type': 'Training', 'parameters': {'value': 2.5549679999999997, 'index': 17.498135397390495, 'rating': 0}, 'fsize': {'value': 10804008, 'index': 16.630898459164413, 'rating': 0}, 'train_power_draw_epoch': {'value': 0.0938475629776553, 'index': 3.263693961714361, 'rating': 0}, 'train_power_draw': {'value': 56.30853778659318, 'index': 0.4895540942571542, 'rating': 4}, 'train_time_epoch': {'value': 0.12829326028029125, 'index': 1.6842725959307598, 'rating': 0}, 'train_time': {'value': 76.97595616817475, 'index': 0.25264088938961404, 'rating': 4}, 'top1_val': {'value': 0.6313999891281128, 'index': 0.8798773685911093, 'rating': 4}, 'top5_val': {'value': 0.8371400237083435, 'index': 0.9342872125412293, 'rating': 4}}
+    _, summaries = load_results('results')
+    summaries, _, _ = rate_results(summaries, 'ResNet101')
+    test_inf = summaries['RTX 5000 - TensorFlow 2.4.1']['inference'][0]
+    test_train = summaries['A100 x8 - Torch 1.10.1+cu113']['training'][0]
     for idx, summary in enumerate([test_inf, test_train]):
         pdf_doc = EnergyLabel(summary, 'mean')
         pdf_doc.save(f'testlabel_{idx}.pdf')
