@@ -45,7 +45,7 @@ def summary_to_str(summary, rating_mode):
     environment = f"({summary['environment']} Environment)"
     ret_str = [f'Name: {summary["name"]:17} {environment:<34} - Final Rating {final_rating}']
     for key, val in summary.items():
-        if isinstance(val, dict) and "value" in val :
+        if isinstance(val, dict) and "value" in val:
             if val["value"] is None:
                 ret_str.append(f'{AXIS_NAMES[key]:<30}: {"n.a.":<13} - Index n.a. - Rating {val["rating"]}')
             else:
