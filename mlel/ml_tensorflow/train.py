@@ -24,7 +24,7 @@ def init_training(args):
     tf.random.set_seed(args.seed)
 
     # open strategy scope for using all GPUs
-    strategy = tf.distribute.MirroredStrategy()
+    strategy = tf.distribute.MirroredStrategy(cross_device_ops=tf.distribute.HierarchicalCopyAllReduce())
     with strategy.scope():
         preproc_f = load_preprocessing(args.preprocessing, args.model, args)
         ds_train, ds_train_info = load_imagenet(args.data_path, None, 'train', preproc_f, args.batch_size, args.n_batches)
