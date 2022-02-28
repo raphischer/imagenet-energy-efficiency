@@ -161,7 +161,7 @@ def finalize_training(train_res, results, args):
     results.update({
         'history': train_res["history"],
         'model': {
-            'params': sum(p.numel() for p in train_res["model"].parameters()), # TODO: This is number of all parameters, even untrainable parameters,
+            'params': sum(p.numel() for p in train_res["model"].parameters()), # this is number of all parameters, even untrainable ones
             'fsize': os.path.getsize(os.path.join(args.output_dir, f'checkpoint_{final_epoch:03d}_final.pth'))
         }
     })

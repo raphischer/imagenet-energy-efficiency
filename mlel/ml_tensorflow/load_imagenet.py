@@ -16,7 +16,7 @@ def load_imagenet(data_dir, write_dir=None, split='train', map_f=None, batch_siz
     assert(variant in ['imagenet2012_subset', 'imagenet2012'])
     assert(split in ['train', 'validation'])
     if write_dir is None:
-        write_dir = os.path.join(data_dir, split)
+        write_dir = os.path.join(data_dir, 'train')
         data_dir = os.path.join(data_dir, 'raw')
         assert(os.path.isdir(data_dir))
         assert(os.path.isdir(write_dir))

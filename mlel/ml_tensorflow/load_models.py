@@ -119,7 +119,6 @@ def prepare_model(model_name, optimizer, metrics=['sparse_categorical_accuracy',
         mfile = weights
     model = model(include_top=True, weights=weights)
 
-    # TODO which Crossentropy to use?!
     # criterion = tf.keras.losses.CategoricalCrossentropy(from_logits=True, label_smoothing=args.label_smoothing)
     criterion = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 

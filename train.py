@@ -11,7 +11,7 @@ from mlel.util import fix_seed, create_output_dir, Logger, PatchedJSONEncoder
 
 def main(args):
     args.seed = fix_seed(args.seed)
-    args.output_dir = create_output_dir(os.path.join(args.output_dir, 'train'), args.__dict__)
+    args.output_dir = create_output_dir(os.path.join(args.output_dir, os.path.basename(__file__)[:-3]), args.__dict__)
 
     # reroute the stdout to logfile, remember to call close!
     tmp = sys.stdout

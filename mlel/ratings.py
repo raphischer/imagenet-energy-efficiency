@@ -109,7 +109,6 @@ def aggregate_rating(ratings, mode, meanings=None):
 
 
 def value_to_index(value, ref, metric_key):
-    # TODO If values is integer, just return integer
     #      i = v / r                     OR                i = r / v
     return value / ref if metric_key in HIGHER_BETTER else ref / value
 
@@ -117,7 +116,7 @@ def value_to_index(value, ref, metric_key):
 def index_to_value(index, ref, metric_key):
     if index == 0:
         index = 10e-4
-    #      v = i * r                            OR          v = r / i
+    #      v = i * r                            OR         v = r / i
     return index * ref  if metric_key in HIGHER_BETTER else ref / index
 
 
