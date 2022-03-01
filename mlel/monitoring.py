@@ -5,6 +5,9 @@ import os
 import argparse
 import json
 import time
+import subprocess
+import platform
+import re
 
 import numpy as np
 
@@ -57,21 +60,29 @@ def aggregate_log(fpath):
     return results
 
 
+def get_processor_name():
+    if platform.system() == "Windows":
+        return platform.processor()
+    elif platform.system() == "Linux":
+        command = "cat /proc/cpuinfo"
+        all_info = subprocess.check_output(command, shell=True).strip().decode('ascii')
+        for line in all_info.split("\n"):
+            if "model name" in line:
+                return re.sub( ".*model name.*:", "", line,1).strip()
+    return ""
+
+
 def log_system_info(filename):
     sysinfo = {}
-    try:
-        import platform
-        uname = platform.uname()
-        sysinfo.update({
-            "System": uname.system,
-            "Node Name": uname.node,
-            "Release": uname.release,
-            "Version": uname.version,
-            "Machine": uname.machine,
-            "Processor": uname.processor,
-        })
-    except ImportError:
-        pass
+    uname = platform.uname()
+    sysinfo.update({
+        "System": uname.system,
+        "Node Name": uname.node,
+        "Release": uname.release,
+        "Version": uname.version,
+        "Machine": uname.machine,
+        "Processor": get_processor_name(),
+    })
     try:
         import psutil
         cpufreq = psutil.cpu_freq()
