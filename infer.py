@@ -7,7 +7,7 @@ import time
 import sys
 
 from mlel.util import fix_seed, create_output_dir, Logger, PatchedJSONEncoder
-from mlel.monitoring import start_monitoring
+from mlel.monitoring import Monitoring
 
 
 def evaluate_single(args):
@@ -45,12 +45,11 @@ def evaluate_single(args):
 
         # run monitoring and evaluation
         print("Start evaluation")
-        monitoring = start_monitoring(args.gpu_monitor_interval, args.cpu_monitor_interval, args.output_dir, f'{split}_')
+        monitoring = Monitoring(args.gpu_monitor_interval, args.cpu_monitor_interval, args.output_dir, f'{split}_')
         start_time = time.time()
         eval_result = eval_func()
         end_time = time.time()
-        for monitor in monitoring:
-            monitor.stop()
+        monitoring.stop()
 
         # write results
         results = {

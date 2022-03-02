@@ -15,16 +15,6 @@ import numpy as np
 # TODO improve RAPL compability, maybe using https://github.com/djselbeck/rapl-read-ryzen
 
 
-def start_monitoring(gpu_interval, cpu_interval, output_dir, prefix=''):
-    monitoring = []
-    if gpu_interval > 0:
-        monitoring.append(DeviceMonitor('gpu', interval=gpu_interval, outfile=os.path.join(output_dir, f'{prefix}monitoring_gpu.json')))
-    if cpu_interval > 0:
-        monitoring.append(DeviceMonitor('cpu', interval=cpu_interval, outfile=os.path.join(output_dir, f'{prefix}monitoring_cpu.json')))
-        monitoring.append(DeviceMonitor('rapl', interval=cpu_interval, outfile=os.path.join(output_dir, f'{prefix}monitoring_rapl.json')))
-    return monitoring
-
-
 def aggregate_log(fpath):
     if not os.path.isfile(fpath):
         return None
@@ -118,17 +108,24 @@ def log_system_info(filename):
         json.dump(sysinfo, f, indent=4)
 
 
-def monitor_gpu(interval, logfile, stopper, gpu_id):
+def monitor_pynvml(interval, logfile, stopper, gpu_id):
     from pynvml import nvmlInit, nvmlDeviceGetHandleByIndex, nvmlDeviceGetPowerUsage, nvmlDeviceGetMemoryInfo
     from pynvml import nvmlDeviceGetUtilizationRates, nvmlDeviceGetTemperature, NVML_TEMPERATURE_GPU, nvmlDeviceGetCount
     nvmlInit()
     out = defaultdict(lambda: defaultdict(list))
     if gpu_id is None:
-        deviceCount = nvmlDeviceGetCount()
-        gpu_id = list(range(deviceCount))
+        if "CUDA_VISIBLE_DEVICES" in os.environ:
+            vis_devices = [int(did) for did in os.environ.get("CUDA_VISIBLE_DEVICES", "").split(",")]
+            gpu_id = vis_devices[:vis_devices.index(-1)]
+        else:
+            deviceCount = nvmlDeviceGetCount()
+            gpu_id = list(range(deviceCount))
     else:
         if not isinstance(gpu_id, list):
             gpu_id = [gpu_id]
+    if len(gpu_id) < 1:
+        print('No monitoring with pynvml possible!\nCould not access any GPU.')
+        return
     print('PROFILING FOR GPUs', gpu_id)
     i = 0
     while not stopper.is_set():
@@ -155,7 +152,7 @@ def monitor_gpu(interval, logfile, stopper, gpu_id):
         json.dump(out, log)
 
 
-def monitor_cpu(interval, logfile, stopper, process_id):
+def monitor_psutil(interval, logfile, stopper, process_id):
     try:
         import psutil
     except ImportError as e:
@@ -187,7 +184,7 @@ def monitor_cpu(interval, logfile, stopper, process_id):
         json.dump(out, log)
 
 
-def monitor_rapl(interval, logfile, stopper, process_id):
+def monitor_pyrapl(interval, logfile, stopper, process_id):
     try:
         import rapl
         print('PROFILING WITH RAPL')
@@ -221,24 +218,27 @@ def monitor_rapl(interval, logfile, stopper, process_id):
         json.dump(out, log)
 
 
-class DeviceMonitor:
+class Monitoring:
 
-    def __init__(self, device='gpu', interval=1, outfile=None, device_id=None) -> None:
-        if device == 'gpu':
-            prof_func = monitor_gpu
-        elif device == 'cpu':
-            prof_func = monitor_cpu
-            device_id = os.getpid()
-        elif device == 'rapl':
-            prof_func = monitor_rapl
-        else:
-            raise NotADirectoryError(f'Profiling for device {device} not implemented!')
-        self.interval = interval
+    def __init__(self, gpu_interval, cpu_interval, output_dir, prefix='') -> None:
+        self.monitoring = []
+        if gpu_interval > 0:
+            self.monitoring.append(Monitor(monitor_pynvml, interval=gpu_interval, outfile=os.path.join(output_dir, f'{prefix}monitoring_pynvml.json')))
+        if cpu_interval > 0:
+            self.monitoring.append(Monitor(monitor_psutil, interval=cpu_interval, outfile=os.path.join(output_dir, f'{prefix}monitoring_psutil.json'), device_id=os.getpid()))
+            self.monitoring.append(Monitor(monitor_pyrapl, interval=cpu_interval, outfile=os.path.join(output_dir, f'{prefix}monitoring_pyrapl.json')))
+
+    def stop(self):
+        for monitor in self.monitoring:
+            monitor.stop()
+
+class Monitor:
+
+    def __init__(self, prof_func, interval=1, outfile=None, device_id=None) -> None:
         if outfile is None:
-            raise NotImplementedError('Implement using a custom tmp file if no file is given!')
-        self.outfile = outfile
+            raise NotImplementedError('Invalid filename to write monitoring results to:', outfile)
         self.stopper = Event()
-        self.p = Process(target=prof_func, args=(self.interval, self.outfile, self.stopper, device_id))
+        self.p = Process(target=prof_func, args=(interval, outfile, self.stopper, device_id))
         self.p.start()
 
     def stop(self):
@@ -248,10 +248,9 @@ class DeviceMonitor:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Aggregates a given GPU profiling result")
-
     parser.add_argument("--directory", default="/home/fischer/mnt_imagenet/models/train_2021_12_10_15_56", type=str, help="directory with logs")
-    
     args = parser.parse_args()
+
     print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_cpu.json')), indent=4))
     print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_gpu.json')), indent=4))
     print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_rapl.json')), indent=4))
