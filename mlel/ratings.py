@@ -145,12 +145,12 @@ def calc_fsize(res):
 
 
 def calc_inf_time(res):
-    return res['train']['duration'] / 1281167 * 1000
+    return res['train']['duration'] / 1281167 * 1000 # TODO change to per batch
 
 
 def calc_power_draw(res):
     # TODO add the RAPL measurements if available
-    return res['train']["monitoring_gpu"]["total"]["total_power_draw"] / 1281167
+    return res['train']["monitoring_gpu"]["total"]["total_power_draw"] / 1281167 # TODO change to per batch
 
 
 def calc_power_draw_train(res, per_epoch=False):
