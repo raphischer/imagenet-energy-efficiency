@@ -36,7 +36,7 @@ def aggregate_results(directory, train_directories=None):
             res['config'] = json.load(cf)
             res['execution_platform'] = read_metrics(os.path.join(directory, 'execution_platform.json'))
             res['requirements'] = read_requirements(os.path.join(directory, 'requirements.txt'))
-        if basename(directory).startswith('eval'):
+        if basename(directory).startswith('infer'):
             for split in ['train', 'validation']:
                 res[split] = {}
                 res[split]['monitoring_gpu'] = aggregate_log(os.path.join(directory, f'{split}_monitoring_gpu.json'))
@@ -47,7 +47,7 @@ def aggregate_results(directory, train_directories=None):
                     res[split]['duration'] = (datetime.now() - datetime.strptime(res["config"]["timestamp"], "%Y_%m_%d_%H_%M_%S")).total_seconds()
                 else:
                     res[split]['duration'] = res[split]['results']['end'] - res[split]['results']['start']
-            train_dir = os.path.join(train_directories, basename(res['config']['eval_model']))
+            train_dir = os.path.join(train_directories, basename(res['config']['infer_model']))
             if os.path.isdir(train_dir):
                 res['training'] = aggregate_results(train_dir)
         else:
@@ -67,7 +67,7 @@ def aggregate_results(directory, train_directories=None):
 def process_directory(directory, train_directories=None, output_log_dir=None, output_agglog_dir=None):
     # create summary
     print('Processing', directory)
-    if output_agglog_dir is not None and os.path.isdir(output_agglog_dir):
+    if output_agglog_dir is not None and len(output_agglog_dir) > 0 and os.path.isdir(output_agglog_dir):
         agglog_name = os.path.join(output_agglog_dir, basename(directory) + '.json')
         if os.path.isfile(agglog_name):
             print('WARNING!', agglog_name, 'already exists, so will not create new!')
@@ -75,7 +75,7 @@ def process_directory(directory, train_directories=None, output_log_dir=None, ou
                 res = json.load(agglog)
         else:
             res = aggregate_results(directory, train_directories)
-            if output_log_dir is not None and os.path.isdir(output_log_dir):
+            if output_log_dir is not None and len(output_log_dir) > 0 and os.path.isdir(output_log_dir):
                 res['log_directory'] = os.path.join(output_log_dir, basename(directory) + '.tar.gz')
             with open(agglog_name, 'w') as agglog:
                 json.dump(res, agglog, indent=4)
@@ -105,7 +105,7 @@ def print_train_results(results):
         return
     print('\n\nTRAINING\n\n          Directory       -               Model Info                -        Configuration       -     Duration    -   Acc  - Power Draw')
     for dir, res in results.items():
-        # print different output depending on accessing train or eval directory
+        # print different output depending on accessing train or infer directory
         if 'Error' in res:
             print(f'{dir} - ERROR - {res["Error"]}')
         else:
@@ -121,12 +121,13 @@ def print_train_results(results):
             cfg = f'{epochs} epochs, {res["config"]["preprocessing"]:<8} prepr'
             duration = str(timedelta(seconds=res["duration"]))[:-10]
             print(f'{dir} - {model_info:<39} - {cfg} - {duration:>14}h - {acc} - {gpu_draw}')
+        # print(dir, f"{res['config']['model']:<16}", ' '.join([f"{no:2.1f}" for no in res["results"]["history"]["loss"][:50]]))
 
 
-def print_eval_results(results):
+def print_inference_results(results):
     if len(results) < 1:
         return
-    print('\n\nEVALUATION\n\n          Directory       -    Model Info    -       Configuration       -          Training Info          -    Evaluation Train Data  - Evaluation Validation Data')
+    print('\n\nINFERENCE\n\n          Directory       -    Model Info    -       Configuration       -          Training Info          -    Inference Train Data  - Inference Validation Data')
     for dir, values in results.items():
         if 'Error' in values:
             print(f'{dir} - ERROR - {values["Error"]}')
@@ -142,7 +143,7 @@ def print_eval_results(results):
                 acc = f'{res["results"]["history"]["accuracy"][-1]*100:5.1f}%'
                 gpu_draw = f'{res["monitoring_gpu"]["total"]["total_power_draw"] / 3600000:4.1f} kWh'
                 substrings.append(f'{duration:>13}h {acc} {gpu_draw}')
-            # access evaluation results
+            # access inference results
             for split in ['train', 'validation']:
                 if split in values:
                     res = values[split]
@@ -171,7 +172,7 @@ def main(directory, train_directories, output_log_dir=None, output_agglog_dir=No
     results = process_all_subdirectories(directory, train_directories, output_log_dir, output_agglog_dir)
     if len(results) > 0:
         print_train_results({key: res for key, res in results.items() if key.startswith('train')})
-        print_eval_results({key: res for key, res in results.items() if key.startswith('eval')})
+        print_inference_results({key: res for key, res in results.items() if key.startswith('infer')})
 
 
 if __name__ == '__main__':
@@ -179,8 +180,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--directory", default="/raid/fischer/eval", type=str, help="directory with experiments")
-    parser.add_argument("--train-dirs", default="/raid/fischer/train50", type=str, help="directory with original training experiments, can be used for eval results")
-    parser.add_argument("--output-log-dir", default="/rdata/s01b_ls8_000/fischer/energy_results_tar", type=str, help="directory where the logs shall be stored (.tar.gz archives)")
+    parser.add_argument("--train-dirs", default="/raid/fischer/train50", type=str, help="directory with original training experiments, can be used for the inference results")
+    parser.add_argument("--output-log-dir", default="", type=str, help="directory where the logs shall be stored (.tar.gz archives)")
     parser.add_argument("--output-agglog-dir", default="results", type=str, help="directory where experiments log aggregates (json format) are created")
     parser.add_argument("--clean", action='store_true', help="set to first delete all content in given output directories")
 

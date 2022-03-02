@@ -146,7 +146,7 @@ def main(args):
         if args.output_dir:
             checkpoint = {
                 "model": model_without_ddp.state_dict(),
-                "eval_model": quantized_eval_model.state_dict(),
+                "infer_model": quantized_eval_model.state_dict(),
                 "optimizer": optimizer.state_dict(),
                 "lr_scheduler": lr_scheduler.state_dict(),
                 "epoch": epoch,
