@@ -74,7 +74,7 @@ def get_args_parser(add_help=True):
 
     # data and model input
     parser.add_argument("--infer-model", default="/raid/fischer/dnns", type=str, help="path to training directory, or name of pretrained model")
-    parser.add_argument("--backend", default="tensorflow", type=str, choices=["tensorflow", "pytorch"], help="machine learning software to use")
+    parser.add_argument("--backend", default="tensorflow", type=str, choices=["tensorflow", "pytorch", "onnx_pytorch", "onnx_tensorflow"], help="machine learning software to use")
     parser.add_argument("--data-path", default="/raid/imagenet_tensorflow", type=str, help="dataset path")
     parser.add_argument("--n-batches", default=-1, type=int, help="number of batches to take")
     parser.add_argument("--batch-size", default=32, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
