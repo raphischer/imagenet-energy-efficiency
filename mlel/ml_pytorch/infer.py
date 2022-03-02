@@ -5,12 +5,9 @@ import torch
 from torch import nn
 import torch.utils.data
 import torchvision
-import mlel.ml_pytorch.pt_presets as presets
 import mlel.ml_pytorch.pt_utils as utils
-
+from mlel.ml_pytorch.train import load_data
 from mlel.ml_pytorch.pt_utils import model_name_mapping
-
-from torchvision.transforms.functional import InterpolationMode
 
 def _evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix="", return_dict=False):
     model.eval()
@@ -60,36 +57,6 @@ def _evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix=
     else:
         return loss, acc1, acc5
 
-def load_data(traindir, valdir, args):
-    # Data loading code
-    val_resize_size, val_crop_size, train_crop_size = args.val_resize_size, args.val_crop_size, args.train_crop_size
-    interpolation = InterpolationMode(args.interpolation)
-
-    auto_augment_policy = getattr(args, "auto_augment", None)
-    random_erase_prob = getattr(args, "random_erase", 0.0)
-    dataset = torchvision.datasets.ImageFolder(
-        traindir,
-        presets.ClassificationPresetTrain(
-            crop_size=train_crop_size,
-            interpolation=interpolation,
-            auto_augment_policy=auto_augment_policy,
-            random_erase_prob=random_erase_prob,
-        ),
-    )
-    preprocessing = presets.ClassificationPresetEval(
-        crop_size=val_crop_size, resize_size=val_resize_size, interpolation=interpolation
-    )
-
-    dataset_test = torchvision.datasets.ImageFolder(
-        valdir,
-        preprocessing,
-    )
-
-    train_sampler = torch.utils.data.RandomSampler(dataset)
-    test_sampler = torch.utils.data.SequentialSampler(dataset_test)
-
-    return dataset, dataset_test, train_sampler, test_sampler
-
 def init_inference(args, split):
     torch.manual_seed(args.seed)
     if torch.cuda.is_available():
@@ -116,9 +83,10 @@ def init_inference(args, split):
     num_classes = len(dataset_train.classes)
 
     if split == "train":
-        data_loader_test = torch.utils.data.DataLoader(dataset_train, batch_size=args.batch_size, sampler=train_sampler, num_workers=16, pin_memory=True)
+        data_to_use = dataset_train
     else:
-        data_loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, sampler=test_sampler, num_workers=16, pin_memory=True)
+        data_to_use = dataset_test
+    data_loader_test = torch.utils.data.DataLoader(data_to_use, batch_size=args.batch_size, sampler=test_sampler, num_workers=16, pin_memory=True, drop_last=True)
 
 
     # Create model

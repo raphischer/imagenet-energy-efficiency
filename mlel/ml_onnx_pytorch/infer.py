@@ -2,35 +2,27 @@ import os
 import warnings
 
 import torch
-import onnx
 import onnxruntime as rt
 from torch import nn
 import torch.utils.data
 import torchvision
-import mlel.ml_pytorch.pt_presets as presets
+
 import mlel.ml_pytorch.pt_utils as utils
-
 from mlel.ml_pytorch.pt_utils import model_name_mapping
+from mlel.ml_pytorch.train import load_data
 
-from torchvision.transforms.functional import InterpolationMode
 
 def _evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix="", return_dict=False):
-    #model.eval()
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = f"Test: {log_suffix}"
 
     num_processed_samples = 0
     with torch.inference_mode():
         for image, target in metric_logger.log_every(data_loader, print_freq, header):
-            # image = image.to(device, non_blocking=True)
-            # target = target.to(device, non_blocking=True)
-            # output = model(image)
-            output = model.run(None, {'input': image})
+            output = torch.from_numpy(model.run(None, {'input': image.numpy()})[0])
             loss = criterion(output, target)
 
             acc1, acc5 = utils.accuracy(output, target, topk=(1, 5))
-            # FIXME need to take into account that the datasets
-            # could have been padded in distributed setup
             batch_size = image.shape[0]
             metric_logger.update(loss=loss.item())
             metric_logger.meters["acc1"].update(acc1.item(), n=batch_size)
@@ -63,56 +55,15 @@ def _evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix=
     else:
         return loss, acc1, acc5
 
-def load_data(traindir, valdir, args):
-    # Data loading code
-    val_resize_size, val_crop_size, train_crop_size = args.val_resize_size, args.val_crop_size, args.train_crop_size
-    interpolation = InterpolationMode(args.interpolation)
-
-    auto_augment_policy = getattr(args, "auto_augment", None)
-    random_erase_prob = getattr(args, "random_erase", 0.0)
-    dataset = torchvision.datasets.ImageFolder(
-        traindir,
-        presets.ClassificationPresetTrain(
-            crop_size=train_crop_size,
-            interpolation=interpolation,
-            auto_augment_policy=auto_augment_policy,
-            random_erase_prob=random_erase_prob,
-        ),
-    )
-    preprocessing = presets.ClassificationPresetEval(
-        crop_size=val_crop_size, resize_size=val_resize_size, interpolation=interpolation
-    )
-
-    dataset_test = torchvision.datasets.ImageFolder(
-        valdir,
-        preprocessing,
-    )
-
-    train_sampler = torch.utils.data.RandomSampler(dataset)
-    test_sampler = torch.utils.data.SequentialSampler(dataset_test)
-
-    return dataset, dataset_test, train_sampler, test_sampler
 
 def init_inference(args, split):
-    # TODO: Is it necessary / possible to seed onnx? 
+    # TODO: Is it possible to seed onnx? 
     torch.manual_seed(args.seed)
-    # TODO: CUDA in ONNX? Or just cpu?
-    # if torch.cuda.is_available():
-    #     setattr(args, "batch_size", args.batch_size * torch.cuda.device_count())
-    #     torch.cuda.manual_seed_all(args.seed)
-    #     device = torch.device("cuda")
-    # else:
-    #     device = torch.device("cpu")
 
     custom_trained = os.path.isdir(args.infer_model)
 
-    # torch.backends.cudnn.benchmark = False
-    # torch.backends.cudnn.deterministic = True
-
     # Set missing args, depending on model name
     args = utils.set_model_args(args)
-
-    #torch.backends.cudnn.benchmark = True
 
     # Load data
     train_dir = os.path.join(args.data_path, "train")
@@ -121,9 +72,10 @@ def init_inference(args, split):
     num_classes = len(dataset_train.classes)
 
     if split == "train":
-        data_loader_test = torch.utils.data.DataLoader(dataset_train, batch_size=args.batch_size, sampler=train_sampler, num_workers=16, pin_memory=True)
+        data_to_use = dataset_train
     else:
-        data_loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, sampler=test_sampler, num_workers=16, pin_memory=True)
+        data_to_use = dataset_test
+    data_loader_test = torch.utils.data.DataLoader(data_to_use, batch_size=args.batch_size, sampler=test_sampler, num_workers=16, pin_memory=True, drop_last=True)
 
     # Create model
     if custom_trained:
@@ -138,19 +90,12 @@ def init_inference(args, split):
 
     # Convert to ONNX
     dummy_input = torch.randn(args.batch_size, 3, args.val_crop_size, args.val_crop_size).float()
-    torch.onnx.export(model, dummy_input, '_tmp.onnx', verbose=True, input_names=['input'], output_names=['output'])
-
-    # _m = onnx.load('_tmp.onnx')
-    # onnx.checker.check_model(_m)
+    onnx_model_fname = os.path.join(args.output_dir, f"model.onnx")
+    torch.onnx.export(model, dummy_input, onnx_model_fname, verbose=False, input_names=['input'], output_names=['output'])
 
     # Load into ONNX Runtime
-    rt_session = rt.InferenceSession('_tmp.onnx')
-    onnx_filesize = os.path.getsize('_tmp.onnx')
-    os.remove('_tmp.onnx')
-
-    torch.save(model.state_dict(), os.path.join(args.output_dir, f"eval_weights.pth")) # TODO: Return onnx model instead?
-    # model = nn.DataParallel(model)
-    # model.to(device)
+    rt_session = rt.InferenceSession(onnx_model_fname)
+    onnx_filesize = os.path.getsize(onnx_model_fname)
 
     model_info = {
         'params': sum(p.numel() for p in model.parameters()), # TODO: There appears to be no easy way to get nr_parameters of onnx model

@@ -198,8 +198,9 @@ def init_training(args):
         sampler=train_sampler,
         num_workers=16,
         pin_memory=True,
+        drop_last=True
     )
-    data_loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, sampler=test_sampler, num_workers=16, pin_memory=True)
+    data_loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, sampler=test_sampler, num_workers=16, pin_memory=True, drop_last=True)
 
     # Create model and training parameters
     model = torchvision.models.__dict__[model_name_mapping[args.model]](pretrained=False, num_classes=num_classes)
