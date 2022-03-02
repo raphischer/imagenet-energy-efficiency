@@ -95,6 +95,9 @@ def init_inference(args, split):
     if torch.cuda.is_available():
         setattr(args, "batch_size", args.batch_size * torch.cuda.device_count())
         torch.cuda.manual_seed_all(args.seed)
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
 
     custom_trained = os.path.isdir(args.infer_model)
 
@@ -104,7 +107,6 @@ def init_inference(args, split):
     # Set missing args, depending on model name
     args = utils.set_model_args(args)
 
-    device = torch.device("cuda") # TODO check if available
     torch.backends.cudnn.benchmark = True
 
     # Load data

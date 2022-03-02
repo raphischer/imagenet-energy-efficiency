@@ -177,11 +177,13 @@ def init_training(args):
     if torch.cuda.is_available():
         setattr(args, "batch_size", args.batch_size * torch.cuda.device_count())
         torch.cuda.manual_seed_all(args.seed)
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
 
     # Set missing args, depending on model name
     args = utils.set_model_args(args)
 
-    device = torch.device("cuda")
     torch.backends.cudnn.benchmark = True
 
     # Load data
