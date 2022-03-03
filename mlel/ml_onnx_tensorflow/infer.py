@@ -3,10 +3,33 @@ import os
 import tensorflow as tf
 import onnxruntime as rt
 import tf2onnx
+import numpy as np
+import tqdm
 
 from mlel.ml_tensorflow.load_imagenet import load_imagenet
-from mlel.ml_tensorflow.load_models import prepare_model, load_preprocessing
+from mlel.ml_tensorflow.load_models import prepare_model, load_preprocessing, MODEL_CUSTOM_INPUT
 
+def _iterating_inference(model_path, output_names, ds):
+    top1m = tf.keras.metrics.SparseTopKCategoricalAccuracy(
+        k=1, name="sparse_top_k_categorical_accuracy", dtype=None
+    )
+    top5m = tf.keras.metrics.SparseTopKCategoricalAccuracy(
+        k=5, name="sparse_top_k_categorical_accuracy", dtype=None
+    )
+    lossm = tf.keras.losses.SparseCategoricalCrossentropy()
+    acc1 = np.zeros(len(ds))
+    acc5 = np.zeros(len(ds))
+    loss = np.zeros(len(ds))
+
+    inf_model = rt.InferenceSession(model_path)
+    for i, (x, y) in tqdm.tqdm(enumerate(ds.as_numpy_iterator()), total=len(ds)):
+        result = inf_model.run(output_names, {'input': x})[0]
+        top1m.update_state(y, result)
+        top5m.update_state(y, result)
+        acc1[i] = top1m.result().numpy()
+        acc5[i] = top5m.result().numpy()
+        loss[i] = lossm(y, result).numpy()
+    return {"loss": np.mean(loss), "accuracy": np.mean(acc1), "top_5_accuracy": np.mean(acc5)}
 
 def init_inference(args, split):
     tf.random.set_seed(args.seed)
@@ -32,7 +55,8 @@ def init_inference(args, split):
             model, _ = prepare_model(args.model, None, weights=args.infer_model)
 
     output_path = os.path.join(args.output_dir, 'model.onnx')
-    spec = (tf.TensorSpec((args.batch_size, args.val_crop_size, args.val_crop_size, 3), tf.float32, name='input'), )
+    crop_size = MODEL_CUSTOM_INPUT.get(args.model, (224, 224))
+    spec = (tf.TensorSpec((args.batch_size, crop_size[0], crop_size[1], 3), tf.float32, name='input'), )
     model_proto, _ = tf2onnx.convert.from_keras(model, input_signature=spec, output_path=output_path)
     output_names = [n.name for n in model_proto.graph.output]
     
@@ -41,9 +65,10 @@ def init_inference(args, split):
         'fsize': os.path.getsize(output_path)
     }
 
-    eval_func = lambda: rt.InferenceSession(output_path).run(output_names, {'input': dataset})[0]
+
+    eval_func = lambda: _iterating_inference(output_path, output_names, dataset)
     return eval_func, model_info
     
 
 def finalize_inference(results):
-    return {key.replace('sparse_', '').replace('categorical_', '').replace('top_k', 'top_5') : val for key, val in results.items()}
+    return results
