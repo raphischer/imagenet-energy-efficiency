@@ -14,7 +14,7 @@ def read_metrics(filepath, default_path=None):
         if default_path is not None:
             shutil.copyfile(os.path.join(default_path, basename(filepath)), filepath)
         else:
-            return {}
+            return None
     with open(filepath, 'r') as logf:
         return json.load(logf)
 
@@ -39,11 +39,11 @@ def aggregate_results(directory, train_directories=None):
         if basename(directory).startswith('infer'):
             for split in ['train', 'validation']:
                 res[split] = {}
-                res[split]['monitoring_gpu'] = aggregate_log(os.path.join(directory, f'{split}_monitoring_gpu.json'))
-                res[split]['monitoring_cpu'] = aggregate_log(os.path.join(directory, f'{split}_monitoring_cpu.json'))
-                res[split]['monitoring_rapl'] = aggregate_log(os.path.join(directory, f'{split}_monitoring_rapl.json'))
+                res[split]['monitoring_pynvml'] = aggregate_log(os.path.join(directory, f'{split}_monitoring_pynvml.json'))
+                res[split]['monitoring_pyrapl'] = aggregate_log(os.path.join(directory, f'{split}_monitoring_pyrapl.json'))
+                res[split]['monitoring_psutil'] = aggregate_log(os.path.join(directory, f'{split}_monitoring_psutil.json'))
                 res[split]['results'] = read_metrics(os.path.join(directory, f'{split}_results.json'))
-                if res[split]['monitoring_gpu'] is None or len(res[split]['results']) == 0: # monitoring not yet finished or errors
+                if res[split]['results'] is None:
                     res[split]['duration'] = (datetime.now() - datetime.strptime(res["config"]["timestamp"], "%Y_%m_%d_%H_%M_%S")).total_seconds()
                 else:
                     res[split]['duration'] = res[split]['results']['end'] - res[split]['results']['start']
@@ -51,11 +51,11 @@ def aggregate_results(directory, train_directories=None):
             if os.path.isdir(train_dir):
                 res['training'] = aggregate_results(train_dir)
         else:
-            res['monitoring_gpu'] = aggregate_log(os.path.join(directory, 'monitoring_gpu.json'))
-            res['monitoring_cpu'] = aggregate_log(os.path.join(directory, 'monitoring_cpu.json'))
-            res['monitoring_rapl'] = aggregate_log(os.path.join(directory, 'monitoring_rapl.json'))
+            res['monitoring_pynvml'] = aggregate_log(os.path.join(directory, 'monitoring_pynvml.json'))
+            res['monitoring_pyrapl'] = aggregate_log(os.path.join(directory, 'monitoring_pyrapl.json'))
+            res['monitoring_psutil'] = aggregate_log(os.path.join(directory, 'monitoring_psutil.json'))
             res['results'] = read_metrics(os.path.join(directory, 'results.json'))
-            if res['monitoring_gpu'] is None or len(res['results']) == 0: # monitoring not yet finished or errors
+            if res['results'] is None:
                 res['duration'] = (datetime.now() - datetime.strptime(res["config"]["timestamp"], "%Y_%m_%d_%H_%M_%S")).total_seconds()
             else:
                 res['duration'] = res['results']['end'] - res['results']['start']
@@ -111,7 +111,7 @@ def print_train_results(results):
         else:
             if len(res["results"]) > 0:
                 epochs = f'{len(res["results"]["history"]["loss"]):>4}'
-                gpu_draw = f'GPU {res["monitoring_gpu"]["total"]["total_power_draw"] / 3600000:4.1f} kWh'
+                gpu_draw = f'GPU {res["monitoring_pynvml"]["total"]["total_power_draw"] / 3600000:4.1f} kWh'
                 model_info = f'{res["config"]["model"]:<16} {res["results"]["model"]["fsize"] * 1e-6:5.1f} MB {res["results"]["model"]["params"] * 1e-6:5.1f}M params'
                 acc = f'{res["results"]["history"]["accuracy"][-1]*100:5.1f}%'
             else:
@@ -127,34 +127,34 @@ def print_train_results(results):
 def print_inference_results(results):
     if len(results) < 1:
         return
-    print('\n\nINFERENCE\n\n          Directory       -    Model Info    -       Configuration       -          Training Info          -    Inference Train Data  - Inference Validation Data')
+    print('\n\nINFERENCE\n\n          Directory       -    Model Info    - Configuration -          Training Info          -    Inference Train Data  - Inference Validation Data')
     for dir, values in results.items():
         if 'Error' in values:
             print(f'{dir} - ERROR - {values["Error"]}')
         else:
             substrings = [f'{dir:<25}', f'{values["config"]["model"]:<16}']
             if 'training' not in values:
-                substrings.append('        pretrained       ')
+                substrings.append(f"{values['config']['backend']:<12}")
                 substrings.append('                n.a.           ')
             else:
                 res = values['training']
                 substrings.append(f'{res["config"]["epochs"]:<3} epochs, {res["config"]["preprocessing"]:<7} prepr')
                 duration = str(timedelta(seconds=res["duration"]))[:-10]
                 acc = f'{res["results"]["history"]["accuracy"][-1]*100:5.1f}%'
-                gpu_draw = f'{res["monitoring_gpu"]["total"]["total_power_draw"] / 3600000:4.1f} kWh'
+                gpu_draw = f'{res["monitoring_pynvml"]["total"]["total_power_draw"] / 3600000:4.1f} kWh'
                 substrings.append(f'{duration:>13}h {acc} {gpu_draw}')
             # access inference results
             for split in ['train', 'validation']:
                 if split in values:
                     res = values[split]
-                    if "metrics" in res["results"] and res["results"]["metrics"] is not None:
-                        gpu_draw = f'{res["monitoring_gpu"]["total"]["total_power_draw"] / 3600:5.1f} Wh'
+                    if res["results"] is not None:
+                        gpu_draw = 'n.a.' # f'{res["monitoring_pynvml"]["total"]["total_power_draw"] / 3600:5.1f} Wh'
                         acc = f'{res["results"]["metrics"]["accuracy"]*100:<4.3f}% acc'
                     else:
                         gpu_draw = '  n.a.  '
                         acc = f'{"n.a.":<9}'
 
-                    substrings.append(f'{str(timedelta(seconds=res["duration"]))[2:-7]}m {acc} {gpu_draw}')
+                    substrings.append(f'{str(timedelta(seconds=res["duration"]))[0:-7]}h {acc} {gpu_draw}')
                 else:
                     substrings.append('           n.a.         ')
             print(" - ".join(substrings))
