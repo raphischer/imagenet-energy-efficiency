@@ -4,7 +4,7 @@ from datetime import datetime
 import tensorflow as tf
 
 from mlel.ml_tensorflow.load_imagenet import load_imagenet
-from mlel.ml_tensorflow.load_models import prepare_model, prepare_optimizer, prepare_lr_scheduling, load_preprocessing
+from mlel.ml_tensorflow.load_models import prepare_model, prepare_optimizer, prepare_lr_scheduling, load_preprocessing, calculate_flops
 
 
 class TimestampOnEpochEnd(tf.keras.callbacks.Callback):
@@ -58,7 +58,8 @@ def finalize_training(train_res, results, args):
         'history': history,
         'model': {
             'params': train_res.model.count_params(),
-            'fsize': os.path.getsize(os.path.join(args.output_dir, f'checkpoint_{final_epoch:03d}_final.hdf5'))
+            'fsize': os.path.getsize(os.path.join(args.output_dir, f'checkpoint_{final_epoch:03d}_final.hdf5')),
+            'flops': calculate_flops(train_res.model)
         }
     })
     return results

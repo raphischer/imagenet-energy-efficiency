@@ -4,9 +4,12 @@ import os
 
 import numpy as np
 import tensorflow as tf
+from tensorflow.python.profiler.model_analyzer import profile
+from tensorflow.python.profiler.option_builder import ProfileOptionBuilder
 import larq as lq
 import larq_zoo as lqz
 from larq_zoo.training.learning_schedules import CosineDecayWithWarmup
+
 from mlel.ml_tensorflow.autoaugment import ImageNetPolicy
 
 KERAS_BUILTINS = [e for e in tf.keras.applications.__dict__.values() if inspect.ismodule(e) and hasattr(e, 'preprocess_input')]
@@ -127,6 +130,17 @@ def prepare_model(model_name, optimizer, metrics=['sparse_categorical_accuracy',
     model.compile(optimizer=optimizer, loss=criterion, metrics=metrics)
 
     return model, mfile
+
+
+def calculate_flops(model):
+
+    forward_pass = tf.function(model.call, input_signature=[tf.TensorSpec(shape=(1,) + model.input_shape[1:])])
+    graph_info = profile(forward_pass.get_concrete_function().graph, options=ProfileOptionBuilder.float_operation())
+
+    # The //2 is necessary since `profile` counts multiply and accumulate
+    # as two flops, here we report the total number of multiply accumulate ops
+    flops = graph_info.total_float_ops // 2
+    return flops
 
 
 def load_preprocessing(preprocessing, model, args):

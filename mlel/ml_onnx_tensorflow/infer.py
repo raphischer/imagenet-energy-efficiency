@@ -3,11 +3,12 @@ import os
 import tensorflow as tf
 import onnxruntime as rt
 import tf2onnx
+from onnx_opcounter import calculate_params
 import numpy as np
 import tqdm
 
 from mlel.ml_tensorflow.load_imagenet import load_imagenet
-from mlel.ml_tensorflow.load_models import prepare_model, load_preprocessing, MODEL_CUSTOM_INPUT
+from mlel.ml_tensorflow.load_models import prepare_model, load_preprocessing, MODEL_CUSTOM_INPUT, calculate_flops
 
 def _iterating_inference(model_path, output_names, ds):
     top1m = tf.keras.metrics.SparseTopKCategoricalAccuracy(
@@ -62,9 +63,9 @@ def init_inference(args, split):
     
     model_info = {
         'params': model.count_params(),
-        'fsize': os.path.getsize(output_path)
+        'fsize': os.path.getsize(output_path),
+        'flops': int(calculate_params(model_proto))
     }
-
 
     eval_func = lambda: _iterating_inference(output_path, output_names, dataset)
     return eval_func, model_info

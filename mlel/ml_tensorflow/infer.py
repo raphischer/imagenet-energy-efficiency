@@ -3,7 +3,7 @@ import os
 import tensorflow as tf
 
 from mlel.ml_tensorflow.load_imagenet import load_imagenet
-from mlel.ml_tensorflow.load_models import prepare_model, load_preprocessing
+from mlel.ml_tensorflow.load_models import prepare_model, load_preprocessing, calculate_flops
 
 
 def init_inference(args, split):
@@ -32,7 +32,8 @@ def init_inference(args, split):
     model.save_weights(os.path.join(args.output_dir, 'eval_weights.hdf5'))
     model_info = {
         'params': model.count_params(),
-        'fsize': os.path.getsize(os.path.join(args.output_dir, 'eval_weights.hdf5'))
+        'fsize': os.path.getsize(os.path.join(args.output_dir, 'eval_weights.hdf5')),
+        'flops': calculate_flops(model)
     }
     eval_func = lambda: model.evaluate(dataset, return_dict=True)
     return eval_func, model_info
