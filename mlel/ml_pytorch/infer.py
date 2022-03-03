@@ -1,5 +1,4 @@
 import os
-import warnings
 
 import torch
 from torch import nn
@@ -8,6 +7,7 @@ import torchvision
 import mlel.ml_pytorch.pt_utils as utils
 from mlel.ml_pytorch.train import load_data
 from mlel.ml_pytorch.pt_utils import model_name_mapping
+from ptflops import get_model_complexity_info
 
 def _evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix="", return_dict=False):
     model.eval()
@@ -106,7 +106,8 @@ def init_inference(args, split):
 
     model_info = {
         'params': sum(p.numel() for p in model.parameters()), 
-        'fsize': os.path.getsize(os.path.join(args.output_dir, f"eval_weights.pth"))
+        'fsize': os.path.getsize(os.path.join(args.output_dir, f"eval_weights.pth")),
+        'flops': get_model_complexity_info(model, (3, args.val_crop_size, args.val_crop_size), verbose=False, as_strings=False)[0]
     }
 
     criterion = nn.CrossEntropyLoss(label_smoothing=0.0)

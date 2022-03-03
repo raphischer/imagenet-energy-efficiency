@@ -12,6 +12,7 @@ import mlel.ml_pytorch.pt_utils as utils
 from mlel.ml_pytorch.pt_utils import model_name_mapping, non_trainable_models
 
 from torchvision.transforms.functional import InterpolationMode
+from ptflops import get_model_complexity_info
 
 def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch):
     model.train()
@@ -162,7 +163,8 @@ def finalize_training(train_res, results, args):
         'history': train_res["history"],
         'model': {
             'params': sum(p.numel() for p in train_res["model"].parameters()), # this is number of all parameters, even untrainable ones
-            'fsize': os.path.getsize(os.path.join(args.output_dir, f'checkpoint_{final_epoch:03d}_final.pth'))
+            'fsize': os.path.getsize(os.path.join(args.output_dir, f'checkpoint_{final_epoch:03d}_final.pth')),
+            'flops': get_model_complexity_info(train_res['model'], (3, args.val_crop_size, args.val_crop_size), verbose=False, as_strings=False)[0]
         }
     })
     return results
