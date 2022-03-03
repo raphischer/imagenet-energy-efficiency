@@ -10,8 +10,6 @@ import larq as lq
 import larq_zoo as lqz
 from larq_zoo.training.learning_schedules import CosineDecayWithWarmup
 
-from mlel.ml_tensorflow.autoaugment import ImageNetPolicy
-
 KERAS_BUILTINS = [e for e in tf.keras.applications.__dict__.values() if inspect.ismodule(e) and hasattr(e, 'preprocess_input')]
 KERAS_MODELS = {n: e for mod in KERAS_BUILTINS for n, e in mod.__dict__.items() if callable(e) and n[0].isupper()}
 KERAS_PREPR = {n: mod.preprocess_input for mod in KERAS_BUILTINS for n, e in mod.__dict__.items() if callable(e) and n[0].isupper()}
@@ -270,6 +268,7 @@ def tf_random_horizontal_flip(img, hflip_prob):
 
 
 def tf_autoaugment(img_in):
+    from mlel.ml_tensorflow.autoaugment import ImageNetPolicy
     img = tf.keras.preprocessing.image.array_to_img(img_in, scale=False)
     policy = ImageNetPolicy()
     img = policy(img)

@@ -116,7 +116,10 @@ def monitor_pynvml(interval, logfile, stopper, gpu_id):
     if gpu_id is None:
         if "CUDA_VISIBLE_DEVICES" in os.environ:
             vis_devices = [int(did) for did in os.environ.get("CUDA_VISIBLE_DEVICES", "").split(",")]
-            gpu_id = vis_devices[:vis_devices.index(-1)]
+            if -1 in vis_devices:
+                gpu_id = vis_devices[:vis_devices.index(-1)]
+            else:
+                gpu_id = vis_devices
         else:
             deviceCount = nvmlDeviceGetCount()
             gpu_id = list(range(deviceCount))

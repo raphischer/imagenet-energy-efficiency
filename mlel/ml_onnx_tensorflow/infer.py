@@ -10,7 +10,8 @@ import tqdm
 from mlel.ml_tensorflow.load_imagenet import load_imagenet
 from mlel.ml_tensorflow.load_models import prepare_model, load_preprocessing, MODEL_CUSTOM_INPUT, calculate_flops
 
-def _iterating_inference(model_path, output_names, ds):
+
+def _iterating_inference(model_path, output_names, ds, n_gpus):
     top1m = tf.keras.metrics.SparseTopKCategoricalAccuracy(
         k=1, name="sparse_top_k_categorical_accuracy", dtype=None
     )
@@ -22,7 +23,12 @@ def _iterating_inference(model_path, output_names, ds):
     acc5 = np.zeros(len(ds))
     loss = np.zeros(len(ds))
 
-    inf_model = rt.InferenceSession(model_path)
+    if n_gpus > 0:
+        prov = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+    else:
+        prov = ['CPUExecutionProvider']
+    
+    inf_model = rt.InferenceSession(model_path, providers=prov)
     for i, (x, y) in tqdm.tqdm(enumerate(ds.as_numpy_iterator()), total=len(ds)):
         result = inf_model.run(output_names, {'input': x})[0]
         top1m.update_state(y, result)
@@ -57,7 +63,11 @@ def init_inference(args, split):
 
     output_path = os.path.join(args.output_dir, 'model.onnx')
     crop_size = MODEL_CUSTOM_INPUT.get(args.model, (224, 224))
-    spec = (tf.TensorSpec((args.batch_size, crop_size[0], crop_size[1], 3), tf.float32, name='input'), )
+    batch_size = args.batch_size
+    n_gpus = max(len(tf.config.list_physical_devices('GPU')), 1) # if no GPU is available, use given batch size
+    if n_gpus > 0:
+        batch_size *= n_gpus
+    spec = (tf.TensorSpec((batch_size, crop_size[0], crop_size[1], 3), tf.float32, name='input'), )
     model_proto, _ = tf2onnx.convert.from_keras(model, input_signature=spec, output_path=output_path)
     output_names = [n.name for n in model_proto.graph.output]
     
@@ -67,7 +77,7 @@ def init_inference(args, split):
         'flops': int(calculate_params(model_proto))
     }
 
-    eval_func = lambda: _iterating_inference(output_path, output_names, dataset)
+    eval_func = lambda: _iterating_inference(output_path, output_names, dataset, n_gpus)
     return eval_func, model_info
     
 
