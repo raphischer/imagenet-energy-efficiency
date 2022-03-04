@@ -19,14 +19,15 @@ ENV_SYMBOLS = [SymbolValidator().values[i] for i in range(0, len(SymbolValidator
 RATING_COLOR_SCALE = colors.make_colorscale(['rgb(0,255,0)', 'rgb(255,255,0)', 'rgb(255,0,0))'])
 RATING_COLORS = colors.sample_colorscale(RATING_COLOR_SCALE, samplepoints=[float(c) / (4) for c in range(5)])
 AXIS_NAMES = {
-    "parameters": "Number of Parameters",
+    "parameters": "Parameters [#]",
+    "gflops": "(Giga) Floating Point Operations [#]",
     "fsize": "Model File Size [B]", 
     "inference_power_draw": "Inference Power Draw / Sample [Ws]",
     "inference_time": "Inference Time / Sample [ms]",
     "train_power_draw": "Full Training Power Draw [Ws]",
-    "train_power_draw_epoch": "Training Power Draw per Epoch [Ws]",
-    "train_time": "Full Training Time [s]",
-    "train_time_epoch": "Training Time per Epoch [s]",
+    "train_power_draw_epoch": "Training Power Draw per Epoch [kWh]",
+    "train_time": "Full Training Time [h]",
+    "train_time_epoch": "Training Time per Epoch [h]",
     "top1_val": "Top-1 Validation Accuracy [%]",
     "top5_val": "Top-5 Validation Accuracy [%]"
 }
@@ -89,7 +90,7 @@ class Visualization(dash.Dash):
         super().__init__(__name__)
         self.logs, summaries = load_results(results_directory)
         self.summaries, self.scales, self.scales_real = rate_results(summaries, reference_name)
-        self.keys = {task: [key for key, vals in list(self.summaries.values())[0][task][0].items() if isinstance(vals, dict) and 'rating' in vals] for task in TASK_TYPES.values()}
+        self.keys = {task: [key for key, vals in list(self.summaries.values())[0][task][0].items() if isinstance(vals, dict) and 'rating' in vals] for task in TASK_TYPES.values() if len(list(self.summaries.values())[0][task]) > 0}
         self.type, self.xaxis, self.yaxis = 'inference', 'top1_val', 'inference_power_draw'
         self.reference_name = reference_name
         self.current = { 'summary': None, 'label': None, 'logs': None }

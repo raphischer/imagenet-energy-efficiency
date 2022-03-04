@@ -1,0 +1,4 @@
+{
+    "Name": "ONNX PT Export",
+    "Packages": ["onnxruntime", "onnxruntime-gpu", "onnx_opcounter", "onnx", "torch", "torchvision", "torchaudio", "ptflops"]
+}

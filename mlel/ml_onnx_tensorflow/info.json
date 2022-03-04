@@ -1,0 +1,4 @@
+{
+    "Name": "ONNX TF Export",
+    "Packages": ["onnxruntime", "onnxruntime-gpu", "onnx_opcounter", "tf2onnx", "onnx", "tensorflow", "tensorflow_datasets", "larq", "larq_zoo", "packaging"]
+}
