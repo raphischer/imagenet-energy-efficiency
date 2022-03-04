@@ -5,7 +5,7 @@ import time
 import sys
 import importlib
 
-from mlel.monitoring import start_monitoring
+from mlel.monitoring import Monitoring
 from mlel.util import fix_seed, create_output_dir, Logger, PatchedJSONEncoder
 
 
@@ -25,12 +25,11 @@ def main(args):
     fit_func = backend.init_training(args)
 
     # start monitoring and train
-    monitoring = start_monitoring(args.gpu_monitor_interval, args.cpu_monitor_interval, args.output_dir)
+    monitoring = Monitoring(args.gpu_monitor_interval, args.cpu_monitor_interval, args.output_dir)
     start_time = time.time()
     train_result = fit_func()
     end_time = time.time()
-    for monitor in monitoring:
-        monitor.stop()
+    monitoring.stop()
 
     results = {'start': start_time, 'end': end_time}
     results = backend.finalize_training(train_result, results, args)
@@ -64,7 +63,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--seed", type=int, default=-1, help="Seed to use (if -1, uses and logs random seed)"),
 
     # training parameters
-    parser.add_argument("--epochs", default=50, type=int, metavar="N", help="number of total epochs to run")
+    parser.add_argument("--epochs", default=10, type=int, metavar="N", help="number of total epochs to run")
     parser.add_argument("--early-patience", default=50, type=int, help="early stopping patience")
     parser.add_argument("--early-delta", default=0.01, type=float, help="early stopping min delta")
     parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
