@@ -12,6 +12,11 @@ import re
 import numpy as np
 
 
+VISIBLE_GPUS = [int(did) for did in os.environ.get("CUDA_VISIBLE_DEVICES", "").split(",") if did.isnumeric()]
+if -1 in VISIBLE_GPUS:
+    VISIBLE_GPUS = VISIBLE_GPUS[:VISIBLE_GPUS.index(-1)]
+
+
 # TODO improve RAPL compability, maybe using https://github.com/djselbeck/rapl-read-ryzen
 
 
@@ -96,11 +101,12 @@ def log_system_info(filename):
         sysinfo["GPU"] = {}
         gpus = GPUtil.getGPUs()
         for gpu in gpus:
-            sysinfo["GPU"][gpu.id] = {
-                "Name": gpu.name,
-                "Memory": gpu.memoryTotal,
-                "UUID": gpu.uuid
-            }
+            if gpu.id in VISIBLE_GPUS:
+                sysinfo["GPU"][gpu.id] = {
+                    "Name": gpu.name,
+                    "Memory": gpu.memoryTotal,
+                    "UUID": gpu.uuid
+                }
     except ImportError:
         pass
     # write file
@@ -115,11 +121,7 @@ def monitor_pynvml(interval, logfile, stopper, gpu_id):
     out = defaultdict(lambda: defaultdict(list))
     if gpu_id is None:
         if "CUDA_VISIBLE_DEVICES" in os.environ:
-            vis_devices = [int(did) for did in os.environ.get("CUDA_VISIBLE_DEVICES", "").split(",")]
-            if -1 in vis_devices:
-                gpu_id = vis_devices[:vis_devices.index(-1)]
-            else:
-                gpu_id = vis_devices
+            gpu_id = VISIBLE_GPUS
         else:
             deviceCount = nvmlDeviceGetCount()
             gpu_id = list(range(deviceCount))

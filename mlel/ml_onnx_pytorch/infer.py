@@ -1,11 +1,12 @@
 import os
-import warnings
 
 import torch
 import onnxruntime as rt
 from torch import nn
 import torch.utils.data
 import torchvision
+import onnx
+from onnx_opcounter import calculate_params
 
 import mlel.ml_pytorch.pt_utils as utils
 from mlel.ml_pytorch.pt_utils import model_name_mapping
@@ -100,6 +101,7 @@ def init_inference(args, split):
     model_info = {
         'params': sum(p.numel() for p in model.parameters()), # TODO: There appears to be no easy way to get nr_parameters of onnx model
         'fsize': onnx_filesize,
+        'flops': int(calculate_params(onnx.load_model(onnx_model_fname)))
     }
 
     criterion = nn.CrossEntropyLoss(label_smoothing=0.0)
