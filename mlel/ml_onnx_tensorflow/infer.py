@@ -8,7 +8,7 @@ import numpy as np
 import tqdm
 
 from mlel.ml_tensorflow.load_imagenet import load_imagenet
-from mlel.ml_tensorflow.load_models import prepare_model, load_preprocessing, MODEL_CUSTOM_INPUT, calculate_flops
+from mlel.ml_tensorflow.load_models import prepare_model, load_preprocessing, MODEL_CUSTOM_INPUT
 
 
 def _iterating_inference(model_path, output_names, ds, n_gpus):
