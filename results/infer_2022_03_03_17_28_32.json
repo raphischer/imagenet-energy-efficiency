@@ -1,0 +1,627 @@
+{
+    "directory_name": "infer_2022_03_03_17_28_32",
+    "config": {
+        "infer_model": "MobileNetV3Large",
+        "backend": "tensorflow",
+        "data_path": "/raid/imagenet_tensorflow",
+        "n_batches": -1,
+        "batch_size": 32,
+        "eval_preprocessing": "builtin",
+        "output_dir": "/raid/fischer/infer_pre_tf/",
+        "gpu_monitor_interval": 0.2,
+        "cpu_monitor_interval": 0.2,
+        "seed": 3048052710,
+        "model": "MobileNetV3Large",
+        "timestamp": "2022_03_03_17_28_32"
+    },
+    "execution_platform": {
+        "System": "Linux",
+        "Node Name": "ml2ran07",
+        "Release": "5.4.0-81-generic",
+        "Version": "#91-Ubuntu SMP Thu Jul 15 19:09:17 UTC 2021",
+        "Machine": "x86_64",
+        "Processor": "AMD EPYC 7742 64-Core Processor",
+        "Physical cores": 128,
+        "Total cores": 256,
+        "Max Frequency": 2250.0,
+        "Min Frequency": 1500.0,
+        "Current Frequency": 2.494496093749999,
+        "Total": 1082004701184,
+        "Available": 1067835756544,
+        "Used": 8650309632,
+        "GPU": {
+            "0": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-87a057ac-aff4-d1b8-9716-a8c51ef945f1"
+            },
+            "1": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-7e7cff7a-048e-bc4b-937a-dd034de072b4"
+            },
+            "2": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-1af31890-bcb8-3b07-39a8-3ca15d981466"
+            },
+            "3": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-a53433bd-ecf3-ab59-f099-4af017d26441"
+            },
+            "4": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-1b0307de-06ad-fcfe-cf85-5d865a5b1e32"
+            },
+            "5": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-9020337a-b546-800c-7f54-ce745ebe2150"
+            },
+            "6": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-023d9b2e-02f6-5175-1451-0e281e84c34c"
+            },
+            "7": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-f5285e3c-7002-65a8-c648-d853ce5be9da"
+            }
+        }
+    },
+    "requirements": [
+        "# 3.8.12 | packaged by conda-forge | (default, Jan 30 2022, 23:53:36)",
+        "# [GCC 9.4.0]",
+        "certifi==2021.10.8",
+        "setuptools==60.9.3",
+        "pip==22.0.3",
+        "attrs==21.4.0",
+        "packaging==21.3",
+        "libclang==13.0.0",
+        "pynvml==11.4.1",
+        "pillow==9.0.1",
+        "click==8.0.4",
+        "psutil==5.9.0",
+        "importlib-resources==5.4.0",
+        "cachetools==5.0.0",
+        "tqdm==4.63.0",
+        "importlib-metadata==4.11.2",
+        "rsa==4.8",
+        "tensorflow-datasets==4.4.0",
+        "typing-extensions==4.1.1",
+        "protobuf==3.19.4",
+        "zipp==3.7.0",
+        "h5py==3.6.0",
+        "markdown==3.3.6",
+        "idna==3.3",
+        "opt-einsum==3.3.0",
+        "oauthlib==3.2.0",
+        "terminaltables==3.1.10",
+        "pyparsing==3.0.7",
+        "requests==2.27.1",
+        "typeguard==2.12.1",
+        "tensorboard==2.8.0",
+        "keras==2.8.0",
+        "tensorflow==2.8.0",
+        "tf-estimator-nightly==2.8.0.dev2021122109",
+        "google-auth==2.6.0",
+        "larq-zoo==2.3.0",
+        "promise==2.3",
+        "charset-normalizer==2.0.12",
+        "werkzeug==2.0.3",
+        "googleapis-common-protos==1.55.0",
+        "grpcio==1.44.0",
+        "urllib3==1.26.8",
+        "numpy==1.22.2",
+        "six==1.16.0",
+        "wrapt==1.13.3",
+        "flatbuffers==1.12",
+        "onnx==1.11.0",
+        "torch==1.10.2+cu113",
+        "onnxruntime-gpu==1.10.0",
+        "tf2onnx==1.9.3",
+        "tensorboard-plugin-wit==1.8.1",
+        "tensorflow-metadata==1.7.0",
+        "astunparse==1.6.3",
+        "gputil==1.4.0",
+        "zookeeper==1.3.2",
+        "requests-oauthlib==1.3.1",
+        "keras-preprocessing==1.1.2",
+        "termcolor==1.1.0",
+        "absl-py==1.0.0",
+        "wheel==0.37.1",
+        "tensorflow-io-gcs-filesystem==0.24.0",
+        "future==0.18.2",
+        "larq==0.12.2",
+        "torchvision==0.11.3+cu113",
+        "torchaudio==0.10.2+cu113",
+        "ptflops==0.6.8",
+        "tensorboard-data-server==0.6.1",
+        "gast==0.5.3",
+        "pyasn1==0.4.8",
+        "google-auth-oauthlib==0.4.6",
+        "dill==0.3.4",
+        "pyasn1-modules==0.2.8",
+        "google-pasta==0.2.0",
+        "onnx-opcounter==0.0.3"
+    ],
+    "train": {
+        "monitoring_pynvml": null,
+        "monitoring_pyrapl": null,
+        "monitoring_psutil": null,
+        "results": null,
+        "duration": 54849.548022
+    },
+    "validation": {
+        "monitoring_pynvml": {
+            "0": {
+                "start_unix": 1646328528.747813,
+                "end_unix": 1646328593.819174,
+                "start_utc": "2022-03-03 17:28:48",
+                "end_utc": "2022-03-03 17:29:53",
+                "total_duration": 65.07136106491089,
+                "nr_measurements": 326,
+                "temperature": {
+                    "min": 30,
+                    "max": 32,
+                    "mean": 30.82515337423313,
+                    "std": 0.6143322534106761
+                },
+                "util.gpu": {
+                    "min": 0,
+                    "max": 32,
+                    "mean": 3.549079754601227,
+                    "std": 6.891515794851988
+                },
+                "util.memory": {
+                    "min": 0,
+                    "max": 10,
+                    "mean": 0.696319018404908,
+                    "std": 1.5830152780753242
+                },
+                "power_usage": {
+                    "min": 55.339,
+                    "max": 101.95,
+                    "mean": 57.27936809815951,
+                    "std": 6.244603657556168
+                },
+                "memory.used": {
+                    "min": 40900755456,
+                    "max": 41989177344,
+                    "mean": 41308966736.09816,
+                    "std": 494357408.4527383
+                },
+                "memory.free": {
+                    "min": 516096000,
+                    "max": 1604517888,
+                    "mean": 1196306607.9018404,
+                    "std": 494357408.45273834
+                },
+                "total_power_draw": 3727.2464430852756
+            },
+            "1": {
+                "start_unix": 1646328528.757935,
+                "end_unix": 1646328593.822334,
+                "start_utc": "2022-03-03 17:28:48",
+                "end_utc": "2022-03-03 17:29:53",
+                "total_duration": 65.06439900398254,
+                "nr_measurements": 326,
+                "temperature": {
+                    "min": 30,
+                    "max": 32,
+                    "mean": 30.570552147239265,
+                    "std": 0.5011560274456275
+                },
+                "util.gpu": {
+                    "min": 0,
+                    "max": 40,
+                    "mean": 3.6134969325153374,
+                    "std": 7.277433945195085
+                },
+                "util.memory": {
+                    "min": 0,
+                    "max": 12,
+                    "mean": 0.754601226993865,
+                    "std": 1.7306051444894825
+                },
+                "power_usage": {
+                    "min": 59.332,
+                    "max": 92.587,
+                    "mean": 61.45709509202454,
+                    "std": 5.678922200205616
+                },
+                "memory.used": {
+                    "min": 40900755456,
+                    "max": 41989177344,
+                    "mean": 41273514574.52761,
+                    "std": 491365872.80840987
+                },
+                "memory.free": {
+                    "min": 516096000,
+                    "max": 1604517888,
+                    "mean": 1231758769.4723926,
+                    "std": 491365872.80840987
+                },
+                "total_power_draw": 3998.668956693182
+            },
+            "2": {
+                "start_unix": 1646328528.768175,
+                "end_unix": 1646328593.825495,
+                "start_utc": "2022-03-03 17:28:48",
+                "end_utc": "2022-03-03 17:29:53",
+                "total_duration": 65.05732011795044,
+                "nr_measurements": 326,
+                "temperature": {
+                    "min": 30,
+                    "max": 33,
+                    "mean": 30.73006134969325,
+                    "std": 0.5261429241226316
+                },
+                "util.gpu": {
+                    "min": 0,
+                    "max": 43,
+                    "mean": 3.588957055214724,
+                    "std": 7.157072148186859
+                },
+                "util.memory": {
+                    "min": 0,
+                    "max": 13,
+                    "mean": 0.7668711656441718,
+                    "std": 1.7725602852926612
+                },
+                "power_usage": {
+                    "min": 56.376,
+                    "max": 132.235,
+                    "mean": 58.63423312883436,
+                    "std": 6.882588757209432
+                },
+                "memory.used": {
+                    "min": 40900755456,
+                    "max": 41989177344,
+                    "mean": 41393920691.042946,
+                    "std": 505319233.26686937
+                },
+                "memory.free": {
+                    "min": 516096000,
+                    "max": 1604517888,
+                    "mean": 1111352652.9570553,
+                    "std": 505319233.2668695
+                },
+                "total_power_draw": 3814.586074533112
+            },
+            "3": {
+                "start_unix": 1646328528.778928,
+                "end_unix": 1646328593.828455,
+                "start_utc": "2022-03-03 17:28:48",
+                "end_utc": "2022-03-03 17:29:53",
+                "total_duration": 65.04952692985535,
+                "nr_measurements": 326,
+                "temperature": {
+                    "min": 30,
+                    "max": 32,
+                    "mean": 30.625766871165645,
+                    "std": 0.50258094083706
+                },
+                "util.gpu": {
+                    "min": 0,
+                    "max": 41,
+                    "mean": 3.460122699386503,
+                    "std": 6.9421318827122125
+                },
+                "util.memory": {
+                    "min": 0,
+                    "max": 12,
+                    "mean": 0.7515337423312883,
+                    "std": 1.7239509419030603
+                },
+                "power_usage": {
+                    "min": 57.288,
+                    "max": 138.173,
+                    "mean": 59.67517791411043,
+                    "std": 7.7673549646105835
+                },
+                "memory.used": {
+                    "min": 40900755456,
+                    "max": 41989177344,
+                    "mean": 41544581120.0,
+                    "std": 502800934.1380389
+                },
+                "memory.free": {
+                    "min": 516096000,
+                    "max": 1604517888,
+                    "mean": 960692224.0,
+                    "std": 502800934.1380389
+                },
+                "total_power_draw": 3881.8420927678353
+            },
+            "4": {
+                "start_unix": 1646328528.789491,
+                "end_unix": 1646328593.832288,
+                "start_utc": "2022-03-03 17:28:48",
+                "end_utc": "2022-03-03 17:29:53",
+                "total_duration": 65.04279708862305,
+                "nr_measurements": 326,
+                "temperature": {
+                    "min": 31,
+                    "max": 34,
+                    "mean": 32.24539877300614,
+                    "std": 0.8332950673086625
+                },
+                "util.gpu": {
+                    "min": 0,
+                    "max": 37,
+                    "mean": 3.3006134969325154,
+                    "std": 6.323716164304735
+                },
+                "util.memory": {
+                    "min": 0,
+                    "max": 11,
+                    "mean": 0.7361963190184049,
+                    "std": 1.6310944079340755
+                },
+                "power_usage": {
+                    "min": 57.737,
+                    "max": 96.119,
+                    "mean": 60.46951533742331,
+                    "std": 6.795406630082534
+                },
+                "memory.used": {
+                    "min": 40900755456,
+                    "max": 41989177344,
+                    "mean": 41444194442.20859,
+                    "std": 507828496.81349885
+                },
+                "memory.free": {
+                    "min": 516096000,
+                    "max": 1604517888,
+                    "mean": 1061078901.791411,
+                    "std": 507828496.81349885
+                },
+                "total_power_draw": 3933.1064161394033
+            },
+            "5": {
+                "start_unix": 1646328528.801519,
+                "end_unix": 1646328593.835255,
+                "start_utc": "2022-03-03 17:28:48",
+                "end_utc": "2022-03-03 17:29:53",
+                "total_duration": 65.03373599052429,
+                "nr_measurements": 326,
+                "temperature": {
+                    "min": 32,
+                    "max": 35,
+                    "mean": 32.782208588957054,
+                    "std": 0.8206252475895709
+                },
+                "util.gpu": {
+                    "min": 0,
+                    "max": 40,
+                    "mean": 3.2975460122699385,
+                    "std": 6.521351914117209
+                },
+                "util.memory": {
+                    "min": 0,
+                    "max": 12,
+                    "mean": 0.7638036809815951,
+                    "std": 1.7131867513188475
+                },
+                "power_usage": {
+                    "min": 59.21,
+                    "max": 98.94,
+                    "mean": 61.59547852760736,
+                    "std": 6.54584612474222
+                },
+                "memory.used": {
+                    "min": 40900755456,
+                    "max": 41989177344,
+                    "mean": 41582664371.042946,
+                    "std": 494032683.16039914
+                },
+                "memory.free": {
+                    "min": 516096000,
+                    "max": 1604517888,
+                    "mean": 922608972.9570552,
+                    "std": 494032683.16039914
+                },
+                "total_power_draw": 4005.784088774425
+            },
+            "6": {
+                "start_unix": 1646328528.812379,
+                "end_unix": 1646328593.838193,
+                "start_utc": "2022-03-03 17:28:48",
+                "end_utc": "2022-03-03 17:29:53",
+                "total_duration": 65.02581405639648,
+                "nr_measurements": 326,
+                "temperature": {
+                    "min": 31,
+                    "max": 34,
+                    "mean": 32.40490797546012,
+                    "std": 0.8036575653405061
+                },
+                "util.gpu": {
+                    "min": 0,
+                    "max": 43,
+                    "mean": 3.3404907975460123,
+                    "std": 6.680069596977824
+                },
+                "util.memory": {
+                    "min": 0,
+                    "max": 13,
+                    "mean": 0.754601226993865,
+                    "std": 1.727056521218445
+                },
+                "power_usage": {
+                    "min": 58.999,
+                    "max": 98.762,
+                    "mean": 61.31603374233129,
+                    "std": 6.612171057987569
+                },
+                "memory.used": {
+                    "min": 40900755456,
+                    "max": 41989177344,
+                    "mean": 41348999180.564415,
+                    "std": 499266584.1609806
+                },
+                "memory.free": {
+                    "min": 516096000,
+                    "max": 1604517888,
+                    "mean": 1156274163.4355829,
+                    "std": 499266584.1609807
+                },
+                "total_power_draw": 3987.125008804567
+            },
+            "7": {
+                "start_unix": 1646328528.825173,
+                "end_unix": 1646328593.841149,
+                "start_utc": "2022-03-03 17:28:48",
+                "end_utc": "2022-03-03 17:29:53",
+                "total_duration": 65.01597619056702,
+                "nr_measurements": 326,
+                "temperature": {
+                    "min": 32,
+                    "max": 35,
+                    "mean": 33.03680981595092,
+                    "std": 0.7823950216898091
+                },
+                "util.gpu": {
+                    "min": 0,
+                    "max": 43,
+                    "mean": 3.285276073619632,
+                    "std": 6.6647293689856735
+                },
+                "util.memory": {
+                    "min": 0,
+                    "max": 13,
+                    "mean": 0.7699386503067485,
+                    "std": 1.7668951302055789
+                },
+                "power_usage": {
+                    "min": 58.904,
+                    "max": 97.828,
+                    "mean": 61.453168711656446,
+                    "std": 6.4034009324898
+                },
+                "memory.used": {
+                    "min": 40900755456,
+                    "max": 41989177344,
+                    "mean": 41497504560.68712,
+                    "std": 507005046.04448456
+                },
+                "memory.free": {
+                    "min": 516096000,
+                    "max": 1604517888,
+                    "mean": 1007768783.3128834,
+                    "std": 507005046.04448456
+                },
+                "total_power_draw": 3995.4377537919536
+            },
+            "total": {
+                "start_unix": 1646328528.747813,
+                "end_unix": 1646328593.841149,
+                "nr_measurements": 2608,
+                "total_power_draw": 31343.796834589753,
+                "start_utc": "2022-03-03 17:28:48",
+                "end_utc": "2022-03-03 17:29:53",
+                "total_duration": 65.09333610534668
+            }
+        },
+        "monitoring_pyrapl": null,
+        "monitoring_psutil": {
+            "188978": {
+                "start_unix": 1646328528.915473,
+                "end_unix": 1646328594.28554,
+                "start_utc": "2022-03-03 17:28:48",
+                "end_utc": "2022-03-03 17:29:54",
+                "total_duration": 65.37006711959839,
+                "nr_measurements": 291,
+                "cpu_num": {
+                    "min": 94,
+                    "max": 239,
+                    "mean": 214.446735395189,
+                    "std": 36.55490266142616
+                },
+                "cpu_percent": {
+                    "min": 0.0,
+                    "max": 11420.1,
+                    "mean": 838.3006872852234,
+                    "std": 1787.3811293951103
+                },
+                "mem_rss": {
+                    "min": 12817108992,
+                    "max": 32053862400,
+                    "mean": 20286068996.398624,
+                    "std": 5629935788.378954
+                },
+                "mem_vms": {
+                    "min": 421109600256,
+                    "max": 486572285952,
+                    "mean": 475175506666.0069,
+                    "std": 8177071410.128885
+                },
+                "mem_shared": {
+                    "min": 984403968,
+                    "max": 5826486272,
+                    "mean": 2833549431.6426115,
+                    "std": 1309122258.196596
+                },
+                "mem_text": {
+                    "min": 2576384,
+                    "max": 2576384,
+                    "mean": 2576384.0,
+                    "std": 0.0
+                },
+                "mem_lib": {
+                    "min": 0,
+                    "max": 0,
+                    "mean": 0.0,
+                    "std": 0.0
+                },
+                "mem_data": {
+                    "min": 19105619968,
+                    "max": 36775280640,
+                    "mean": 27737108071.80756,
+                    "std": 4526582659.827955
+                },
+                "mem_uss": {
+                    "min": 397238272,
+                    "max": 19898933248,
+                    "mean": 8028717759.780068,
+                    "std": 5653862801.941713
+                },
+                "mem_pss": {
+                    "min": 3507779584,
+                    "max": 25396386816,
+                    "mean": 12133763673.731958,
+                    "std": 5665943192.885631
+                },
+                "total_power_draw": -1
+            },
+            "total": {
+                "start_unix": 1646328528.915473,
+                "end_unix": 1646328594.28554,
+                "nr_measurements": 291,
+                "total_power_draw": -1,
+                "start_utc": "2022-03-03 17:28:48",
+                "end_utc": "2022-03-03 17:29:54",
+                "total_duration": 65.37006711959839
+            }
+        },
+        "results": {
+            "metrics": {
+                "loss": 1.2821853160858154,
+                "accuracy": 0.7104967832565308,
+                "top_5_accuracy": 0.8929086327552795
+            },
+            "start": 1646328528.8337576,
+            "end": 1646328593.975257,
+            "model": {
+                "params": 5507432,
+                "fsize": 22734992,
+                "flops": 4123088
+            }
+        },
+        "duration": 65.14149928092957
+    }
+}
