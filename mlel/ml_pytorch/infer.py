@@ -101,13 +101,16 @@ def init_inference(args, split):
         model = torchvision.models.__dict__[model_name_mapping[args.model]](pretrained=True, num_classes=num_classes)
 
     torch.save(model.state_dict(), os.path.join(args.output_dir, f"eval_weights.pth"))
+
+    # calculate flops .to(device)
+    flops, _ = get_model_complexity_info(model, (3, args.val_crop_size, args.val_crop_size), verbose=False, as_strings=False)
     model = nn.DataParallel(model)
     model.to(device)
 
     model_info = {
         'params': sum(p.numel() for p in model.parameters()), 
         'fsize': os.path.getsize(os.path.join(args.output_dir, f"eval_weights.pth")),
-        'flops': get_model_complexity_info(model, (3, args.val_crop_size, args.val_crop_size), verbose=False, as_strings=False)[0]
+        'flops': flops
     }
 
     criterion = nn.CrossEntropyLoss(label_smoothing=0.0)

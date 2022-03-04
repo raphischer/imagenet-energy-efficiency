@@ -158,7 +158,7 @@ def _train(data_loader, data_loader_test, device, model, criterion, optimizer, l
 def finalize_training(train_res, results, args):
     final_epoch = len(train_res["history"]["loss"])
     torch.save(train_res["model"].state_dict(), os.path.join(args.output_dir, f"checkpoint_{final_epoch:03d}_final.pth"))
-
+    # TODO check if calculation of flops works on multi gpu hardware, or needs to be executed earlier or later (.device()?)
     results.update({
         'history': train_res["history"],
         'model': {
