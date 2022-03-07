@@ -42,7 +42,48 @@
         "Total": 1082004701184,
         "Available": 1068131549184,
         "Used": 8351326208,
-        "GPU": {}
+        "GPU": {
+            "0": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-87a057ac-aff4-d1b8-9716-a8c51ef945f1"
+            },
+            "1": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-7e7cff7a-048e-bc4b-937a-dd034de072b4"
+            },
+            "2": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-1af31890-bcb8-3b07-39a8-3ca15d981466"
+            },
+            "3": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-a53433bd-ecf3-ab59-f099-4af017d26441"
+            },
+            "4": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-1b0307de-06ad-fcfe-cf85-5d865a5b1e32"
+            },
+            "5": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-9020337a-b546-800c-7f54-ce745ebe2150"
+            },
+            "6": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-023d9b2e-02f6-5175-1451-0e281e84c34c"
+            },
+            "7": {
+                "Name": "NVIDIA A100-SXM4-40GB",
+                "Memory": 40536.0,
+                "UUID": "GPU-f5285e3c-7002-65a8-c648-d853ce5be9da"
+            }
+        }
     },
     "requirements": [
         "# 3.8.12 | packaged by conda-forge | (default, Jan 30 2022, 23:53:36)",

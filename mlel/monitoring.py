@@ -101,7 +101,7 @@ def log_system_info(filename):
         sysinfo["GPU"] = {}
         gpus = GPUtil.getGPUs()
         for gpu in gpus:
-            if gpu.id in VISIBLE_GPUS:
+            if "CUDA_VISIBLE_DEVICES" not in os.environ or gpu.id in VISIBLE_GPUS:
                 sysinfo["GPU"][gpu.id] = {
                     "Name": gpu.name,
                     "Memory": gpu.memoryTotal,
