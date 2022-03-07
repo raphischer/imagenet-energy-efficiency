@@ -109,7 +109,7 @@ def print_train_results(results):
         if 'Error' in res:
             print(f'{dir} - ERROR - {res["Error"]}')
         else:
-            if len(res["results"]) > 0:
+            if res["results"] is not None and len(res["results"]) > 0:
                 epochs = f'{len(res["results"]["history"]["loss"]):>4}'
                 gpu_draw = f'GPU {res["monitoring_pynvml"]["total"]["total_power_draw"] / 3600000:4.1f} kWh'
                 model_info = f'{res["config"]["model"]:<16} {res["results"]["model"]["fsize"] * 1e-6:5.1f} MB {res["results"]["model"]["params"] * 1e-6:5.1f}M params'
