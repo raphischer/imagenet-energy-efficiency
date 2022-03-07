@@ -14,7 +14,7 @@ POS_TEXT = {
     # infos that are directly taken from summary via keys
     "name":                                     ('drawString',        90, '-Bold', .04,  .855, None),
     "task_type":                                ('drawString',        90, '',      .04,  .815, None),
-    "environment":                              ('drawString',        90, '',      .04,  .42,  None),
+    "environment":                              ('drawString',        68, '',      .04,  .42,  None),
     "dataset":                                  ('drawRightString',   90, '',      .95,  .815, None),
     "inference_power_draw":                     ('drawRightString',   68, '-Bold', .25,  .28,  None),
     "inference_time":                           ('drawRightString',   68, '-Bold', .75,  .25,  None),
