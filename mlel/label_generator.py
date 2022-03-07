@@ -18,7 +18,8 @@ POS_TEXT = {
     "dataset":                                  ('drawRightString',   90, '',      .95,  .815, None),
     "inference_power_draw":                     ('drawRightString',   68, '-Bold', .25,  .28,  None),
     "inference_time":                           ('drawRightString',   68, '-Bold', .75,  .25,  None),
-    "parameters":                               ('drawRightString',   68, '-Bold', .69,  .05,  None),
+    "parameters":                               ('drawRightString',   68, '-Bold', .744,  .05,  '{} M /'),
+    "gflops":                                   ('drawString',        68, '-Bold', .77, .05,  '{} B'),
     "train_time":                               ('drawRightString',   68, '-Bold', .7,  .25,  '{} /'),
     "train_time_epoch":                         ('drawString',        68, '-Bold', .715, .25,  None),
     "train_power_draw":                         ('drawRightString',   68, '-Bold', .2,  .28,  '{} /'),
@@ -31,11 +32,11 @@ POS_TEXT = {
     "$Inference Power Draw per Sample":         ('drawCentredString', 56, '',      .25,  .25,  None),
     "$Inference Runtime per Sample":            ('drawCentredString', 56, '',      .75,  .22,  None),
     "$Inference Top-1 / Top-5 Accuracy":        ('drawCentredString', 56, '',      .25,  .02,  None),
-    "$Inference Model Size":                    ('drawCentredString', 56, '',      .75,  .02,  None),
+    "$Inference Parameters / Flops":            ('drawCentredString', 56, '',      .75,  .02,  None),
     "$Inference Ws":                            ('drawString',        56, '',      .27,  .28,  None),
     "$Inference ms":                            ('drawString',        56, '',      .77,  .25,  None),
     "$Inference [%]":                           ('drawString',        56, '',      .34,  .05,  None),
-    "$Inference M Parameters":                  ('drawString',        56, '',      .7,   .05,  None),
+    # "$Inference bla":                  ('drawString',        56, '',      .7,   .05,  None),
     "$Training Power Draw Total / per Epoch":   ('drawCentredString', 56, '',      .25,  .25,  None),
     "$Training Runtime Total / per Epoch":      ('drawCentredString', 56, '',      .75,  .22,  None),
     "$Training Top-1 / Top-5 Accuracy":         ('drawCentredString', 56, '',      .25,  .02,  None),
@@ -110,6 +111,8 @@ class EnergyLabel(fitz.Document):
                 # Dynamic text that receives content from summary
                 if isinstance(summary[key], dict):
                     text = 'n.a.' if summary[key]["value"] is None else f'{summary[key]["value"]:4.2f}'[:4]
+                    if text.endswith('.'):
+                        text = text[:-1]
                 else:
                     text = summary[key]
             else:
@@ -129,8 +132,12 @@ class EnergyLabel(fitz.Document):
 if __name__ == "__main__":
     _, summaries = load_results('results')
     summaries, _, _ = rate_results(summaries, 'ResNet101')
-    test_inf = summaries['RTX 5000 - TensorFlow 2.4.1']['inference'][0]
-    test_train = summaries['A100 x8 - Torch 1.10.1+cu113']['training'][0]
-    for idx, summary in enumerate([test_inf, test_train]):
+    test_summaries = [
+        summaries['RTX 5000 - TensorFlow 2.4.1']['inference'][0],
+        summaries['RTX 5000 - TensorFlow 2.4.1']['inference'][3],
+        summaries['RTX 5000 - TensorFlow 2.4.1']['inference'][6],
+        # summaries['A100 x8 - Torch 1.10.2+cu113']['training'][0]
+    ]
+    for idx, summary in enumerate(test_summaries):
         pdf_doc = EnergyLabel(summary, 'mean')
         pdf_doc.save(f'testlabel_{idx}.pdf')

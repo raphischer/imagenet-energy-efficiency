@@ -1,0 +1,4 @@
+{
+    "Name": "PyTorch",
+    "Packages": ["torch", "torchvision", "torchaudio", "ptflops"]
+}

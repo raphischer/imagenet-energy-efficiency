@@ -8,10 +8,6 @@ HIGHER_BETTER = [
     'top1_val',
     'top5_val',
 ]
-BACKENDS = {
-    'tensorflow': ('TensorFlow', 'tensorflow'),
-    'pytorch': ('Torch', 'torch'),
-}
 GPU_NAMES = {
     'NVIDIA A100-SXM4-40GB': 'A100',
     'Quadro RTX 5000': 'RTX 5000',
@@ -50,12 +46,13 @@ FULL_TRAIN_EPOCHS = {
     'QuickNetLarge':        600 # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
 }
 TASK_TYPES = {
-    'eval': 'inference',
+    'infer': 'inference',
     'train': 'training',
 }
 TASK_METRICS_CALCULATION = {        # boolean informs whether given task log is used (True), or if the corresponding inference log shall be used instead
     'inference': {
         'parameters':               (True,  lambda model_log: calc_parameters(model_log)),
+        'gflops':                   (True,  lambda model_log: calc_gflops(model_log)),
         'fsize':                    (True,  lambda model_log: calc_fsize(model_log)),
         'inference_power_draw':     (True,  lambda model_log: calc_power_draw(model_log)),
         'inference_time':           (True,  lambda model_log: calc_inf_time(model_log)),
@@ -64,6 +61,7 @@ TASK_METRICS_CALCULATION = {        # boolean informs whether given task log is 
     },
     'training': {
         'parameters':               (True,  lambda model_log: calc_parameters(model_log)),
+        'gflops':                   (True,  lambda model_log: calc_gflops(model_log)),
         'fsize':                    (True,  lambda model_log: calc_fsize(model_log)),
         'train_power_draw_epoch':   (True,  lambda model_log: calc_power_draw_train(model_log, True)),
         'train_power_draw':         (True,  lambda model_log: calc_power_draw_train(model_log)),
@@ -73,19 +71,33 @@ TASK_METRICS_CALCULATION = {        # boolean informs whether given task log is 
         'top5_val':                 (False, lambda model_val_log: calc_accuracy(model_val_log, top5=True))
     }
 }
-METRICS_FOR_FINAL_RATING = {        # boolean informs whether given task log is used (True), or if the corresponding inference log shall be used instead
+METRICS_FOR_FINAL_RATING = {
     'inference': ['parameters', 'inference_power_draw', 'inference_time', 'top1_val'],
     'training': ['parameters', 'train_power_draw', 'train_time', 'top1_val']
 }
 
 
+def load_backend_info(backend): # TODO access from train / infer scripts, and log info during experiment
+    info_fname = os.path.join(os.path.dirname(__file__), f'ml_{backend}', 'info.json')
+    with open(info_fname, 'r') as info_f:
+        return json.load(info_f)
+
+
 def get_environment_key(log):
-    backend_name, pip_name = BACKENDS[log['config']['backend']]
-    backend_version = [r.split('==')[1] for r in log['requirements'] if r.split('==')[0] == pip_name][0]
+    backend = load_backend_info(log['config']['backend'])
+    backend_version = 'n.a.'
+    for package in backend["Packages"]:
+        for req in log['requirements']:
+            if req.split('==')[0] == package:
+                backend_version = req.split('==')[1]
+                break
+        else:
+            continue
+        break
     n_gpus = len(log['execution_platform']['GPU'])
     gpu_name = GPU_NAMES[log['execution_platform']['GPU']['0']['Name']]
     gpu_str = f'{gpu_name} x{n_gpus}' if n_gpus > 1 else gpu_name
-    return f'{gpu_str} - {backend_name} {backend_version}'
+    return f'{gpu_str} - {backend["Name"]} {backend_version}'
 
 
 def aggregate_rating(ratings, mode, meanings=None):
@@ -137,6 +149,13 @@ def calc_parameters(res):
     return res['results']['model']['params'] * 1e-6
 
 
+def calc_gflops(res):
+    if 'validation' in res:
+        # print(res['config']['backend'], res['execution_platform']['Node Name'], res['validation']['results']['model']['flops'] * 1e-9)
+        return res['validation']['results']['model']['flops'] * 1e-9
+    return res['results']['model']['flops'] * 1e-9
+
+
 def calc_fsize(res):
     if 'validation' in res:
         return res['validation']['results']['model']['fsize']
@@ -144,17 +163,22 @@ def calc_fsize(res):
 
 
 def calc_inf_time(res):
-    return res['train']['duration'] / 1281167 * 1000 # TODO change to per batch
+    return res['validation']['duration'] / ((50000 // res['config']['batch_size'])) * 1000
 
 
 def calc_power_draw(res):
     # TODO add the RAPL measurements if available
-    return res['train']["monitoring_gpu"]["total"]["total_power_draw"] / 1281167 # TODO change to per batch
+    power_draw = 0
+    if res['validation']["monitoring_pynvml"] is not None:
+        power_draw += res['validation']["monitoring_pynvml"]["total"]["total_power_draw"]
+    if res['validation']["monitoring_pyrapl"] is not None:
+        power_draw += res['validation']["monitoring_pyrapl"]["total"]["total_power_draw"]
+    return power_draw / (50000 // res['config']['batch_size'])
 
 
 def calc_power_draw_train(res, per_epoch=False):
     # TODO add the RAPL measurements if available
-    val_per_epoch = res["monitoring_gpu"]["total"]["total_power_draw"] / len(res["results"]["history"]["loss"])
+    val_per_epoch = res["monitoring_pynvml"]["total"]["total_power_draw"] / len(res["results"]["history"]["loss"])
     val_per_epoch /= 3600000 # Ws to kWh
     if not per_epoch:
         val_per_epoch *= FULL_TRAIN_EPOCHS[res["config"]["model"]]
@@ -171,12 +195,12 @@ def calc_time_train(res, per_epoch=False):
 
 def characterize_monitoring(summary):
     sources = {
-        'GPU': ['NVML'] if summary['monitoring_gpu'] is not None else [],
-        'CPU': ['RAPL'] if summary['monitoring_rapl'] is not None else [],
+        'GPU': ['NVML'] if summary['monitoring_pynvml'] is not None else [],
+        'CPU': ['RAPL'] if summary['monitoring_pyrapl'] is not None else [],
         'Extern': []
     }
-    # TODO also make use of summary['monitoring_cpu']
-    # if summary['monitoring_cpu'] is not None:
+    # TODO also make use of summary['monitoring_psutil']
+    # if summary['monitoring_psutil'] is not None:
     #     sources['CPU'].append('psutil')
     return sources
 
@@ -244,7 +268,7 @@ def load_results(results_directory):
                     'name': model_name,
                     'dataset': 'ImageNet',
                     'task_type': task.capitalize(),
-                    'power_draw_sources': characterize_monitoring(model_log if 'monitoring_gpu' in model_log else model_log['train'])
+                    'power_draw_sources': characterize_monitoring(model_log if 'monitoring_pynvml' in model_log else model_log['validation'])
                 }
                 for metrics_key, (use_log, metrics_calculation) in metrics.items():
                     try:
