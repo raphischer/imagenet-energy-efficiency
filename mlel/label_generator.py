@@ -67,6 +67,7 @@ ICON_POS = {
     'power_draw': (250, 770),
     'parameters': (1050, 200)
 }
+PARTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "label_design", "parts")
 
 
 def format_power_draw_sources(summary):
@@ -83,14 +84,14 @@ class EnergyLabel(fitz.Document):
         canvas = Canvas("result.pdf", pagesize=C_SIZE)
         frate = aggregate_rating(summary, rating_mode, 'ABCDE')
         # Background
-        canvas.drawInlineImage(os.path.join("label_design", "parts", f"bg.png"), 0, 0)
+        canvas.drawInlineImage(os.path.join(PARTS_DIR, f"bg.png"), 0, 0)
         # Rated Pictograms
         for icon, (posx, posy) in ICON_POS.items():
             metric = ICON_NAME_TO_METRIC[summary['task_type']][icon]
             rating = summary[metric]['rating']
-            canvas.drawInlineImage(os.path.join("label_design", "parts", f"{icon}_{rating}.png"), posx, posy)
+            canvas.drawInlineImage(os.path.join(PARTS_DIR, f"{icon}_{rating}.png"), posx, posy)
         # Final Rating
-        canvas.drawInlineImage(os.path.join("label_design", "parts", f"Rating_{frate}.png"), POS_RATINGS[frate][0] * C_SIZE[0], POS_RATINGS[frate][1] * C_SIZE[1])
+        canvas.drawInlineImage(os.path.join(PARTS_DIR, f"Rating_{frate}.png"), POS_RATINGS[frate][0] * C_SIZE[0], POS_RATINGS[frate][1] * C_SIZE[1])
         # Add stroke to make even bigger letters
         canvas.setFillColor(black)
         canvas.setLineWidth(3)

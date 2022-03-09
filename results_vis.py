@@ -19,7 +19,7 @@ ENV_SYMBOLS = [SymbolValidator().values[i] for i in range(0, len(SymbolValidator
 RATING_COLOR_SCALE = colors.make_colorscale(['rgb(0,255,0)', 'rgb(255,255,0)', 'rgb(255,0,0))'])
 RATING_COLORS = colors.sample_colorscale(RATING_COLOR_SCALE, samplepoints=[float(c) / (4) for c in range(5)])
 AXIS_NAMES = {
-    "parameters": "Parameters [#]",
+    "parameters": "M Parameters [#]",
     "gflops": "(Giga) Floating Point Operations [#]",
     "fsize": "Model File Size [B]", 
     "inference_power_draw": "Inference Power Draw / Sample [Ws]",
