@@ -8,9 +8,11 @@ HIGHER_BETTER = [
     'top1_val',
     'top5_val',
 ]
-GPU_NAMES = {
+HARDWARE_NAMES = {
     'NVIDIA A100-SXM4-40GB': 'A100',
     'Quadro RTX 5000': 'RTX 5000',
+    'Intel(R) Xeon(R) W-2155 CPU @ 3.30GHz': 'Xeon(R) W-2155',
+    'AMD EPYC 7742 64-Core Processor': 'EPYC 7742'
 }
 FULL_TRAIN_EPOCHS = {
     'ResNet50':             90, # https://github.com/pytorch/vision/tree/main/references/classification
@@ -95,9 +97,12 @@ def get_environment_key(log):
             continue
         break
     n_gpus = len(log['execution_platform']['GPU'])
-    gpu_name = GPU_NAMES[log['execution_platform']['GPU']['0']['Name']]
-    gpu_str = f'{gpu_name} x{n_gpus}' if n_gpus > 1 else gpu_name
-    return f'{gpu_str} - {backend["Name"]} {backend_version}'
+    if len(log['execution_platform']['GPU']) > 0:
+        gpu_name = HARDWARE_NAMES[log['execution_platform']['GPU']['0']['Name']]
+        name = f'{gpu_name} x{n_gpus}' if n_gpus > 1 else gpu_name
+    else:
+        name = HARDWARE_NAMES[log['execution_platform']['Processor']]
+    return f'{name} - {backend["Name"]} {backend_version}'
 
 
 def aggregate_rating(ratings, mode, meanings=None):
@@ -242,27 +247,27 @@ def save_scale(scale_intervals, output="scales.json"):
 
 
 def load_results(results_directory):
-    logs = {}
+    logs = {task: {} for task in TASK_TYPES.values()}
     for fname in os.listdir(results_directory):
         with open(os.path.join(results_directory, fname), 'r') as rf:
             log = json.load(rf)
             env_key = get_environment_key(log)
-            if env_key not in logs:
-                logs[env_key] = {task: {} for task in TASK_TYPES.values()}
             task_type = TASK_TYPES[fname.split('_')[0]]
-            if log['config']['model'] in logs[env_key][task_type]:
+            if env_key not in logs[task_type]:
+                logs[task_type][env_key] = {}
+            if log['config']['model'] in logs[task_type][env_key]:
                 raise NotImplementedError(f'Already found results for {log["config"]["model"]} on {env_key}, averaging runs is not implemented (yet)!')
-            logs[env_key][task_type][log['config']['model']] = log
+            logs[task_type][env_key][log['config']['model']] = log
 
     # Exctract all relevant metadata
-    summaries = {}
-    for env_key, env_logs in logs.items():
-        if env_key not in summaries:
-            summaries[env_key] = {task: [] for task in TASK_TYPES.values()}
+    summaries = {task: {} for task in TASK_TYPES.values()}
+    for task, metrics in TASK_METRICS_CALCULATION.items():
+        for env_key, env_logs in logs[task].items():
+            if env_key not in summaries[task]:
+                summaries[task][env_key] = []
         
-        # Calculate inference metrics for rating
-        for task, metrics in TASK_METRICS_CALCULATION.items():
-            for model_name, model_log in env_logs[task].items():
+            # Calculate inference metrics for rating
+            for model_name, model_log in env_logs.items():
                 model_information = {
                     'environment': env_key,
                     'name': model_name,
@@ -273,17 +278,17 @@ def load_results(results_directory):
                 for metrics_key, (use_log, metrics_calculation) in metrics.items():
                     try:
                         if not use_log: # calculate based on the inference log
-                            model_information[metrics_key] = {'value': metrics_calculation(logs[env_key]['inference'][model_name])}
+                            model_information[metrics_key] = {'value': metrics_calculation(logs['inference'][env_key][model_name])}
                         else:
                             model_information[metrics_key] = {'value': metrics_calculation(model_log)}
                     except Exception:
                         model_information[metrics_key] = {'value': None}
-                summaries[env_key][task].append(model_information)
+                summaries[task][env_key].append(model_information)
 
     # Transform logs dict for one environment to list of logs
-    for env_key, env_logs in logs.items():
-        logs[env_key]['inference'] = [model_logs for model_logs in env_logs['inference'].values()]
-        logs[env_key]['training'] = [model_logs for model_logs in env_logs['training'].values()]
+    for task, task_logs in logs.items():
+        for env_key, env_logs in task_logs.items():
+            logs[task][env_key] = [model_logs for model_logs in env_logs.values()]
 
     return logs, summaries
 
@@ -294,38 +299,37 @@ def rate_results(summaries, reference_name, scales=None):
 
     # Get reference values for each environment and task
     reference_values = {}
-    for env_key, env_logs in summaries.items():
-        type_ref_values = {task_type: {} for task_type in TASK_TYPES.values()}
-        for task_type, type_logs in env_logs.items():
-            for model in type_logs:
+    for task, task_logs in summaries.items():
+        reference_values[task] = {env_key: {} for env_key in task_logs.keys()}
+        for env_key, env_logs in task_logs.items():
+            for model in env_logs:
                 if model['name'] == reference_name:
                     for metrics_key, metrics_val in model.items():
                         if isinstance(metrics_val, dict) and 'value' in metrics_val:
                             if metrics_val['value'] is None:
-                                raise RuntimeError(f'Found unratable metric {metrics_key} for reference model {reference_name} on {env_key} {task_type}!')
-                            type_ref_values[task_type][metrics_key] = metrics_val['value']
+                                raise RuntimeError(f'Found unratable metric {metrics_key} for reference model {reference_name} on {env_key} {task}!')
+                            reference_values[task][env_key][metrics_key] = metrics_val['value']
                     break
-        reference_values[env_key] = type_ref_values
 
     # Calculate value indices using reference values and scales
-    for env_key, env_logs in summaries.items():
-        for task_type, type_logs in env_logs.items():
-            for model in type_logs:
+    for task, task_summs in summaries.items():
+        for env_key, env_summs in task_summs.items():
+            for model in env_summs:
                 for key in model.keys():
                     if isinstance(model[key], dict) and 'value' in model[key]:
                         if model[key]['value'] is None:
                             model[key]['index'] = None
                             model[key]['rating'] = 4
                         else:
-                            model[key]['index'] = value_to_index(model[key]['value'], reference_values[env_key][task_type][key], key)
+                            model[key]['index'] = value_to_index(model[key]['value'], reference_values[task][env_key][key], key)
                             model[key]['rating'] = calculate_rating(model[key]['index'], scales[key])
 
     # Calculate the real-valued scales
     real_scales = {}
-    for env_key, ref_values in reference_values.items():
-        real_scales[env_key] = {'inference': {}, 'training': {}}
-        for task_type, type_ref_values in ref_values.items():
-            for key, val in type_ref_values.items():
-                real_scales[env_key][key] = [(index_to_value(start, val, key), index_to_value(stop, val, key)) for (start, stop) in scales[key]]
+    for task, task_ref_values in reference_values.items():
+        real_scales[task] = {env_key: {} for env_key in task_ref_values.keys()}
+        for env_key, env_ref_values in task_ref_values.items():
+            for key, val in env_ref_values.items():
+                real_scales[task][env_key] = [(index_to_value(start, val, key), index_to_value(stop, val, key)) for (start, stop) in scales[key]]
     
     return summaries, scales, real_scales

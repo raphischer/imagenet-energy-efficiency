@@ -11,7 +11,7 @@ from plotly import colors
 import plotly.graph_objects as go
 from plotly.validators.scatter.marker import SymbolValidator
 
-from mlel.ratings import load_results, load_scale, save_scale, rate_results, aggregate_rating, TASK_TYPES
+from mlel.ratings import load_results, load_scale, save_scale, rate_results, aggregate_rating, TASK_METRICS_CALCULATION
 from mlel.label_generator import EnergyLabel
 
 
@@ -19,7 +19,7 @@ ENV_SYMBOLS = [SymbolValidator().values[i] for i in range(0, len(SymbolValidator
 RATING_COLOR_SCALE = colors.make_colorscale(['rgb(0,255,0)', 'rgb(255,255,0)', 'rgb(255,0,0))'])
 RATING_COLORS = colors.sample_colorscale(RATING_COLOR_SCALE, samplepoints=[float(c) / (4) for c in range(5)])
 AXIS_NAMES = {
-    "parameters": "Parameters [#]",
+    "parameters": "M Parameters [#]",
     "gflops": "(Giga) Floating Point Operations [#]",
     "fsize": "Model File Size [B]", 
     "inference_power_draw": "Inference Power Draw / Sample [Ws]",
@@ -90,16 +90,17 @@ class Visualization(dash.Dash):
         super().__init__(__name__)
         self.logs, summaries = load_results(results_directory)
         self.summaries, self.scales, self.scales_real = rate_results(summaries, reference_name)
-        self.keys = {task: [key for key, vals in list(self.summaries.values())[0][task][0].items() if isinstance(vals, dict) and 'rating' in vals] for task in TASK_TYPES.values() if len(list(self.summaries.values())[0][task]) > 0}
-        self.type, self.xaxis, self.yaxis = 'inference', 'top1_val', 'inference_power_draw'
+        self.environments = {task: sorted(list(envs.keys())) for task, envs in self.summaries.items()}
+        self.keys = {task: list(vals.keys()) for task, vals in TASK_METRICS_CALCULATION.items()}
+        self.task, self.xaxis, self.yaxis = 'inference', 'top1_val', 'inference_power_draw'
         self.reference_name = reference_name
         self.current = { 'summary': None, 'label': None, 'logs': None }
         # setup page and create callbacks
         self.layout = self.create_page()
         self.callback(
-            [Output('xaxis', 'options'), Output('xaxis', 'value'), Output('yaxis', 'options'),  Output('yaxis', 'value')],
-            Input('type-switch', 'value')
-        ) (self.update_type)
+            [Output('environments', 'options'), Output('environments', 'value'), Output('xaxis', 'options'), Output('xaxis', 'value'), Output('yaxis', 'options'),  Output('yaxis', 'value')],
+            Input('task-switch', 'value')
+        ) (self.update_task)
         self.callback(
             [Output(sl_id, prop) for sl_id in ['scaleslider-x', 'scaleslider-y'] for prop in ['min', 'max', 'value', 'marks']],
             [Input('xaxis', 'value'), Input('yaxis', 'value'), Input('scales-upload', 'contents')]
@@ -129,19 +130,14 @@ class Visualization(dash.Dash):
                 dcc.Dropdown(
                     id='xaxis', value=self.xaxis,
                     options=[
-                        {'label': AXIS_NAMES[env], 'value': env} for env in self.keys[self.type]
+                        {'label': AXIS_NAMES[env], 'value': env} for env in self.keys[self.task]
                     ]
                 ),
                 dcc.RangeSlider(id='scaleslider-x', min=0, max=1, value=[.2, .4, .6, .8], step=.01, pushable=.01, tooltip={"placement": "bottom", "always_visible": True})
             ]),
             html.Div(children=[
                 html.H2('Y-Axis:'),
-                dcc.Dropdown(
-                    id='yaxis', value=self.yaxis,
-                    options=[
-                        {'label': AXIS_NAMES[env], 'value': env} for env in self.keys[self.type]
-                    ]
-                ),
+                dcc.Dropdown(id='yaxis'),
                 dcc.RangeSlider(id='scaleslider-y', min=0, max=1, value=[.2, .4, .6, .8], step=.01, pushable=.01, tooltip={"placement": "bottom", "always_visible": True})
             ]),
             html.Button("Save Current Scales", id="btn-save-scales"),
@@ -166,19 +162,13 @@ class Visualization(dash.Dash):
             html.Button("Save Logs", id="btn-save-logs"),
             dcc.Download(id="save-label"),
             html.Div(children=[
-                html.H2('Environments:'),
-                dcc.Checklist(
-                    id='environments',
-                    options=[{'label': env, 'value': env} for env in self.summaries.keys()],
-                    value=[list(self.summaries.keys())[0]]
-                )
+                html.H2('ML Task:'),
+                dcc.RadioItems(id='task-switch', value=self.task,
+                    options=[{'label': restype.capitalize(), 'value': restype} for restype in self.keys.keys()],)
             ]),
             html.Div(children=[
-                html.H2('Results Type:'),
-                dcc.RadioItems(
-                    id='type-switch', value=self.type,
-                    options=[{'label': restype.capitalize(), 'value': restype} for restype in self.keys.keys()],
-                )
+                html.H2('Environments:'),
+                dcc.Checklist(id='environments')
             ]),
             html.Div(children=[
                 html.H2('Axis Scales:'),
@@ -202,23 +192,22 @@ class Visualization(dash.Dash):
     def update_figures(self, env_names=None, scale_switch=None, rating_mode=None, *slider_args):
         if any(slider_args) and 'slider' in dash.callback_context.triggered[0]['prop_id']:
             self.update_scales(slider_args)
-        env_names = [list(self.summaries.keys())[0]] if env_names is None else env_names
+        env_names = self.environments[self.task] if env_names is None else env_names
         scale_switch = 'index' if scale_switch is None else scale_switch
         rating_mode = 'mean' if rating_mode is None else rating_mode
         plot_data = {}
         for env in env_names:
-            if len(self.summaries[env][self.type]) > 0:
-                env_data = { 'names': [], 'ratings':[], 'x': [], 'y': [] }
-                for sum in self.summaries[env][self.type]:
-                    env_data['names'].append(sum['name'])
-                    env_data['ratings'].append(aggregate_rating(sum, rating_mode))
-                    if scale_switch == 'index':
-                        env_data['x'].append(sum[self.xaxis]['index'] or 0)
-                        env_data['y'].append(sum[self.yaxis]['index'] or 0)
-                    else:
-                        env_data['x'].append(sum[self.xaxis]['value'] or 0)
-                        env_data['y'].append(sum[self.yaxis]['value'] or 0)
-                plot_data[env] = env_data
+            env_data = { 'names': [], 'ratings':[], 'x': [], 'y': [] }
+            for sum in self.summaries[self.task][env]:
+                env_data['names'].append(sum['name'])
+                env_data['ratings'].append(aggregate_rating(sum, rating_mode))
+                if scale_switch == 'index':
+                    env_data['x'].append(sum[self.xaxis]['index'] or 0)
+                    env_data['y'].append(sum[self.yaxis]['index'] or 0)
+                else:
+                    env_data['x'].append(sum[self.xaxis]['value'] or 0)
+                    env_data['y'].append(sum[self.yaxis]['value'] or 0)
+            plot_data[env] = env_data
         scale_names = [AXIS_NAMES[self.xaxis], AXIS_NAMES[self.yaxis]]
         if scale_switch == 'index':
             rating_pos = [self.scales[self.xaxis], self.scales[self.yaxis]]
@@ -237,7 +226,7 @@ class Visualization(dash.Dash):
         self.yaxis = yaxis or self.yaxis
         values = []
         for axis in [self.xaxis, self.yaxis]:
-            all_ratings = [ sums[axis]['index'] for env_sums in self.summaries.values() for sums in env_sums[self.type] if sums[axis]['index'] is not None ]
+            all_ratings = [ sums[axis]['index'] for env_sums in self.summaries[self.task].values() for sums in env_sums if sums[axis]['index'] is not None ]
             min_v = min(all_ratings) # if sl_idx == 0 else self.scales[axis][4 - sl_idx][1]
             max_v = max(all_ratings) # if sl_idx == 3 else self.scales[axis][3 - sl_idx][0]
             value = [entry[0] for entry in reversed(self.scales[axis][1:])]
@@ -258,21 +247,21 @@ class Visualization(dash.Dash):
         if update_necessary:
             self.summaries, self.scales, self.scales_real = rate_results(self.summaries, self.reference_name, self.scales)
 
-    def update_type(self, type=None):
-        self.type = type or self.type
-        options = [{'label': AXIS_NAMES[env], 'value': env} for env in self.keys[self.type]]
-        xaxis = 'inference_power_draw' if self.type == 'inference' else 'train_power_draw'
-        return options, xaxis, options, 'top1_val'
+    def update_task(self, type=None):
+        self.task = type or self.task
+        avail_envs = self.environments[self.task]
+        options = [{'label': AXIS_NAMES[env], 'value': env} for env in self.keys[self.task]]
+        xaxis = 'inference_power_draw' if self.task == 'inference' else 'train_power_draw'
+        return avail_envs, [avail_envs[0]], options, xaxis, options, 'top1_val'
 
     def display_model(self, hover_data=None, env_names=None, rating_mode=None):
         if hover_data is not None:
-            env_names = [list(self.summaries.keys())[0]] if env_names is None else env_names
             rating_mode = 'mean' if rating_mode is None else rating_mode
             point = hover_data['points'][0]
             if point['curveNumber'] % 2 == 0: # otherwise hovered on bars
                 env_name = env_names[point['curveNumber'] // 2]
-                self.current['summary'] = self.summaries[env_name][self.type][point['pointNumber']]
-                self.current['logs'] = self.logs[env_name][self.type][point['pointNumber']]
+                self.current['summary'] = self.summaries[self.task][env_name][point['pointNumber']]
+                self.current['logs'] = self.logs[self.task][env_name][point['pointNumber']]
                 self.current['label'] = EnergyLabel(self.current['summary'], rating_mode)
             if self.current['summary'] is not None:
                 return summary_to_str(self.current['summary'], rating_mode), self.current['label'].to_encoded_image()
