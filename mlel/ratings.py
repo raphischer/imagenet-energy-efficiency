@@ -1,5 +1,7 @@
 import os
 import json
+from statistics import mean
+from matplotlib.pyplot import axis
 
 import numpy as np
 
@@ -73,10 +75,6 @@ TASK_METRICS_CALCULATION = {        # boolean informs whether given task log is 
         'top5_val':                 (False, lambda model_val_log: calc_accuracy(model_val_log, top5=True))
     }
 }
-METRICS_FOR_FINAL_RATING = {
-    'inference': ['parameters', 'inference_power_draw', 'inference_time', 'top1_val'],
-    'training': ['parameters', 'train_power_draw', 'train_time', 'top1_val']
-}
 
 
 def load_backend_info(backend): # TODO access from train / infer scripts, and log info during experiment
@@ -105,20 +103,32 @@ def get_environment_key(log):
     return f'{name} - {backend["Name"]} {backend_version}'
 
 
-def aggregate_rating(ratings, mode, meanings=None):
+def calculate_compound_rating(ratings, mode, meanings=None):
     if isinstance(ratings, dict): # model summary given instead of list of ratings
-        ratings = [val['rating'] for key, val in ratings.items() if key in METRICS_FOR_FINAL_RATING[ratings['task_type'].lower()]]
+        weights = [val['weight'] for val in ratings.values() if isinstance(val, dict) and 'rating' in val if val['weight'] > 0]
+        weights = [w / sum(weights) for w in weights]
+        ratings = [val['rating'] for val in ratings.values() if isinstance(val, dict) and 'rating' in val if val['weight'] > 0]
+    else:
+        weights = [1.0 / len(ratings) for _ in ratings]
     if meanings is None:
-        meanings = np.arange(np.max(ratings) + 1)
+        meanings = np.arange(np.max(ratings) + 1, dtype=int)
     round_m = np.ceil if 'pessimistic' in mode else np.floor # optimistic
     if mode == 'best':
-        return meanings[min(ratings)]
+        return meanings[min(ratings)] # TODO no weighting here
     if mode == 'worst':
-        return meanings[max(ratings)]
+        return meanings[max(ratings)] # TODO no weighting here
     if 'median' in mode:
-        return meanings[int(round_m(np.median(ratings)))]
+        asort = np.argsort(ratings)
+        weights = np.array(weights)[asort]
+        ratings = np.array(ratings)[asort]
+        cumw = np.cumsum(weights)
+        for i, (cw, r) in enumerate(zip(cumw, ratings)):
+            if cw == 0.5:
+                return meanings[int(round_m(np.average([r, ratings[i + 1]])))]
+            if cw > 0.5 or (cw < 0.5 and cumw[i + 1] > 0.5):
+                return meanings[r]
     if 'mean' in mode:
-        return meanings[int(round_m(np.mean(ratings)))]
+        return meanings[int(round_m(np.average(ratings, weights=weights)))]
     if mode == 'majority':
         return meanings[np.argmax(np.bincount(ratings))]
     raise NotImplementedError('Rating Mode not implemented!', mode)
@@ -136,7 +146,7 @@ def index_to_value(index, ref, metric_key):
     return index * ref  if metric_key in HIGHER_BETTER else ref / index
 
 
-def calculate_rating(index, scale):
+def index_to_rating(index, scale):
     for i, (upper, lower) in enumerate(scale):
         if index <= upper and index > lower:
             return i
@@ -210,34 +220,46 @@ def characterize_monitoring(summary):
     return sources
 
 
-def load_scale(content="mlel/scales.json"):
+def calculate_optimal_boundaries(summaries, quantiles):
+    boundaries = {}
+    for task, sum_task in summaries.items():
+        for metric in TASK_METRICS_CALCULATION[task].keys():
+            index_values = [ env_sum[metric]['index'] for env_sums in sum_task.values() for env_sum in env_sums if env_sum[metric]['index'] is not None ]
+            try:
+                boundaries[metric] = np.quantile(index_values, quantiles)
+            except Exception as e:
+                print(e)
+    return load_boundaries(boundaries)
+
+
+def load_boundaries(content="mlel/boundaries.json"):
     if isinstance(content, dict):
-        scales_json = content
+        boundary_json = content
     elif isinstance(content, str):
         with open(content, "r") as file:
-            scales_json = json.load(file)
+            boundary_json = json.load(file)
 
     # Convert boundaries to dictionary
-    max_value = 100
+    max_value = 10000
     min_value = 0
 
-    scale_intervals = {}
+    boundary_intervals = {}
 
-    for key, boundaries in scales_json.items():
+    for key, boundaries in boundary_json.items():
         intervals = [[max_value, boundaries[0]]]
         for i in range(len(boundaries)-1):
             intervals.append([boundaries[i], boundaries[i+1]])
         intervals.append([boundaries[-1], min_value])
         
-        scale_intervals[key] = intervals
+        boundary_intervals[key] = intervals
 
-    return scale_intervals
+    return boundary_intervals
 
 
-def save_scale(scale_intervals, output="scales.json"):
+def save_boundaries(boundary_intervals, output="boundaries.json"):
     scale = {}
-    for key in scale_intervals.keys():
-        scale[key] = [sc[0] for sc in scale_intervals[key][1:]]
+    for key in boundary_intervals.keys():
+        scale[key] = [sc[0] for sc in boundary_intervals[key][1:]]
 
     if output is not None:
         with open(output, 'w') as out:
@@ -246,7 +268,39 @@ def save_scale(scale_intervals, output="scales.json"):
     return json.dumps(scale, indent=4)
 
 
-def load_results(results_directory):
+def save_weights(summaries, output="weights.json"):
+    weights = {}
+    for task_summaries in summaries.values():
+        any_summary = list(task_summaries.values())[0][0]
+        for key, vals in any_summary.items():
+            if isinstance(vals, dict) and 'weight' in vals:
+                weights[key] = vals['weight']
+    if output is not None:
+        with open(output, 'w') as out:
+            json.dump(weights, out, indent=4)
+    
+    return json.dumps(weights, indent=4)
+
+
+def update_weights(summaries, weights, axis=None):
+    for task_summaries in summaries.values():
+        for env_summaries in task_summaries.values():
+            for model_sum in env_summaries:
+                if isinstance(weights, dict):
+                    for key, values in model_sum.items():
+                        if key in weights:
+                            values['weight'] = weights[key]
+                else: # only update a single metric weight
+                    if axis in model_sum:
+                        model_sum[axis]['weight'] = weights
+    return summaries
+
+
+def load_results(results_directory, weighting=None):
+    if weighting is None:
+        with open(os.path.join(os.path.dirname(__file__), 'weighting.json'), 'r') as wf:
+            weighting = json.load(wf)
+
     logs = {task: {} for task in TASK_TYPES.values()}
     for fname in os.listdir(results_directory):
         with open(os.path.join(results_directory, fname), 'r') as rf:
@@ -283,6 +337,7 @@ def load_results(results_directory):
                             model_information[metrics_key] = {'value': metrics_calculation(model_log)}
                     except Exception:
                         model_information[metrics_key] = {'value': None}
+                    model_information[metrics_key]['weight'] = weighting[metrics_key]
                 summaries[task][env_key].append(model_information)
 
     # Transform logs dict for one environment to list of logs
@@ -293,9 +348,9 @@ def load_results(results_directory):
     return logs, summaries
 
 
-def rate_results(summaries, reference_name, scales=None):
-    if scales is None:
-        scales = load_scale()
+def rate_results(summaries, reference_name, boundaries=None):
+    if boundaries is None:
+        boundaries = load_boundaries()
 
     # Get reference values for each environment and task
     reference_values = {}
@@ -311,7 +366,7 @@ def rate_results(summaries, reference_name, scales=None):
                             reference_values[task][env_key][metrics_key] = metrics_val['value']
                     break
 
-    # Calculate value indices using reference values and scales
+    # Calculate value indices using reference values and boundaries
     for task, task_summs in summaries.items():
         for env_key, env_summs in task_summs.items():
             for model in env_summs:
@@ -322,14 +377,14 @@ def rate_results(summaries, reference_name, scales=None):
                             model[key]['rating'] = 4
                         else:
                             model[key]['index'] = value_to_index(model[key]['value'], reference_values[task][env_key][key], key)
-                            model[key]['rating'] = calculate_rating(model[key]['index'], scales[key])
+                            model[key]['rating'] = index_to_rating(model[key]['index'], boundaries[key])
 
-    # Calculate the real-valued scales
-    real_scales = {}
+    # Calculate the real-valued boundaries
+    real_boundaries = {}
     for task, task_ref_values in reference_values.items():
-        real_scales[task] = {env_key: {} for env_key in task_ref_values.keys()}
+        real_boundaries[task] = {env_key: {} for env_key in task_ref_values.keys()}
         for env_key, env_ref_values in task_ref_values.items():
             for key, val in env_ref_values.items():
-                real_scales[task][env_key] = [(index_to_value(start, val, key), index_to_value(stop, val, key)) for (start, stop) in scales[key]]
+                real_boundaries[task][env_key] = [(index_to_value(start, val, key), index_to_value(stop, val, key)) for (start, stop) in boundaries[key]]
     
-    return summaries, scales, real_scales
+    return summaries, boundaries, real_boundaries

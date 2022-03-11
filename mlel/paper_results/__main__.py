@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import numpy as np
 
-from mlel.ratings import load_results, rate_results, aggregate_rating
+from mlel.ratings import load_results, rate_results, calculate_compound_rating
 from mlel.label_generator import EnergyLabel
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -101,7 +101,7 @@ for ai, rating_mode in enumerate([RATING_MODE, 'pessimistic mean']):
     env_labels = sorted(list(SUMMARIES['inference'].keys()))
     for e_i, env in enumerate(env_labels):
         for sum in SUMMARIES['inference'][env]:
-            rating = aggregate_rating(sum, rating_mode)
+            rating = calculate_compound_rating(sum, rating_mode)
             ys[rating, e_i] += 1
     nr_ticks, bars_per_tick = ys.shape
     x_positions = np.arange(nr_ticks)
@@ -133,7 +133,7 @@ def scatter_models(xmetric, ymetric, xlabel, ylabel, fname, scales=SCALES, ind_o
                 x1 = min(50, x1)
                 y0 = min(50, y0)
                 y1 = min(50, y1)
-                color = aggregate_rating([xi, yi], RATING_MODE, COLORS)
+                color = calculate_compound_rating([xi, yi], RATING_MODE, COLORS)
                 ax.add_patch(Rectangle((x1, y1), x0-x1, y0-y1, color=color, alpha=.6, zorder=-1))
     xmin, xmax, ymin, ymax = 1e12, 0, 1e12, 0
     plt.axhline(y=1, color='w', linestyle='--')
@@ -144,7 +144,7 @@ def scatter_models(xmetric, ymetric, xlabel, ylabel, fname, scales=SCALES, ind_o
             x.append(model_sum[xmetric][ind_or_val])
             y.append(model_sum[ymetric][ind_or_val])
             n.append(model_sum['name'])
-            r.append(aggregate_rating(model_sum, RATING_MODE, COLORS))
+            r.append(calculate_compound_rating(model_sum, RATING_MODE, COLORS))
         xmin = min(xmin, min(x))
         xmax = max(xmax, max(x))
         ymin = min(ymin, min(y))

@@ -1,0 +1,13 @@
+{
+    "parameters": 0.5,
+    "gflops": 0.2,
+    "fsize": 0.5,
+    "inference_power_draw": 1,
+    "inference_time": 1,
+    "top1_val": 0.5,
+    "top5_val": 0.5,
+    "train_power_draw_epoch": 0.1,
+    "train_power_draw": 0.9,
+    "train_time_epoch": 0.9,
+    "train_time": 0.1
+}

@@ -6,7 +6,7 @@ from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.colors import black
 import fitz # PyMuPDF
 
-from mlel.ratings import aggregate_rating, load_results, rate_results
+from mlel.ratings import calculate_compound_rating, load_results, rate_results
 
 
 C_SIZE = (1560, 2411)
@@ -82,7 +82,7 @@ class EnergyLabel(fitz.Document):
 
     def __init__(self, summary, rating_mode):
         canvas = Canvas("result.pdf", pagesize=C_SIZE)
-        frate = aggregate_rating(summary, rating_mode, 'ABCDE')
+        frate = calculate_compound_rating(summary, rating_mode, 'ABCDE')
         # Background
         canvas.drawInlineImage(os.path.join(PARTS_DIR, f"bg.png"), 0, 0)
         # Rated Pictograms
