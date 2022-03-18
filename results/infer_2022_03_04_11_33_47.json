@@ -153,7 +153,7 @@
         "monitoring_pyrapl": null,
         "monitoring_psutil": null,
         "results": null,
-        "duration": 251440.301483
+        "duration": 1201054.019262
     },
     "validation": {
         "monitoring_pynvml": {
