@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import numpy as np
 
-from mlel.ratings import load_results, rate_results, calculate_compound_rating
+from mlel.ratings import load_results, rate_results, calculate_compound_rating, load_backend_info
 from mlel.label_generator import EnergyLabel
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-_, summaries = load_results('results')
+LOGS, summaries = load_results('results')
 SUMMARIES, SCALES, SCALES_REAL = rate_results(summaries, 'ResNet101')
 RATING_MODE = 'optimistic median'
 RATINGS = ['A', 'B', 'C', 'D', 'E']
@@ -71,6 +71,73 @@ res = res.replace('%', '\%')
 res = res.replace('#', '\#')
 with open('indexing-results.tex', 'w') as outf:
     outf.write(res)
+
+
+#####################################
+##### TABLE WITH HARDWARE ENVS ######
+#####################################    
+TEX_TABLE_HARDWARE_ENVS = r'''\resizebox{\linewidth}{!}{
+    \begin{tabular}{l||c|c|c|c|c|c}
+        \toprule 
+        \multirow{2}{*}{Environment Name} & \multirow{2}{*}{CPU Model} & \multirow{2}{*}{GPU Model} & \multirow{2}{*}{Libraries} & \multirow{2}{*}{Versions} & \multicolumn{2}{c}{\# Experiments} \\
+        & & & & & Inference & Training \\
+        \midrule
+        $ENVS
+        \endrule
+        
+    \end{tabular}
+}'''
+
+ENV_ROW = r'''\multirow{$X}{*}{$NAME} & \multirow{$X}{*}{$CPU} & \multirow{$X}{*}{$GPU} & $LIBS \\'''
+important_libs = ['torch', 'torchvision', 'tensorflow', 'larq', 'onnxruntime', 'onnx']
+ENV_NAMES = {
+    'A100 x8 - PyTorch 1.10.2+cu113': 'A100 x8 PyTorch',
+    'A100 x8 - TensorFlow 2.8.0': 'A100 x8 TensorFlow',
+    'RTX 5000 - PyTorch 1.10.2+cu113': 'RTX 5000 PyTorch',
+    'RTX 5000 - TensorFlow 2.4.1': 'RTX 5000 TensorFlow',
+    'Xeon(R) W-2155 - PyTorch 1.10.2+cu113': 'Xeon W-2155 PyTorch',
+    'Xeon(R) W-2155 - TensorFlow 2.4.1': 'Xeon W-2155 PyTorch',
+    'Xeon(R) W-2155 - ONNX PT Export 1.10.0': 'Xeon W-2155 ONNX PT',
+    'Xeon(R) W-2155 - ONNX TF Export 1.10.0': 'Xeon W-2155 ONNX TF',
+}
+envs = []
+for summary_name, env_name in ENV_NAMES.items():
+    no_infer = str(len(LOGS['inference'][summary_name]))
+    if summary_name in LOGS['training']:
+        no_train = str(len(LOGS['training'][summary_name]))
+    else:
+        no_train = '0'
+    vals = LOGS['inference'][summary_name][0]
+    exec_ = vals['execution_platform']
+    req_ = vals['requirements']
+    row = ENV_ROW.replace('$NAME', env_name)
+    row = row.replace('$CPU', ' '.join(exec_['Processor'].split()[:3]).replace('(R)', ''))
+    if len(exec_['GPU']) > 0:
+        gpu_name = exec_['GPU']['0']['Name'].replace('-40GB', '')
+        if len(exec_['GPU']) > 1:
+            row = row.replace('$GPU', str(len(exec_['GPU'])) + r' $\times$ $GPU')
+        row = row.replace('$GPU', gpu_name)
+    else:
+        row = row.replace('$GPU', 'n.a.')
+    backend = load_backend_info(vals['config']['backend'])
+    libs = []
+    for package in backend["Packages"]:
+        if package in important_libs:
+            for req in vals['requirements']:
+                if req.split('==')[0].replace('-', '_') == package.replace('-', '_'):
+                    lib_str = package + ' & ' + req.split('==')[1]
+                    if len(libs) == 0:
+                        lib_str += r' & \multirow{$X}{*}{$I} & \multirow{$X}{*}{$T}'.replace('$I', no_infer).replace('$T', no_train)
+                    else:
+                        lib_str += '& & '
+                    libs.append(lib_str)
+                    break
+    row = row.replace('$LIBS', r''' \\ & & & '''.join(libs))
+    row = row.replace('$X', str(len(libs)))
+    envs.append(row)
+table = TEX_TABLE_HARDWARE_ENVS.replace('$ENVS', '\n        \midrule\n        '.join(envs))
+with open('exec-envs.tex', 'w') as outf:
+    outf.write(table)
 
 
 ##########################################

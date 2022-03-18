@@ -88,7 +88,7 @@ def get_environment_key(log):
     backend_version = 'n.a.'
     for package in backend["Packages"]:
         for req in log['requirements']:
-            if req.split('==')[0] == package:
+            if req.split('==')[0].replace('-', '_') == package.replace('-', '_'):
                 backend_version = req.split('==')[1]
                 break
         else:
@@ -136,7 +136,10 @@ def calculate_compound_rating(ratings, mode, meanings=None):
 
 def value_to_index(value, ref, metric_key):
     #      i = v / r                     OR                i = r / v
-    return value / ref if metric_key in HIGHER_BETTER else ref / value
+    try:
+        return value / ref if metric_key in HIGHER_BETTER else ref / value
+    except:
+        return 0
 
 
 def index_to_value(index, ref, metric_key):
