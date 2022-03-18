@@ -254,7 +254,7 @@ class Visualization(dash.Dash):
             self.boundaries = load_boundaries(boundaries_dict)
             self.summaries, self.boundaries, self.boundaries_real = rate_results(self.summaries, self.reference_name, self.boundaries)
         if calculated_boundaries is not None and 'calc' in dash.callback_context.triggered[0]['prop_id']:
-            self.boundaries = calculate_optimal_boundaries(self.summaries, [0.9, 0.75, 0.6, 0.4])
+            self.boundaries = calculate_optimal_boundaries(self.summaries, [0.8, 0.6, 0.4, 0.2])
             self.summaries, self.boundaries, self.boundaries_real = rate_results(self.summaries, self.reference_name, self.boundaries)
         self.xaxis = xaxis or self.xaxis
         self.yaxis = yaxis or self.yaxis
