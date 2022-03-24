@@ -36,15 +36,13 @@ POS_TEXT = {
     "$Inference Ws":                            ('drawString',        56, '',      .27,  .28,  None),
     "$Inference ms":                            ('drawString',        56, '',      .77,  .25,  None),
     "$Inference [%]":                           ('drawString',        56, '',      .34,  .05,  None),
-    # "$Inference bla":                  ('drawString',        56, '',      .7,   .05,  None),
     "$Training Power Draw Total / per Epoch":   ('drawCentredString', 56, '',      .25,  .25,  None),
     "$Training Runtime Total / per Epoch":      ('drawCentredString', 56, '',      .75,  .22,  None),
     "$Training Top-1 / Top-5 Accuracy":         ('drawCentredString', 56, '',      .25,  .02,  None),
-    "$Training Model Size":                     ('drawCentredString', 56, '',      .75,  .02,  None),
     "$Training kWh":                            ('drawString',        56, '',      .31,  .28,  None),
     "$Training h":                              ('drawString',        56, '',      .81,  .25,  None),
     "$Training [%]":                            ('drawString',        56, '',      .34,  .05,  None),
-    "$Training M Parameters":                   ('drawString',        56, '',      .7,   .05,  None),
+    "$Training Parameters / Flops":             ('drawCentredString', 56, '',      .75,  .02,  None),
 }
 POS_RATINGS = { char: (.66, y) for char, y in zip('ABCDE', reversed(np.linspace(.461, .727, 5))) }
 ICON_NAME_TO_METRIC = {
