@@ -1,0 +1,454 @@
+{
+    "directory_name": "train_2022_03_22_05_32_11",
+    "config": {
+        "backend": "pytorch",
+        "model": "ResNet101",
+        "data_path": "/home/fischer/mnt_imagenet/imagenet_pytorch/",
+        "n_batches": -1,
+        "batch_size": 32,
+        "output_dir": "/home/fischer/mnt_enerob_results/ws020_train10_pth/",
+        "gpu_monitor_interval": 1,
+        "cpu_monitor_interval": 1,
+        "seed": 1583007466,
+        "epochs": 10,
+        "early_patience": 50,
+        "early_delta": 0.01,
+        "opt": "sgd",
+        "opt_decy": 0.9,
+        "lr": 0.1,
+        "momentum": 0.9,
+        "weight_decay": 0.0001,
+        "lr_scheduler": "steplr",
+        "lr_step_size": 30,
+        "lr_gamma": 0.1,
+        "preprocessing": "builtin",
+        "auto_augment": null,
+        "random_erase": 0.0,
+        "interpolation": "bilinear",
+        "timestamp": "2022_03_22_05_32_11"
+    },
+    "execution_platform": {
+        "System": "Linux",
+        "Node Name": "ls8ws020",
+        "Release": "5.4.0-100-generic",
+        "Version": "#113-Ubuntu SMP Thu Feb 3 18:43:29 UTC 2022",
+        "Machine": "x86_64",
+        "Processor": "Intel(R) Xeon(R) W-2155 CPU @ 3.30GHz",
+        "Physical cores": 10,
+        "Total cores": 20,
+        "Max Frequency": 4500.0,
+        "Min Frequency": 1200.0,
+        "Current Frequency": 1266.9541,
+        "Total": 67102937088,
+        "Available": 65518002176,
+        "Used": 837672960,
+        "GPU": {
+            "0": {
+                "Name": "Quadro RTX 5000",
+                "Memory": 16125.0,
+                "UUID": "GPU-2f200d01-3b9f-9df9-3f90-a202229788f4"
+            }
+        }
+    },
+    "requirements": [
+        "# 3.8.12 (default, Oct 12 2021, 13:49:34)",
+        "# [GCC 7.5.0]",
+        "wrapt==1.12.1",
+        "toml==0.10.1",
+        "pylint==2.6.0",
+        "mccabe==0.6.1",
+        "lazy-object-proxy==1.4.3",
+        "isort==5.6.4",
+        "astroid==2.4.2",
+        "zookeeper==1.3.2",
+        "zipp==3.6.0",
+        "yarl==1.6.3",
+        "wheel==0.37.0",
+        "werkzeug==2.0.2",
+        "urllib3==1.26.7",
+        "typing-extensions==3.10.0.2",
+        "typeguard==2.12.1",
+        "tqdm==4.62.3",
+        "tornado==6.1",
+        "torchvision==0.11.3+cu113",
+        "torchaudio==0.10.2+cu113",
+        "torch==1.10.2+cu113",
+        "tf2onnx==1.9.3",
+        "terminaltables==3.1.10",
+        "termcolor==1.1.0",
+        "tensorflow==2.4.1",
+        "tensorflow-metadata==1.5.0",
+        "tensorflow-estimator==2.6.0",
+        "tensorflow-datasets==3.0.0",
+        "tensorboard==2.4.0",
+        "tensorboard-plugin-wit==1.6.0",
+        "tenacity==8.0.1",
+        "six==1.16.0",
+        "sip==4.19.13",
+        "setuptools==58.0.4",
+        "scipy==1.7.1",
+        "rsa==4.7.2",
+        "requests==2.26.0",
+        "requests-oauthlib==1.3.0",
+        "python-dateutil==2.8.2",
+        "pysocks==1.7.1",
+        "pyparsing==3.0.6",
+        "pyopenssl==21.0.0",
+        "pynvml==11.4.1",
+        "pyjwt==2.1.0",
+        "pycparser==2.21",
+        "pyasn1==0.4.8",
+        "pyasn1-modules==0.2.8",
+        "py-rapl==0.1",
+        "ptflops==0.6.8",
+        "psutil==5.8.0",
+        "protobuf==3.17.2",
+        "promise==2.3",
+        "plotly==5.5.0",
+        "pip==21.2.4",
+        "pillow==8.4.0",
+        "packaging==21.3",
+        "opt-einsum==3.3.0",
+        "onnxruntime==1.10.0",
+        "onnx==1.11.0",
+        "onnx-opcounter==0.0.3",
+        "olefile==0.46",
+        "oauthlib==3.1.1",
+        "numpy==1.21.2",
+        "munkres==1.1.4",
+        "multidict==5.1.0",
+        "mkl-service==2.4.0",
+        "mkl-random==1.2.2",
+        "mkl-fft==1.3.1",
+        "matplotlib==3.5.0",
+        "markupsafe==2.0.1",
+        "markdown==3.3.4",
+        "larq==0.12.2",
+        "larq-zoo==2.2.0",
+        "kiwisolver==1.3.1",
+        "keras-preprocessing==1.1.2",
+        "jinja2==3.0.3",
+        "itsdangerous==2.0.1",
+        "importlib-resources==5.4.0",
+        "importlib-metadata==4.8.2",
+        "idna==3.3",
+        "h5py==2.10.0",
+        "grpcio==1.42.0",
+        "gputil==1.4.0",
+        "googleapis-common-protos==1.54.0",
+        "google-pasta==0.2.0",
+        "google-auth==1.33.0",
+        "google-auth-oauthlib==0.4.4",
+        "gast==0.4.0",
+        "future==0.18.2",
+        "frozenlist==1.2.0",
+        "fonttools==4.25.0",
+        "flatbuffers==1.12",
+        "flask==2.0.2",
+        "flask-compress==1.10.1",
+        "dill==0.3.4",
+        "dash==2.1.0",
+        "dash-table==5.0.0",
+        "dash-html-components==2.0.0",
+        "dash-core-components==2.0.0",
+        "cycler==0.11.0",
+        "cryptography==3.4.8",
+        "click==8.0.3",
+        "charset-normalizer==2.0.4",
+        "cffi==1.14.6",
+        "certifi==2021.10.8",
+        "cachetools==4.2.2",
+        "brotlipy==0.7.0",
+        "brotli==1.0.9",
+        "blinker==1.4",
+        "attrs==21.2.0",
+        "async-timeout==4.0.1",
+        "astunparse==1.6.3",
+        "astor==0.8.1",
+        "aiosignal==1.2.0",
+        "aiohttp==3.8.1",
+        "absl-py==0.12.0"
+    ],
+    "monitoring_pynvml": {
+        "0": {
+            "start_unix": 1647927328.515175,
+            "end_unix": 1648042243.188899,
+            "start_utc": "2022-03-22 05:35:28",
+            "end_utc": "2022-03-23 13:30:43",
+            "total_duration": 114914.67372393608,
+            "nr_measurements": 114798,
+            "temperature": {
+                "min": 38,
+                "max": 79,
+                "mean": 77.27048380633809,
+                "std": 2.1605981066713578
+            },
+            "util.gpu": {
+                "min": 0,
+                "max": 100,
+                "mean": 97.23517831321104,
+                "std": 12.600346420131267
+            },
+            "util.memory": {
+                "min": 0,
+                "max": 90,
+                "mean": 71.44475513510689,
+                "std": 9.780582544951617
+            },
+            "power_usage": {
+                "min": 41.913,
+                "max": 242.003,
+                "mean": 211.76666730256625,
+                "std": 25.095115344872976
+            },
+            "memory.used": {
+                "min": 1712717824,
+                "max": 6408241152,
+                "mean": 6408044567.977003,
+                "std": 28994372.964639753
+            },
+            "memory.free": {
+                "min": 10500374528,
+                "max": 15195897856,
+                "mean": 10500571112.022997,
+                "std": 28994372.964639753
+            },
+            "total_power_draw": 24335097.478679724
+        },
+        "total": {
+            "start_unix": 1647927328.515175,
+            "end_unix": 1648042243.188899,
+            "nr_measurements": 114798,
+            "total_power_draw": 24335097.478679724,
+            "start_utc": "2022-03-22 05:35:28",
+            "end_utc": "2022-03-23 13:30:43",
+            "total_duration": 114914.67372393608
+        }
+    },
+    "monitoring_pyrapl": {
+        "0": {
+            "start_unix": 1647927328.573953,
+            "end_unix": 1648042245.574053,
+            "start_utc": "2022-03-22 05:35:28",
+            "end_utc": "2022-03-23 13:30:45",
+            "total_duration": 114917.0001001358,
+            "nr_measurements": 114800,
+            "duration": {
+                "min": 0.00118,
+                "max": 1.003594,
+                "mean": 1.0010191702090592,
+                "std": 0.002967799064054085
+            },
+            "package-0": {
+                "min": 0.0,
+                "max": 137.80648619592674,
+                "mean": 44.58849199189021,
+                "std": 2.562092249770625
+            },
+            "package-0.dram": {
+                "min": 0.0,
+                "max": 8.335915632248668,
+                "mean": 6.240683523476192,
+                "std": 0.21392480263687175
+            },
+            "total_power_draw": 5124016.008455073
+        },
+        "total": {
+            "start_unix": 1647927328.573953,
+            "end_unix": 1648042245.574053,
+            "nr_measurements": 114800,
+            "total_power_draw": 5124016.008455073,
+            "start_utc": "2022-03-22 05:35:28",
+            "end_utc": "2022-03-23 13:30:45",
+            "total_duration": 114917.0001001358
+        }
+    },
+    "monitoring_psutil": {
+        "139084": {
+            "start_unix": 1647927328.700763,
+            "end_unix": 1648042244.787498,
+            "start_utc": "2022-03-22 05:35:28",
+            "end_utc": "2022-03-23 13:30:44",
+            "total_duration": 114916.08673501015,
+            "nr_measurements": 114807,
+            "cpu_num": {
+                "min": 0,
+                "max": 19,
+                "mean": 9.01560009407092,
+                "std": 5.122245497934053
+            },
+            "cpu_percent": {
+                "min": 0.0,
+                "max": 134.9,
+                "mean": 99.70049387232486,
+                "std": 10.837556189497953
+            },
+            "mem_rss": {
+                "min": 4429987840,
+                "max": 5157859328,
+                "mean": 4894101825.416499,
+                "std": 98674138.6574756
+            },
+            "mem_vms": {
+                "min": 13925285888,
+                "max": 23300014080,
+                "mean": 22722903835.772522,
+                "std": 52188763.459796555
+            },
+            "mem_shared": {
+                "min": 815529984,
+                "max": 1477246976,
+                "mean": 1213697867.9368331,
+                "std": 98464839.06085064
+            },
+            "mem_text": {
+                "min": 2449408,
+                "max": 2449408,
+                "mean": 2449408.0,
+                "std": 0.0
+            },
+            "mem_lib": {
+                "min": 0,
+                "max": 0,
+                "mean": 0.0,
+                "std": 0.0
+            },
+            "mem_data": {
+                "min": 3840278528,
+                "max": 4059107328,
+                "mean": 4057960854.2213626,
+                "std": 7106011.56012109
+            },
+            "mem_uss": {
+                "min": 735690752,
+                "max": 1462710272,
+                "mean": 1201845957.2373114,
+                "std": 97758887.59980787
+            },
+            "mem_pss": {
+                "min": 974711808,
+                "max": 2197044224,
+                "mean": 1414224688.7418363,
+                "std": 98232174.49842837
+            },
+            "total_power_draw": -1
+        },
+        "total": {
+            "start_unix": 1647927328.700763,
+            "end_unix": 1648042244.787498,
+            "nr_measurements": 114807,
+            "total_power_draw": -1,
+            "start_utc": "2022-03-22 05:35:28",
+            "end_utc": "2022-03-23 13:30:44",
+            "total_duration": 114916.08673501015
+        }
+    },
+    "results": {
+        "start": 1647923728.5582201,
+        "end": 1648038643.9504123,
+        "history": {
+            "timestamp": [
+                1647923728558.2856,
+                1647935300164.1257,
+                1647946867811.484,
+                1647958365525.8298,
+                1647969846064.027,
+                1647981316178.2944,
+                1647992794666.701,
+                1648004264414.8118,
+                1648015726221.096,
+                1648027183390.3342
+            ],
+            "loss": [
+                5.615384298171753,
+                4.258827683105968,
+                3.9415332229002358,
+                3.8176622111274,
+                3.7500214692667084,
+                3.7065755123203123,
+                3.6653560680673247,
+                3.649143947023578,
+                3.6359983985479305,
+                3.6288404281721305
+            ],
+            "accuracy": [
+                0.059387176541113,
+                0.17773769232690578,
+                0.21949620341692477,
+                0.23739181611549603,
+                0.24645631431711462,
+                0.25295359176740934,
+                0.2584689404535918,
+                0.2617893895494055,
+                0.2637470026975722,
+                0.2649482653112199
+            ],
+            "top_5_accuracy": [
+                0.1574114546907783,
+                0.3844875549505445,
+                0.4461344165251274,
+                0.4705234039364572,
+                0.483083193875512,
+                0.49194396917774,
+                0.4993170209311619,
+                0.5033290351183934,
+                0.5054630520031972,
+                0.5068555487561195
+            ],
+            "val_loss": [
+                4.603555012604033,
+                4.026933618758003,
+                3.9289319457226313,
+                3.629345140444942,
+                3.511507744978393,
+                3.6235786076544496,
+                3.4203660796454867,
+                3.4664483259643086,
+                3.550747801796575,
+                3.3907497274127723
+            ],
+            "val_accuracy": [
+                0.13546334827144688,
+                0.2048255441741357,
+                0.21450864276568501,
+                0.26084346991037133,
+                0.27662852112676056,
+                0.2579625480153649,
+                0.2802296734955185,
+                0.28207026248399486,
+                0.26992637644046097,
+                0.2910331306017926
+            ],
+            "val_top_5_accuracy": [
+                0.32120278489116516,
+                0.42925736235595385,
+                0.4503641165172856,
+                0.5117437580025608,
+                0.5377320742637643,
+                0.5096630921895007,
+                0.5434539052496798,
+                0.5386523687580026,
+                0.5248879641485275,
+                0.5550576184379001
+            ],
+            "lr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "model": {
+            "params": 44549160,
+            "fsize": 178829213,
+            "flops": 7849500136.0
+        }
+    },
+    "duration": 114915.39219212532
+}
