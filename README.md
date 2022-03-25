@@ -1,7 +1,5 @@
 ## Requirements
 
-just a test
-
 #### General
 numpy
 
