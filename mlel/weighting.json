@@ -1,13 +1,13 @@
 {
-    "parameters": 0.5,
-    "fsize": 0.5,
+    "parameters": 0.4,
+    "fsize": 0.4,
     "gflops": 0.2,
-    "inference_power_draw": 1,
-    "inference_time": 1,
-    "top1_val": 0.7,
-    "top5_val": 0.3,
+    "inference_power_draw": 0.7,
+    "inference_time": 0.3,
+    "top1_val": 0.8,
+    "top5_val": 0.2,
     "train_power_draw_epoch": 0.2,
-    "train_power_draw": 1,
+    "train_power_draw": 0.7,
     "train_time_epoch": 0.2,
-    "train_time": 1
+    "train_time": 0.3
 }

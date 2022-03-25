@@ -29,8 +29,8 @@ POS_TEXT = {
     # infos that are extracted via methods
     'format_power_draw_sources':                ('drawCentredString', 56, '',      .25,  .22,  None),
     # static infos, depending on $task
-    "$Inference Power Draw per Sample":         ('drawCentredString', 56, '',      .25,  .25,  None),
-    "$Inference Runtime per Sample":            ('drawCentredString', 56, '',      .75,  .22,  None),
+    "$Inference Power Draw per Batch":          ('drawCentredString', 56, '',      .25,  .25,  None),
+    "$Inference Runtime per Batch":             ('drawCentredString', 56, '',      .75,  .22,  None),
     "$Inference Top-1 / Top-5 Accuracy":        ('drawCentredString', 56, '',      .25,  .02,  None),
     "$Inference Parameters / Flops":            ('drawCentredString', 56, '',      .75,  .02,  None),
     "$Inference Ws":                            ('drawString',        56, '',      .27,  .28,  None),
