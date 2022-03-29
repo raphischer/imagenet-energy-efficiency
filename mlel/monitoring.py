@@ -28,6 +28,8 @@ def aggregate_log(fpath):
         log = json.load(fc)
         device_fields = [key for key in list(log.values())[0].keys() if key not in ['timestamp']]
         for gpu_id, meas in log.items():
+            if 'duration' not in meas:
+                meas['duration'] = [(ts - meas['timestamp'][i-1]) / 1000 if i > 0 else 0 for i, ts in enumerate(meas['timestamp'])]
             results[gpu_id]['start_unix'] = min(meas['timestamp']) / 1000
             results[gpu_id]['end_unix'] = max(meas['timestamp']) / 1000
             results[gpu_id]['start_utc'] = datetime.utcfromtimestamp(results[gpu_id]['start_unix']).strftime('%Y-%m-%d %H:%M:%S')
@@ -36,10 +38,10 @@ def aggregate_log(fpath):
             results[gpu_id]['nr_measurements'] = len(meas['timestamp'])
             for field in device_fields:
                 results[gpu_id][field] = {m.__name__: m(meas[field]) for m in [min, max, np.mean, np.std]}
-            if 'power_usage' in results[gpu_id]:
-                results[gpu_id]['total_power_draw'] = results[gpu_id]['total_duration'] * results[gpu_id]['power_usage']['mean']
-            elif 'package-0' in results[gpu_id]:
-                results[gpu_id]['total_power_draw'] = sum([d * p for d, p in zip(log[gpu_id]['duration'], log[gpu_id]['package-0'])])
+            for power_key in ['power_usage', 'package-0']:
+                if power_key in results[gpu_id]:
+                    results[gpu_id]['total_power_draw'] = sum([d * p for d, p in zip(log[gpu_id]['duration'], log[gpu_id][power_key])])
+                    break
             else:
                 results[gpu_id]['total_power_draw'] = -1
     # aggregate over all devices
@@ -256,6 +258,6 @@ if __name__ == "__main__":
     parser.add_argument("--directory", default="/home/fischer/mnt_imagenet/models/train_2021_12_10_15_56", type=str, help="directory with logs")
     args = parser.parse_args()
 
-    print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_cpu.json')), indent=4))
-    print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_gpu.json')), indent=4))
-    print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_rapl.json')), indent=4))
+    print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_psutil.json')), indent=4))
+    print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_pynvml.json')), indent=4))
+    print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_pyrapl.json')), indent=4))
