@@ -153,6 +153,7 @@ def index_to_rating(index, scale):
     for i, (upper, lower) in enumerate(scale):
         if index <= upper and index > lower:
             return i
+    return 4 # worst rating if index does not fall in boundaries
 
 
 def calc_accuracy(res, train=False, top5=False):
