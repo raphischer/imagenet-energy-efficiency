@@ -161,7 +161,7 @@
         "monitoring_pyrapl": null,
         "monitoring_psutil": null,
         "results": null,
-        "duration": 1247531.267667
+        "duration": 2206528.542548
     },
     "validation": {
         "monitoring_pynvml": {
@@ -208,13 +208,13 @@
                     "mean": 638163622.6627566,
                     "std": 132784502.18867287
                 },
-                "total_power_draw": 10064.573882374663
+                "total_power_draw": 10082.787238275383
             },
             "total": {
                 "start_unix": 1646348852.630399,
                 "end_unix": 1646348920.730599,
                 "nr_measurements": 341,
-                "total_power_draw": 10064.573882374663,
+                "total_power_draw": 10082.787238275383,
                 "start_utc": "2022-03-03 23:07:32",
                 "end_utc": "2022-03-03 23:08:40",
                 "total_duration": 68.10019993782043

@@ -213,13 +213,13 @@
                 "mean": 587254161.6719707,
                 "std": 6509265.784455855
             },
-            "total_power_draw": 7806683.7288317075
+            "total_power_draw": 7806744.148771115
         },
         "total": {
             "start_unix": 1647466866.685198,
             "end_unix": 1647522102.902021,
             "nr_measurements": 55178,
-            "total_power_draw": 7806683.7288317075,
+            "total_power_draw": 7806744.148771115,
             "start_utc": "2022-03-16 21:41:06",
             "end_utc": "2022-03-17 13:01:42",
             "total_duration": 55236.216822862625
