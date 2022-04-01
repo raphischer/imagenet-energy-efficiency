@@ -16,38 +16,38 @@ HARDWARE_NAMES = {
     'Intel(R) Xeon(R) W-2155 CPU @ 3.30GHz': 'Xeon(R) W-2155',
     'AMD EPYC 7742 64-Core Processor': 'EPYC 7742'
 }
-FULL_TRAIN_EPOCHS = {
-    'ResNet50':             90, # https://github.com/pytorch/vision/tree/main/references/classification
-    'ResNet101':            90, # https://github.com/pytorch/vision/tree/main/references/classification
-    'ResNet152':            90, # https://github.com/pytorch/vision/tree/main/references/classification
-    'VGG16':                90, # https://github.com/pytorch/vision/tree/main/references/classification
-    'VGG19':                90, # https://github.com/pytorch/vision/tree/main/references/classification
-    'EfficientNetB0':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
-    'EfficientNetB1':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
-    'EfficientNetB2':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
-    'EfficientNetB3':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
-    'EfficientNetB4':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
-    'EfficientNetB5':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
-    'EfficientNetB6':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
-    'EfficientNetB7':       None, # no information found https://arxiv.org/pdf/1905.11946.pdf
-    'RegNetX400MF':         100, # https://github.com/pytorch/vision/tree/main/references/classification
-    'RegNetX32GF':          100, # https://github.com/pytorch/vision/tree/main/references/classification
-    'RegNetX8GF':           100, # https://github.com/pytorch/vision/tree/main/references/classification
-    'ResNext50':            100, # https://github.com/pytorch/vision/tree/main/references/classification
-    'ResNext101':           100, # https://github.com/pytorch/vision/tree/main/references/classification
-    'DenseNet121':          90, # Densely Connected Convolutional Networks https://arxiv.org/pdf/1608.06993.pdf
-    'DenseNet169':          90, # Densely Connected Convolutional Networks https://arxiv.org/pdf/1608.06993.pdf
-    'DenseNet201':          90, # Densely Connected Convolutional Networks https://arxiv.org/pdf/1608.06993.pdf
-    'Xception':             None, # no information found
-    'InceptionResNetV2':    200, # Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning https://arxiv.org/pdf/1602.07261.pdf
-    'InceptionV3':          100, # Rethinking the Inception Architecture for Computer Vision https://arxiv.org/pdf/1512.00567.pdf
-    'NASNetMobile':         100, # Learning Transferable Architectures for Scalable Image Recognition https://arxiv.org/pdf/1707.07012.pdf
-    'MobileNetV2':          300, # https://github.com/pytorch/vision/tree/main/references/classification
-    'MobileNetV3Small':     600, # https://github.com/pytorch/vision/tree/main/references/classification
-    'MobileNetV3Large':     600, # https://github.com/pytorch/vision/tree/main/references/classification
-    'QuickNetSmall':        600, # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
-    'QuickNet':             600, # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
-    'QuickNetLarge':        600 # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
+MODEL_INFO = {
+    'ResNet50':          {'epochs': 90, 'url': 'https://arxiv.org/abs/1512.03385'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'ResNet101':         {'epochs': 90, 'url': 'https://arxiv.org/abs/1512.03385'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'ResNet152':         {'epochs': 90, 'url': 'https://arxiv.org/abs/1512.03385'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'VGG16':             {'epochs': 90, 'url': 'https://arxiv.org/abs/1409.1556'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'VGG19':             {'epochs': 90, 'url': 'https://arxiv.org/abs/1409.1556'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'EfficientNetB0':    {'epochs': None, 'url': 'https://arxiv.org/pdf/1905.11946.pdf'}, # no information on epochs
+    'EfficientNetB1':    {'epochs': None, 'url': 'https://arxiv.org/pdf/1905.11946.pdf'}, # no information on epochs
+    'EfficientNetB2':    {'epochs': None, 'url': 'https://arxiv.org/pdf/1905.11946.pdf'}, # no information on epochs
+    'EfficientNetB3':    {'epochs': None, 'url': 'https://arxiv.org/pdf/1905.11946.pdf'}, # no information on epochs
+    'EfficientNetB4':    {'epochs': None, 'url': 'https://arxiv.org/pdf/1905.11946.pdf'}, # no information on epochs
+    'EfficientNetB5':    {'epochs': None, 'url': 'https://arxiv.org/pdf/1905.11946.pdf'}, # no information on epochs
+    'EfficientNetB6':    {'epochs': None, 'url': 'https://arxiv.org/pdf/1905.11946.pdf'}, # no information on epochs
+    'EfficientNetB7':    {'epochs': None, 'url': 'https://arxiv.org/pdf/1905.11946.pdf'}, # no information on epochs
+    'RegNetX400MF':      {'epochs': 100, 'url': 'https://arxiv.org/abs/2003.13678'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'RegNetX32GF':       {'epochs': 100, 'url': 'https://arxiv.org/abs/2003.13678'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'RegNetX8GF':        {'epochs': 100, 'url': 'https://arxiv.org/abs/2003.13678'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'ResNext50':         {'epochs': 100, 'url': 'https://arxiv.org/abs/1611.05431'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'ResNext101':        {'epochs': 100, 'url': 'https://arxiv.org/abs/1611.05431'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'DenseNet121':       {'epochs': 90, 'url': 'https://arxiv.org/pdf/1608.06993'},
+    'DenseNet169':       {'epochs': 90, 'url': 'https://arxiv.org/pdf/1608.06993'},
+    'DenseNet201':       {'epochs': 90, 'url': 'https://arxiv.org/pdf/1608.06993'},
+    'Xception':          {'epochs': None, 'url': 'https://arxiv.org/abs/1610.02357'}, # no information on epochs
+    'InceptionResNetV2': {'epochs': 200, 'url': 'https://arxiv.org/abs/1602.07261'},
+    'InceptionV3':       {'epochs': 100, 'url': 'https://arxiv.org/abs/1512.00567'},
+    'NASNetMobile':      {'epochs': 100, 'url': 'https://arxiv.org/pdf/1707.07012'},
+    'MobileNetV2':       {'epochs': 300, 'url': 'https://arxiv.org/abs/1801.04381'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'MobileNetV3Small':  {'epochs': 600, 'url': 'https://arxiv.org/pdf/1905.02244'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'MobileNetV3Large':  {'epochs': 600, 'url': 'https://arxiv.org/pdf/1905.02244'}, # https://github.com/pytorch/vision/tree/main/references/classification
+    'QuickNetSmall':     {'epochs': 600, 'url': 'https://arxiv.org/abs/2011.09398'}, # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
+    'QuickNet':          {'epochs': 600, 'url': 'https://arxiv.org/abs/2011.09398'}, # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
+    'QuickNetLarge':     {'epochs': 600, 'url': 'https://arxiv.org/abs/2011.09398'} # https://github.com/larq/zoo/blob/main/larq_zoo/training/sota_experiments.py
 }
 TASK_TYPES = {
     'infer': 'inference',
@@ -200,7 +200,7 @@ def calc_power_draw_train(res, per_epoch=False):
     val_per_epoch = res["monitoring_pynvml"]["total"]["total_power_draw"] / len(res["results"]["history"]["loss"])
     val_per_epoch /= 3600000 # Ws to kWh
     if not per_epoch:
-        val_per_epoch *= FULL_TRAIN_EPOCHS[res["config"]["model"]]
+        val_per_epoch *= MODEL_INFO[res["config"]["model"]]['epochs']
     return val_per_epoch
 
 
@@ -208,7 +208,7 @@ def calc_time_train(res, per_epoch=False):
     val_per_epoch = res["duration"] / len(res["results"]["history"]["loss"])
     val_per_epoch /= 3600 # s to h
     if not per_epoch:
-        val_per_epoch *= FULL_TRAIN_EPOCHS[res["config"]["model"]]
+        val_per_epoch *= MODEL_INFO[res["config"]["model"]]['epochs']
     return val_per_epoch
 
 

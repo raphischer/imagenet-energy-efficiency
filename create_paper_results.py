@@ -7,7 +7,6 @@ import numpy as np
 from mlel.ratings import load_results, rate_results, calculate_compound_rating, load_backend_info
 from mlel.label_generator import EnergyLabel
 
-os.chdir(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 LOGS, summaries = load_results('results')
 SUMMARIES, SCALES, SCALES_REAL = rate_results(summaries, 'ResNet101')
 RATING_MODE = 'optimistic median'
@@ -32,7 +31,7 @@ ENV_NAMES = {
     'Xeon(R) W-2155 - ONNX PT Export 1.10.0': 'Xeon W-2155 ONNX PT',
 }
 
-os.chdir(os.path.dirname(__file__))
+os.chdir('paper_results')
 
 
 #####################################
@@ -195,7 +194,7 @@ def scatter_models(xmetric, ymetric, xlabel, ylabel, fname, task='inference', sc
     plt.tight_layout()
     plt.savefig(fname)
 
-not_name = ['EfficientNetB5', 'EfficientNetB6', 'DenseNet201', 'DenseNet169', 'ResNet152', 'InceptionResNetV2', 'NASNetMobile', 'VGG16']
+not_name = ['EfficientNetB5', 'EfficientNetB6', 'DenseNet201', 'DenseNet169', 'ResNet152', 'InceptionResNetV2', 'VGG16']
 
 scatter_models('inference_power_draw', 'top1_val',
     'Inference Power Draw per Batch (Index Scale)',
@@ -266,11 +265,12 @@ for ai, rating_mode in enumerate([RATING_MODE]):
             if ii > 0 or ai > 0:
                 ax.bar(x=_x, height=_y, width=width, color=COLORS[i], edgecolor='black', alpha=.8)
             else:
-                ax.bar(x=_x, height=_y, width=width, color=COLORS[i], edgecolor='black', alpha=.8, label=ii)
+                ax.bar(x=_x, height=_y, width=width, color=COLORS[i], edgecolor='black', alpha=.8, label=RATINGS[i])
     # ax.set_xlabel(f'Compound rating is {rating_mode}')
     ax.set_xticks(np.arange(len(ENV_NAMES.keys())))
-    ax.set_xticklabels(list(ENV_NAMES.values()), rotation=45)
-    # lgd = fig.legend(ncol=2, bbox_to_anchor=(0.5, .88), loc='lower center')
+    ax.set_xticklabels(list(ENV_NAMES.values()), rotation=45, ha='right')
+    ax.set_ylabel('Model Rating Frequency')
+    lgd = fig.legend(bbox_to_anchor=(0.9, 0.88), loc='upper right')
 plt.savefig(f'hist_ratings.pdf', bbox_inches='tight')
 
 
