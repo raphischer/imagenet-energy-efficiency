@@ -12,6 +12,7 @@ pyrapl (clone https://github.com/powerapi-ng/pyRAPL and install locally)
 #### Label Generation
 reportlab
 PyMuPDF
+qrcode
 
 #### TensorFlow Backend
 tensorflow

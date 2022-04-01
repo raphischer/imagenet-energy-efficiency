@@ -3,10 +3,11 @@ import base64
 
 import numpy as np
 from reportlab.pdfgen.canvas import Canvas
-from reportlab.lib.colors import black
+from reportlab.lib.colors import black, white
 import fitz # PyMuPDF
+import qrcode
 
-from mlel.ratings import calculate_compound_rating, load_results, rate_results
+from mlel.ratings import calculate_compound_rating, load_results, rate_results, MODEL_INFO
 
 
 C_SIZE = (1560, 2411)
@@ -76,6 +77,30 @@ def format_power_draw_sources(summary):
     return sources[:-1]
 
 
+def create_qr(model_name):
+    url = MODEL_INFO[model_name]['url']
+    qr = qrcode.QRCode(
+        version=1, box_size=1, border=0,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+    )
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    return img
+
+
+def draw_qr(canvas, qr, x, y, width):
+    qr_pix = np.array(qr)
+    width //= qr_pix.shape[0]
+    print(qr_pix.astype)
+    for (i, j), v in np.ndenumerate(qr_pix):
+        if v:
+            canvas.setFillColor(white)
+        else:
+            canvas.setFillColor(black)
+        canvas.rect(x + (i * width), y + int(width * qr_pix.shape[0]) - ((j + 1) * width), width, width, fill=1, stroke=0)
+
+
 class EnergyLabel(fitz.Document):
 
     def __init__(self, summary, rating_mode):
@@ -88,8 +113,10 @@ class EnergyLabel(fitz.Document):
             metric = ICON_NAME_TO_METRIC[summary['task_type']][icon]
             rating = summary[metric]['rating']
             canvas.drawInlineImage(os.path.join(PARTS_DIR, f"{icon}_{rating}.png"), posx, posy)
-        # Final Rating
+        # Final Rating & QR
         canvas.drawInlineImage(os.path.join(PARTS_DIR, f"Rating_{frate}.png"), POS_RATINGS[frate][0] * C_SIZE[0], POS_RATINGS[frate][1] * C_SIZE[1])
+        qr = create_qr(summary['name'])
+        draw_qr(canvas, qr, 0.825 * C_SIZE[0], 0.894 * C_SIZE[1], 200)
         # Add stroke to make even bigger letters
         canvas.setFillColor(black)
         canvas.setLineWidth(3)
@@ -132,10 +159,10 @@ if __name__ == "__main__":
     _, summaries = load_results('results')
     summaries, _, _ = rate_results(summaries, 'ResNet101')
     test_summaries = [
-        summaries['RTX 5000 - TensorFlow 2.4.1']['inference'][0],
-        summaries['RTX 5000 - TensorFlow 2.4.1']['inference'][3],
-        summaries['RTX 5000 - TensorFlow 2.4.1']['inference'][6],
-        # summaries['A100 x8 - Torch 1.10.2+cu113']['training'][0]
+        summaries['inference']['RTX 5000 - TensorFlow 2.4.1'][0],
+        summaries['inference']['RTX 5000 - TensorFlow 2.4.1'][3],
+        summaries['inference']['RTX 5000 - TensorFlow 2.4.1'][6],
+        # summaries['training']['A100 x8 - Torch 1.10.2+cu113'][0]
     ]
     for idx, summary in enumerate(test_summaries):
         pdf_doc = EnergyLabel(summary, 'mean')
