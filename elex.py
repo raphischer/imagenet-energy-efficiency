@@ -331,7 +331,10 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Interactive energy index explorer")
     parser.add_argument("--directory", default='results', type=str, help="path directory with aggregated logs")
+    parser.add_argument("--host", default='localhost', type=str, help="default host")
+    parser.add_argument("--port", default=8888, type=int, help="default port")
+    parser.add_argument("--debug", default=False, type=bool, help="debugging")
     args = parser.parse_args()
 
     app = Visualization(args.directory)
-    app.run_server(debug=True)# , host='0.0.0.0', port=8888)
+    app.run_server(debug=args.debug, host=args.host, port=args.port)# , host='0.0.0.0', port=8888)
