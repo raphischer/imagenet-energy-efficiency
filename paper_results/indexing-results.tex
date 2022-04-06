@@ -1,0 +1,33 @@
+\resizebox{\linewidth}{!}{
+    \begin{tabular}{l|l|c|c|c|c|c|c|c|c}
+        \toprule 
+        \multirow{2}{*}{Environment} & \multirow{2}{*}{Model Name}  & \multicolumn{2}{c}{Power $m_{Ps}$} & \multicolumn{2}{c}{Time $m_{Ts}$} & \multicolumn{2}{c}{Size $m_S$} & \multicolumn{2}{c}{Quality $m_{Q1}$}  \\  \cline{3-10}
+        & & Value [Ws] & Index & Value [ms] & Index & Value  & Index & Value [\%] & Index \\ 
+        \midrule
+        \multirow{2}{*}{A100 x8 TensorFlow} &ResNet101 & 0.859 & \colorbox{RC}{1.00} & 1.579 & \colorbox{RC}{1.00} & 44.7e6 & \colorbox{RD}{1.00} & 0.718 & \colorbox{RC}{1.00} \\
+        & EfficientNetB0 & 0.673 & \colorbox{RB}{1.28} & 1.369 & \colorbox{RB}{1.15} &  5.3e6 & \colorbox{RB}{8.39} & 0.681 & \colorbox{RD}{0.95} \\
+        \midrule
+        \multirow{2}{*}{A100 x8 PyTorch} &ResNet101 & 0.897 & \colorbox{RC}{1.00} & 1.664 & \colorbox{RC}{1.00} & 44.5e6 & \colorbox{RD}{1.00} & 0.770 & \colorbox{RC}{1.00} \\
+        & EfficientNetB0 & 0.877 & \colorbox{RC}{1.02} & 1.870 & \colorbox{RC}{0.89} &  5.3e6 & \colorbox{RA}{8.42} & 0.777 & \colorbox{RB}{1.01} \\
+        \midrule
+        \multirow{2}{*}{RTX 5000 TensorFlow} &ResNet101 & 0.680 & \colorbox{RC}{1.00} & 2.653 & \colorbox{RC}{1.00} & 44.7e6 & \colorbox{RD}{1.00} & 0.718 & \colorbox{RC}{1.00} \\
+        & EfficientNetB0 & 0.260 & \colorbox{RA}{2.62} & 1.180 & \colorbox{RA}{2.25} &  5.3e6 & \colorbox{RB}{8.39} & 0.681 & \colorbox{RD}{0.95} \\
+        \midrule
+        \multirow{2}{*}{RTX 5000 PyTorch} &ResNet101 & 0.740 & \colorbox{RC}{1.00} & 2.643 & \colorbox{RC}{1.00} & 44.5e6 & \colorbox{RD}{1.00} & 0.770 & \colorbox{RC}{1.00} \\
+        & EfficientNetB0 & 0.288 & \colorbox{RA}{2.57} & 1.143 & \colorbox{RA}{2.31} &  5.3e6 & \colorbox{RA}{8.42} & 0.777 & \colorbox{RB}{1.01} \\
+        \midrule
+        \multirow{2}{*}{Xeon W-2155 TensorFlow} &ResNet101 & 3.115 & \colorbox{RC}{1.00} & 25.305 & \colorbox{RC}{1.00} & 44.7e6 & \colorbox{RD}{1.00} & 0.718 & \colorbox{RC}{1.00} \\
+        & EfficientNetB0 & 1.706 & \colorbox{RA}{1.83} & 13.911 & \colorbox{RA}{1.82} &  5.3e6 & \colorbox{RB}{8.39} & 0.681 & \colorbox{RD}{0.95} \\
+        \midrule
+        \multirow{2}{*}{Xeon W-2155 PyTorch} &ResNet101 & 4.121 & \colorbox{RC}{1.00} & 33.532 & \colorbox{RC}{1.00} & 44.5e6 & \colorbox{RD}{1.00} & 0.770 & \colorbox{RC}{1.00} \\
+        & EfficientNetB0 & 1.330 & \colorbox{RA}{3.10} & 11.909 & \colorbox{RA}{2.82} &  5.3e6 & \colorbox{RA}{8.42} & 0.777 & \colorbox{RB}{1.01} \\
+        \midrule
+        \multirow{2}{*}{Xeon W-2155 ONNX TF} &ResNet101 & 2.188 & \colorbox{RC}{1.00} & 15.947 & \colorbox{RC}{1.00} & 44.7e6 & \colorbox{RD}{1.00} & 0.720 & \colorbox{RC}{1.00} \\
+        & EfficientNetB0 & 1.059 & \colorbox{RA}{2.07} & 9.309 & \colorbox{RB}{1.71} &  5.3e6 & \colorbox{RB}{8.39} & 0.683 & \colorbox{RD}{0.95} \\
+        \midrule
+        \multirow{2}{*}{Xeon W-2155 ONNX PT} &ResNet101 & 2.110 & \colorbox{RC}{1.00} & 15.101 & \colorbox{RC}{1.00} & 44.5e6 & \colorbox{RD}{1.00} & 0.770 & \colorbox{RC}{1.00} \\
+        & EfficientNetB0 & 0.745 & \colorbox{RA}{2.83} & 6.388 & \colorbox{RA}{2.36} &  5.3e6 & \colorbox{RA}{8.42} & 0.777 & \colorbox{RB}{1.01} \\
+        
+        \bottomrule
+    \end{tabular}
+    }

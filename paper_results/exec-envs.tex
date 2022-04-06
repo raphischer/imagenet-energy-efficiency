@@ -1,0 +1,25 @@
+\resizebox{\linewidth}{!}{
+    \begin{tabular}{l||c|c|c|c|c|c}
+        \toprule 
+        \multirow{2}{*}{Environment Name} & \multirow{2}{*}{CPU Model} & \multirow{2}{*}{GPU Model} & \multirow{2}{*}{Libraries} & \multirow{2}{*}{Versions} & \multicolumn{2}{c}{\# Experiments} \\
+        & & & & & Inference & Training \\
+        \midrule
+        \multirow{2}{*}{A100 x8 TensorFlow} & \multirow{2}{*}{AMD EPYC 7742} & \multirow{2}{*}{8 $\times$ NVIDIA A100-SXM4} & tensorflow & 2.8.0 & \multirow{2}{*}{26} & \multirow{2}{*}{21} \\ & & & larq & 0.12.2& &  \\
+        \midrule
+        \multirow{2}{*}{A100 x8 PyTorch} & \multirow{2}{*}{AMD EPYC 7742} & \multirow{2}{*}{8 $\times$ NVIDIA A100-SXM4} & torch & 1.10.2+cu113 & \multirow{2}{*}{22} & \multirow{2}{*}{13} \\ & & & torchvision & 0.11.3+cu113& &  \\
+        \midrule
+        \multirow{2}{*}{RTX 5000 TensorFlow} & \multirow{2}{*}{Intel Xeon W-2155} & \multirow{2}{*}{Quadro RTX 5000} & tensorflow & 2.4.1 & \multirow{2}{*}{26} & \multirow{2}{*}{10} \\ & & & larq & 0.12.2& &  \\
+        \midrule
+        \multirow{2}{*}{RTX 5000 PyTorch} & \multirow{2}{*}{Intel Xeon W-2155} & \multirow{2}{*}{Quadro RTX 5000} & torch & 1.10.2+cu113 & \multirow{2}{*}{22} & \multirow{2}{*}{12} \\ & & & torchvision & 0.11.3+cu113& &  \\
+        \midrule
+        \multirow{2}{*}{Xeon W-2155 TensorFlow} & \multirow{2}{*}{Intel Xeon W-2155} & \multirow{2}{*}{n.a.} & tensorflow & 2.4.1 & \multirow{2}{*}{26} & \multirow{2}{*}{0} \\ & & & larq & 0.12.2& &  \\
+        \midrule
+        \multirow{2}{*}{Xeon W-2155 PyTorch} & \multirow{2}{*}{Intel Xeon W-2155} & \multirow{2}{*}{n.a.} & torch & 1.10.2+cu113 & \multirow{2}{*}{22} & \multirow{2}{*}{0} \\ & & & torchvision & 0.11.3+cu113& &  \\
+        \midrule
+        \multirow{4}{*}{Xeon W-2155 ONNX TF} & \multirow{4}{*}{Intel Xeon W-2155} & \multirow{4}{*}{n.a.} & onnxruntime & 1.10.0 & \multirow{4}{*}{17} & \multirow{4}{*}{0} \\ & & & onnx & 1.11.0& &  \\ & & & tensorflow & 2.4.1& &  \\ & & & larq & 0.12.2& &  \\
+        \midrule
+        \multirow{4}{*}{Xeon W-2155 ONNX PT} & \multirow{4}{*}{Intel Xeon W-2155} & \multirow{4}{*}{n.a.} & onnxruntime & 1.10.0 & \multirow{4}{*}{15} & \multirow{4}{*}{0} \\ & & & onnx & 1.11.0& &  \\ & & & torch & 1.10.2+cu113& &  \\ & & & torchvision & 0.11.3+cu113& &  \\
+        \endrule
+        
+    \end{tabular}
+}
