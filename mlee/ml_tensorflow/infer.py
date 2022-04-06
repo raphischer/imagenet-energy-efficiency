@@ -2,8 +2,8 @@ import os
 
 import tensorflow as tf
 
-from mlel.ml_tensorflow.load_imagenet import load_imagenet
-from mlel.ml_tensorflow.load_models import prepare_model, load_preprocessing, calculate_flops
+from mlee.ml_tensorflow.load_imagenet import load_imagenet
+from mlee.ml_tensorflow.load_models import prepare_model, load_preprocessing, calculate_flops
 
 
 def init_inference(args, split):

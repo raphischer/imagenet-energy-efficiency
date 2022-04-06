@@ -6,10 +6,10 @@ import torch
 from torch import nn
 import torch.utils.data
 import torchvision
-import mlel.ml_pytorch.pt_presets as presets
-import mlel.ml_pytorch.pt_utils as utils
+import mlee.ml_pytorch.pt_presets as presets
+import mlee.ml_pytorch.pt_utils as utils
 
-from mlel.ml_pytorch.pt_utils import model_name_mapping, non_trainable_models
+from mlee.ml_pytorch.pt_utils import model_name_mapping, non_trainable_models
 
 from torchvision.transforms.functional import InterpolationMode
 from ptflops import get_model_complexity_info

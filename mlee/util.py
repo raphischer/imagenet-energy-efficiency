@@ -7,7 +7,7 @@ import pkg_resources
 
 import numpy as np
 
-from mlel.monitoring import log_system_info
+from mlee.monitoring import log_system_info
 
 
 def basename(directory):

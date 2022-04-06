@@ -11,9 +11,9 @@ from plotly import colors
 import plotly.graph_objects as go
 from plotly.validators.scatter.marker import SymbolValidator
 
-from mlel.ratings import load_boundaries, save_boundaries, calculate_optimal_boundaries, save_weights, update_weights
-from mlel.ratings import load_results, rate_results, calculate_compound_rating, TASK_METRICS_CALCULATION
-from mlel.label_generator import EnergyLabel
+from mlee.ratings import load_boundaries, save_boundaries, calculate_optimal_boundaries, save_weights, update_weights
+from mlee.ratings import load_results, rate_results, calculate_compound_rating, TASK_METRICS_CALCULATION
+from mlee.label_generator import EnergyLabel
 
 
 ENV_SYMBOLS = [SymbolValidator().values[i] for i in range(0, len(SymbolValidator().values), 12)]

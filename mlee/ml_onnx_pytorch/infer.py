@@ -8,9 +8,9 @@ import torchvision
 import onnx
 from onnx_opcounter import calculate_params
 
-import mlel.ml_pytorch.pt_utils as utils
-from mlel.ml_pytorch.pt_utils import model_name_mapping
-from mlel.ml_pytorch.train import load_data
+import mlee.ml_pytorch.pt_utils as utils
+from mlee.ml_pytorch.pt_utils import model_name_mapping
+from mlee.ml_pytorch.train import load_data
 
 
 def _evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix="", return_dict=False):

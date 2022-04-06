@@ -3,8 +3,8 @@ from datetime import datetime
 
 import tensorflow as tf
 
-from mlel.ml_tensorflow.load_imagenet import load_imagenet
-from mlel.ml_tensorflow.load_models import prepare_model, prepare_optimizer, prepare_lr_scheduling, load_preprocessing, calculate_flops
+from mlee.ml_tensorflow.load_imagenet import load_imagenet
+from mlee.ml_tensorflow.load_models import prepare_model, prepare_optimizer, prepare_lr_scheduling, load_preprocessing, calculate_flops
 
 
 class TimestampOnEpochEnd(tf.keras.callbacks.Callback):

@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 import shutil
 import tarfile
 
-from mlel.monitoring import aggregate_log
-from mlel.util import basename
+from mlee.monitoring import aggregate_log
+from mlee.util import basename
 
 
 def read_metrics(filepath, default_path=None):
@@ -179,8 +179,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--directory", default="/raid/fischer/eval", type=str, help="directory with experiments")
-    parser.add_argument("--train-dirs", default="/raid/fischer/train50", type=str, help="directory with original training experiments, can be used for the inference results")
+    parser.add_argument("--directory", default="/raid/tmpler/eval", type=str, help="directory with experiments")
+    parser.add_argument("--train-dirs", default="/raid/tmpler/train50", type=str, help="directory with original training experiments, can be used for the inference results")
     parser.add_argument("--output-log-dir", default="", type=str, help="directory where the logs shall be stored (.tar.gz archives)")
     parser.add_argument("--output-agglog-dir", default="results", type=str, help="directory where experiments log aggregates (json format) are created")
     parser.add_argument("--clean", action='store_true', help="set to first delete all content in given output directories")

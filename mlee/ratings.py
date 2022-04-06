@@ -236,7 +236,7 @@ def calculate_optimal_boundaries(summaries, quantiles):
     return load_boundaries(boundaries)
 
 
-def load_boundaries(content="mlel/boundaries.json"):
+def load_boundaries(content="mlee/boundaries.json"):
     if isinstance(content, dict):
         boundary_json = content
     elif isinstance(content, str):

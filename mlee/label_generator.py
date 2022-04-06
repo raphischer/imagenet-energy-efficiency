@@ -9,7 +9,7 @@ from reportlab.lib.colors import black, white
 import fitz # PyMuPDF
 import qrcode
 
-from mlel.ratings import calculate_compound_rating, load_results, rate_results, MODEL_INFO, TASK_TYPES, get_environment_key
+from mlee.ratings import calculate_compound_rating, load_results, rate_results, MODEL_INFO, TASK_TYPES, get_environment_key
 
 
 C_SIZE = (1560, 2411)

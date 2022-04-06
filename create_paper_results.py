@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import numpy as np
 
-from mlel.ratings import load_results, rate_results, calculate_compound_rating, load_backend_info
-from mlel.label_generator import EnergyLabel
+from mlee.ratings import load_results, rate_results, calculate_compound_rating, load_backend_info
+from mlee.label_generator import EnergyLabel
 
 LOGS, summaries = load_results('results')
 SUMMARIES, SCALES, SCALES_REAL = rate_results(summaries, 'ResNet101')

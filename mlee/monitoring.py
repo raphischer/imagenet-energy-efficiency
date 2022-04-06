@@ -255,7 +255,7 @@ class Monitor:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Aggregates a given GPU profiling result")
-    parser.add_argument("--directory", default="/home/fischer/mnt_imagenet/models/train_2021_12_10_15_56", type=str, help="directory with logs")
+    parser.add_argument("--directory", default="/home/tmpler/mnt_imagenet/models/train_2021_12_10_15_56", type=str, help="directory with logs")
     args = parser.parse_args()
 
     print(json.dumps(aggregate_log(os.path.join(args.directory, 'monitoring_psutil.json')), indent=4))

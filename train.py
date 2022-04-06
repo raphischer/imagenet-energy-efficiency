@@ -5,8 +5,8 @@ import time
 import sys
 import importlib
 
-from mlel.monitoring import Monitoring
-from mlel.util import fix_seed, create_output_dir, Logger, PatchedJSONEncoder
+from mlee.monitoring import Monitoring
+from mlee.util import fix_seed, create_output_dir, Logger, PatchedJSONEncoder
 
 
 def main(args):
@@ -18,7 +18,7 @@ def main(args):
     sys.stdout = Logger(os.path.join(args.output_dir, 'logfile.txt'))
     
     try:
-        backend = importlib.import_module(f'mlel.ml_{args.backend}.train')
+        backend = importlib.import_module(f'mlee.ml_{args.backend}.train')
     except ModuleNotFoundError as e:
         raise ModuleNotFoundError(f'Error when loading backend {args.backend}!\n  {e}')
 
@@ -57,7 +57,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--batch-size", default=32, type=int, help="images per gpu, the total batch will be $NGPU x batch_size")
 
     # output & experiment settings
-    parser.add_argument("--output-dir", default="/raid/fischer/dnns", type=str, help="path to save outputs")
+    parser.add_argument("--output-dir", default="/raid/tmpler/dnns", type=str, help="path to save outputs")
     parser.add_argument("--gpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates GPU profiling every X seconds")
     parser.add_argument("--cpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates CPU profiling every X seconds")
     parser.add_argument("--seed", type=int, default=-1, help="Seed to use (if -1, uses and logs random seed)"),

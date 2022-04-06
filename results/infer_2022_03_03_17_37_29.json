@@ -7,7 +7,7 @@
         "n_batches": -1,
         "batch_size": 32,
         "eval_preprocessing": "builtin",
-        "output_dir": "/raid/fischer/infer_pre_tf/",
+        "output_dir": "/raid/tmpler/infer_pre_tf/",
         "gpu_monitor_interval": 0.2,
         "cpu_monitor_interval": 0.2,
         "seed": 1530687229,
@@ -16,7 +16,7 @@
     },
     "execution_platform": {
         "System": "Linux",
-        "Node Name": "ml2ran07",
+        "Node Name": "tmplan07",
         "Release": "5.4.0-81-generic",
         "Version": "#91-Ubuntu SMP Thu Jul 15 19:09:17 UTC 2021",
         "Machine": "x86_64",

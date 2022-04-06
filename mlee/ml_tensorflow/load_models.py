@@ -268,7 +268,7 @@ def tf_random_horizontal_flip(img, hflip_prob):
 
 
 def tf_autoaugment(img_in):
-    from mlel.ml_tensorflow.autoaugment import ImageNetPolicy
+    from mlee.ml_tensorflow.autoaugment import ImageNetPolicy
     img = tf.keras.preprocessing.image.array_to_img(img_in, scale=False)
     policy = ImageNetPolicy()
     img = policy(img)

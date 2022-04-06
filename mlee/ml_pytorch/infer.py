@@ -4,9 +4,9 @@ import torch
 from torch import nn
 import torch.utils.data
 import torchvision
-import mlel.ml_pytorch.pt_utils as utils
-from mlel.ml_pytorch.train import load_data
-from mlel.ml_pytorch.pt_utils import model_name_mapping
+import mlee.ml_pytorch.pt_utils as utils
+from mlee.ml_pytorch.train import load_data
+from mlee.ml_pytorch.pt_utils import model_name_mapping
 from ptflops import get_model_complexity_info
 
 def _evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix="", return_dict=False):

@@ -3,11 +3,11 @@
     "config": {
         "infer_model": "MobileNetV2",
         "backend": "tensorflow",
-        "data_path": "/home/fischer/mnt_imagenet/imagenet_tensorflow/",
+        "data_path": "/home/tmpler/mnt_imagenet/imagenet_tensorflow/",
         "n_batches": -1,
         "batch_size": 32,
         "eval_preprocessing": "builtin",
-        "output_dir": "/home/fischer/mnt_enerob_results/ws020_infer_pre_tf/",
+        "output_dir": "/home/tmpler/mnt_enerob_results/ws020_infer_pre_tf/",
         "gpu_monitor_interval": 0.2,
         "cpu_monitor_interval": 0.2,
         "seed": 4115023684,
@@ -16,7 +16,7 @@
     },
     "execution_platform": {
         "System": "Linux",
-        "Node Name": "ls8ws020",
+        "Node Name": "tmpws020",
         "Release": "5.4.0-100-generic",
         "Version": "#113-Ubuntu SMP Thu Feb 3 18:43:29 UTC 2022",
         "Machine": "x86_64",
