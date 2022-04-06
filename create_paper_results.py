@@ -96,20 +96,20 @@ with open('exec-envs.tex', 'w') as outf:
 ##########################################
 
 TEX_TABLE_INDEXING_RESULTS = r'''\resizebox{\linewidth}{!}{
-    \begin{tabular}{l|l||c|c||c|c||c|c||c|c}
+    \begin{tabular}{l|l|c|c|c|c|c|c|c|c}
         \toprule 
-        \multirow{2}{*}{Environment} & \multirow{2}{*}{Model (ImageNet)}  & \multicolumn{2}{c}{$METR1} & \multicolumn{2}{c}{$METR2} & \multicolumn{2}{c}{$METR3} & \multicolumn{2}{c|}{$METR4}  \\  \cline{3-10}
-        & & Value & Index & Value & Index & Value & Index & Value & Index \\ 
+        \multirow{2}{*}{Environment} & \multirow{2}{*}{Model Name}  & \multicolumn{2}{c}{$METR1} & \multicolumn{2}{c}{$METR2} & \multicolumn{2}{c}{$METR3} & \multicolumn{2}{c}{$METR4}  \\  \cline{3-10}
+        & & $VALIND \\ 
         \midrule
         $RES
         \bottomrule
     \end{tabular}
     }'''
 TABLE_NAMES = {
-    "parameters": "Parameters [#]",
-    "inference_power_draw": "Power Draw [Ws]",
-    "inference_time": "Inference Time [ms]",
-    "top1_val": "Top-1 Accuracy [%]"
+    "inference_power_draw": ("Power $m_{Ps}$", '[Ws]'),
+    "inference_time": ("Time $m_{Ts}$", '[ms]'),
+    "parameters": ("Size $m_S$", ''),
+    "top1_val": ("Quality $m_{Q1}$", '[%]')
 }
 
 ENV_ROW1 = r'''\multirow{$X}{*}{$ENV} &'''
@@ -124,16 +124,23 @@ for summary_name, env_name in ENV_NAMES.items():
         model_res = [model]
         for mod_sum in SUMMARIES['inference'][summary_name]:
             if mod_sum['name'] == model:
-                for m_i, metr in enumerate(['inference_power_draw', 'inference_time', 'parameters', 'top1_val']):
-                    res = res.replace(f'$METR{m_i + 1}', TABLE_NAMES[metr])
-                    ind = r'\colorbox{R' + RATINGS[mod_sum[metr]['rating']] + r'}{' + f"{mod_sum[metr]['index']:4.3f}" + '}'
-                    model_res.extend([f"{mod_sum[metr]['value']:4.3f}", ind])
+                val_ind_txt = []
+                for m_i, (metr, (name, unit)) in enumerate(TABLE_NAMES.items()):
+                    res = res.replace(f'$METR{m_i + 1}', name)
+                    val_ind_txt.append(f'Value {unit} & Index')
+                    ind = r'\colorbox{R' + RATINGS[mod_sum[metr]['rating']] + r'}{' + f"{mod_sum[metr]['index']:4.2f}" + '}'
+                    if metr == 'parameters':
+                        val = f"{mod_sum[metr]['value']:4.1f}e6"
+                    else:
+                        val = f"{mod_sum[metr]['value']:4.3f}"
+                    model_res.extend([val, ind])
+                res = res.replace('$VALIND', ' & '.join(val_ind_txt))
                 break
         env_res.append(' & '.join(model_res) + r' \\')
     res = res.replace('$RES', row_start + '\n        & '.join(env_res) + '\n        \midrule\n        $RES')
 res = res.replace('%', '\%')
 res = res.replace('#', '\#')
-res = res.replace('$RES', '')
+res = res.replace('\midrule\n        $RES', '')
 with open('indexing-results.tex', 'w') as outf:
     outf.write(res)
 
@@ -197,7 +204,7 @@ def scatter_models(xmetric, ymetric, xlabel, ylabel, fname, task='inference', sc
 not_name = ['EfficientNetB5', 'EfficientNetB6', 'DenseNet201', 'DenseNet169', 'ResNet152', 'InceptionResNetV2', 'VGG16']
 
 scatter_models('inference_power_draw', 'top1_val',
-    'Inference Power Draw per Batch (Index Scale)',
+    'Inference Power Draw per Sample (Index Scale)',
     'Top-1 Validation Accuracy (Index Scale)',
     'scatter_power_acc.pdf', xlim=(0.1, 2.05), ylim=(0.77, 1.15), named_pos=not_name, width=5, height=5)
 
@@ -223,7 +230,7 @@ not_name = ['ResNet152', 'ResNet50', 'DenseNet121', 'EfficientNetB3']
 scatter_models('train_power_draw', 'top1_val',
     'Total Power Draw (Index Scale)',
     'Top-1 Validation Accuracy (Index Scale)',
-    'scatter_train_power_acc.pdf', task='training', xlim=(-0.03, 1.38), ylim=(0.75, 1.15), named_pos=not_name, width=6, height=4)
+    'scatter_train_power_acc.pdf', task='training', xlim=(-0.03, 1.38), ylim=(0.77, 1.15), named_pos=not_name, width=6, height=4)
 
 
 ##########################################

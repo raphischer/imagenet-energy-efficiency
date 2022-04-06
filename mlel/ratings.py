@@ -182,7 +182,7 @@ def calc_fsize(res):
 
 
 def calc_inf_time(res):
-    return res['validation']['duration'] / ((50000 // res['config']['batch_size'])) * 1000
+    return res['validation']['duration'] / 50000 * 1000
 
 
 def calc_power_draw(res):
@@ -192,7 +192,7 @@ def calc_power_draw(res):
         power_draw += res['validation']["monitoring_pynvml"]["total"]["total_power_draw"]
     if res['validation']["monitoring_pyrapl"] is not None:
         power_draw += res['validation']["monitoring_pyrapl"]["total"]["total_power_draw"]
-    return power_draw / (50000 // res['config']['batch_size'])
+    return power_draw / 50000
 
 
 def calc_power_draw_train(res, per_epoch=False):

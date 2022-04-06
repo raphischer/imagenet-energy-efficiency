@@ -1,5 +1,7 @@
+import json
 import os
 import base64
+import argparse
 
 import numpy as np
 from reportlab.pdfgen.canvas import Canvas
@@ -7,7 +9,7 @@ from reportlab.lib.colors import black, white
 import fitz # PyMuPDF
 import qrcode
 
-from mlel.ratings import calculate_compound_rating, load_results, rate_results, MODEL_INFO
+from mlel.ratings import calculate_compound_rating, load_results, rate_results, MODEL_INFO, TASK_TYPES, get_environment_key
 
 
 C_SIZE = (1560, 2411)
@@ -30,8 +32,8 @@ POS_TEXT = {
     # infos that are extracted via methods
     'format_power_draw_sources':                ('drawCentredString', 56, '',      .25,  .22,  None),
     # static infos, depending on $task
-    "$Inference Power Draw per Batch":          ('drawCentredString', 56, '',      .25,  .25,  None),
-    "$Inference Runtime per Batch":             ('drawCentredString', 56, '',      .75,  .22,  None),
+    "$Inference Power Draw per Sample":         ('drawCentredString', 56, '',      .25,  .25,  None),
+    "$Inference Runtime per Sample":            ('drawCentredString', 56, '',      .75,  .22,  None),
     "$Inference Top-1 / Top-5 Accuracy":        ('drawCentredString', 56, '',      .25,  .02,  None),
     "$Inference Parameters / Flops":            ('drawCentredString', 56, '',      .75,  .02,  None),
     "$Inference Ws":                            ('drawString',        56, '',      .27,  .28,  None),
@@ -92,7 +94,6 @@ def create_qr(model_name):
 def draw_qr(canvas, qr, x, y, width):
     qr_pix = np.array(qr)
     width //= qr_pix.shape[0]
-    print(qr_pix.astype)
     for (i, j), v in np.ndenumerate(qr_pix):
         if v:
             canvas.setFillColor(white)
@@ -156,14 +157,34 @@ class EnergyLabel(fitz.Document):
 
 
 if __name__ == "__main__":
-    _, summaries = load_results('results')
-    summaries, _, _ = rate_results(summaries, 'ResNet101')
-    test_summaries = [
-        summaries['inference']['RTX 5000 - TensorFlow 2.4.1'][0],
-        summaries['inference']['RTX 5000 - TensorFlow 2.4.1'][3],
-        summaries['inference']['RTX 5000 - TensorFlow 2.4.1'][6],
-        # summaries['training']['A100 x8 - Torch 1.10.2+cu113'][0]
-    ]
-    for idx, summary in enumerate(test_summaries):
-        pdf_doc = EnergyLabel(summary, 'mean')
-        pdf_doc.save(f'testlabel_{idx}.pdf')
+
+    parser = argparse.ArgumentParser(description="Generate an energy label (.pdf) for tasks on ImageNet data")
+
+    # data and model input
+    parser.add_argument("--task", "-t", default="inference", choices=['inference', 'training'])
+    parser.add_argument("--model", "-m", default="ResNet101", type=str)
+    parser.add_argument("--environment", "-e", default='RTX 5000 - TensorFlow 2.4.1', type=str)
+    parser.add_argument("--directory", "-d", default='results', type=str, help="Directory with .json result files")
+    parser.add_argument("--reference", "-r", default='ResNet101', type=str, help="Reference model to use for index scoring")
+    parser.add_argument("--filename", "-f", default="infer_2022_03_05_23_09_30.json", type=str, help="path to json logfile")
+    parser.add_argument("--output", "-o", default="label.pdf", type=str, help="name of output file")
+      
+    args = parser.parse_args()
+
+    _, summaries = load_results(args.directory)
+    summaries, _, _ = rate_results(summaries, args.reference)
+
+    # generate label for given filename
+    if os.path.isfile(os.path.join(args.directory, args.filename)):
+        with open(os.path.join(args.directory, args.filename), 'r') as rf:
+            log = json.load(rf)
+            environment = get_environment_key(log)
+            task = TASK_TYPES[args.filename.split('_')[0]]
+            model = log['config']['model']
+    else:
+        task, model, environment = args.task, args.model, args.environment
+    
+    for summary in summaries[task][environment]:
+        if summary['name'] == model:
+            pdf_doc = EnergyLabel(summary, 'optimistic median')
+            pdf_doc.save(args.output)
