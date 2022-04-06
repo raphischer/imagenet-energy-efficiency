@@ -16,9 +16,10 @@ The [results](./paper_results/) (plots and tables) in the paper were generated w
 
 New experiments can also be executed, available tasks are [inference](infer.py) and [training](train.py).
 You can pass the chosen model, software backend and more configuration options via command line.
+For `--data-path` pass the directory with full `ImageNet` data for the chose software `--backend`, refer to the respective implementations for [TensorFlow](./mlel/ml_tensorflow/load_imagenet.py) and [PyTorch](./mlel/ml_pytorch/train.py).
 For each experiment a folder is created, which can be [merged](merge_results.py) into more compact `.json` format.
 Note that due to monitoring of power draw, we mainly tested on limited hardware architectures and systems (Linux systems with Intel CPUs and NVIDIA GPUs).
-You can also inspect the [scripts](./scripts/) we used to run all esxperiments.
+You can also inspect the [scripts](./scripts/) used to run all esxperiments.
 
 ## Road Ahead
 We intend to extend and improve our software framework:

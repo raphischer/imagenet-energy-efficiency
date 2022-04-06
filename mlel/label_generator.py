@@ -129,7 +129,7 @@ class EnergyLabel(fitz.Document):
         for key, (draw_method, fsize, style, x, y, fmt) in POS_TEXT.items():
             draw_method = getattr(canvas, draw_method)
             canvas.setFont('Helvetica' + style, fsize)
-            if key in globals():
+            if key in globals() and callable(globals()[key]):
                 text = globals()[key](summary)
             elif key.startswith(f"${summary['task_type']} "):
                 # Static text on label depending on the task type
@@ -163,10 +163,10 @@ if __name__ == "__main__":
     # data and model input
     parser.add_argument("--task", "-t", default="inference", choices=['inference', 'training'])
     parser.add_argument("--model", "-m", default="ResNet101", type=str)
-    parser.add_argument("--environment", "-e", default='RTX 5000 - TensorFlow 2.4.1', type=str)
+    parser.add_argument("--environment", "-e", default='A100 x8 - TensorFlow 2.8.0', type=str)
     parser.add_argument("--directory", "-d", default='results', type=str, help="Directory with .json result files")
     parser.add_argument("--reference", "-r", default='ResNet101', type=str, help="Reference model to use for index scoring")
-    parser.add_argument("--filename", "-f", default="infer_2022_03_05_23_09_30.json", type=str, help="path to json logfile")
+    parser.add_argument("--filename", "-f", default="", type=str, help="name of json logfile")
     parser.add_argument("--output", "-o", default="label.pdf", type=str, help="name of output file")
       
     args = parser.parse_args()
