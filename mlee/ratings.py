@@ -389,6 +389,6 @@ def rate_results(summaries, reference_name, boundaries=None):
         real_boundaries[task] = {env_key: {} for env_key in task_ref_values.keys()}
         for env_key, env_ref_values in task_ref_values.items():
             for key, val in env_ref_values.items():
-                real_boundaries[task][env_key] = [(index_to_value(start, val, key), index_to_value(stop, val, key)) for (start, stop) in boundaries[key]]
+                real_boundaries[task][env_key][key] = [(index_to_value(start, val, key), index_to_value(stop, val, key)) for (start, stop) in boundaries[key]]
     
     return summaries, boundaries, real_boundaries

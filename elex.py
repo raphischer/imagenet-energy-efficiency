@@ -80,7 +80,8 @@ def create_scatter_fig(plot_data, axis_title, ax_border=0.1):
     diff_x, diff_y = max_x - min_x, max_y - min_y
     fig.update_layout(
         xaxis_range=[min_x - ax_border * diff_x, max_x + ax_border * diff_x],
-        yaxis_range=[min_y - ax_border * diff_y, max_y + ax_border * diff_y]
+        yaxis_range=[min_y - ax_border * diff_y, max_y + ax_border * diff_y],
+        margin={'l': 10, 'r': 10, 'b': 10, 't': 10}
     )
     return fig
 
@@ -124,28 +125,65 @@ class Visualization(dash.Dash):
         
     def create_page(self):
         return html.Div(className="grid-container", children=[
+            html.Div(className='grid-config1', children=[
+                html.Div(className='config1-task', children=[
+                    html.H2('ML Task:'),
+                    dcc.RadioItems(id='task-switch', value=self.task,
+                        options=[{'label': restype.capitalize(), 'value': restype} for restype in self.keys.keys()],)
+                ]),
+                html.Div(className='config1-env', children=[
+                    html.H2('Environments:'),
+                    dcc.Checklist(id='environments')
+                ]),
+            ]),
             dcc.Graph(
                 id='figures',
                 figure=self.update_figures(),
-                className='grid-graph'
-                # responsive=True,
-                # config={'responsive': True},
-                # style={'height': '100%', 'width': '100%'}
+                className='grid-graph',
+                responsive=True,
+                config={'responsive': True},
+                style={'height': '100%', 'width': '100%'}
             ),
             html.Div(className='grid-axis', children=[
-                html.Div(children=[
-                    html.H2('X-Axis:'),
-                    dcc.Dropdown(id='xaxis'),
-                    dcc.Input(id="x-weight", type='number', min=0, max=1, step=0.1),
-                    dcc.RangeSlider(id='boundary-slider-x', min=0, max=1, value=[.2, .4, .6, .8], step=.01, pushable=.01, tooltip={"placement": "bottom", "always_visible": True})
+                html.Div(className='axis-cont', children=[
+                    html.Label('X-Axis:', className='axis-htitle'),
+                    html.Div(children=[dcc.Dropdown(id='xaxis')], className='axis-choice'),
+                    html.Label('Weight:', className='axis-hweight'),
+                    dcc.Input(id="x-weight", className='axis-weight', type='number', min=0, max=1, step=0.1),
+                    html.Label('Boundaries:', className='axis-hbound'),
+                    dcc.RangeSlider(id='boundary-slider-x', className='axis-bound', min=0, max=1, value=[.2, .4, .6, .8], step=.01, pushable=.01, tooltip={"placement": "bottom", "always_visible": True})
+                ]),
+                html.Div(className='axis-cont', children=[
+                    html.Label('Y-Axis:', className='axis-htitle'),
+                    html.Div(children=[dcc.Dropdown(id='yaxis')], className='axis-choice'),
+                    html.Label('Weight:', className='axis-hweight'),
+                    dcc.Input(id="y-weight", className='axis-weight', type='number', min=0, max=1, step=0.1),
+                    html.Label('Boundaries:', className='axis-hbound'),
+                    dcc.RangeSlider(id='boundary-slider-y', className='axis-bound', min=0, max=1, value=[.2, .4, .6, .8], step=.01, pushable=.01, tooltip={"placement": "bottom", "always_visible": True})
                 ]),
                 html.Div(children=[
-                    html.H2('Y-Axis:'),
-                    dcc.Dropdown(id='yaxis'),
-                    dcc.Input(id="y-weight", type='number', min=0, max=1, step=0.1),
-                    dcc.RangeSlider(id='boundary-slider-y', min=0, max=1, value=[.2, .4, .6, .8], step=.01, pushable=.01, tooltip={"placement": "bottom", "always_visible": True})
-                ]),
-                html.Button("Calculate Optimal Boundaries", id="btn-calc-boundaries"),
+                    html.H2('Axis Boundaries:'),
+                    dcc.RadioItems(
+                        id='scale-switch', value='index',
+                        options=[
+                            {'label': 'Reference Index', 'value': 'index'},
+                            {'label': 'Real Values', 'value': 'real'}
+                        ],
+                    )
+                ])
+            ]),
+            html.Div(className='grid-model', children=[
+                html.Img(id='model-label', className='model-label', style={'height': '300px'}),
+                html.Div(id='model-text', className='model-text',style={'whiteSpace': 'pre-line'}),
+                html.Div(className='model-buttons', children=[
+                    html.Button("Save Label", id="btn-save-label"),
+                    html.Button("Save Summary", id="btn-save-summary"),
+                    html.Button("Save Logs", id="btn-save-logs"),
+                    dcc.Download(id="save-label"),
+                ])
+            ]),
+            html.Div(className='grid-config2', children=[
+                html.Button("Calculate Optimal Boundaries", id="btn-calc-boundaries", hidden=True),
                 html.Button("Save Current Boundaries", id="btn-save-boundaries"),
                 dcc.Download(id="save-boundaries"),
                 dcc.Upload(
@@ -176,35 +214,6 @@ class Visualization(dash.Dash):
                         'textAlign': 'center'
                     }
                 ),
-            ]),
-            html.Div(className='grid-model', children=[
-                html.Img(id='model-label', style={"height": "300px"}),
-                html.Div(id='model-text', style={'whiteSpace': 'pre-line'}),
-                html.Button("Save Label", id="btn-save-label"),
-                html.Button("Save Summary", id="btn-save-summary"),
-                html.Button("Save Logs", id="btn-save-logs"),
-                dcc.Download(id="save-label"),
-            ]),
-            html.Div(className='grid-config', children=[
-                html.Div(children=[
-                    html.H2('ML Task:'),
-                    dcc.RadioItems(id='task-switch', value=self.task,
-                        options=[{'label': restype.capitalize(), 'value': restype} for restype in self.keys.keys()],)
-                ]),
-                html.Div(children=[
-                    html.H2('Environments:'),
-                    dcc.Checklist(id='environments')
-                ]),
-                html.Div(children=[
-                    html.H2('Axis Boundaries:'),
-                    dcc.RadioItems(
-                        id='scale-switch', value='index',
-                        options=[
-                            {'label': 'Reference Index', 'value': 'index'},
-                            {'label': 'Real Values', 'value': 'real'}
-                        ],
-                    )
-                ]),
                 html.Div(children=[
                     html.H2('Rating mode:'),
                     dcc.RadioItems(
@@ -243,7 +252,7 @@ class Visualization(dash.Dash):
             rating_pos = [self.boundaries[self.xaxis], self.boundaries[self.yaxis]]
             axis_names = [name.split('[')[0].strip() + ' Index' for name in axis_names]
         else:
-            rating_pos = [self.boundaries_real[env_names[0]][self.xaxis], self.boundaries_real[env_names[0]][self.yaxis]]
+            rating_pos = [self.boundaries_real[self.task][env_names[0]][self.xaxis], self.boundaries_real[self.task][env_names[0]][self.yaxis]]
         figures = create_scatter_fig(plot_data, axis_names)
         add_rating_background(figures, rating_pos, rating_mode)
         return figures
@@ -285,8 +294,9 @@ class Visualization(dash.Dash):
         self.task = type or self.task
         avail_envs = self.environments[self.task]
         options = [{'label': AXIS_NAMES[env], 'value': env} for env in self.keys[self.task]]
-        xaxis = 'inference_power_draw' if self.task == 'inference' else 'train_power_draw'
-        return avail_envs, [avail_envs[0]], options, xaxis, options, 'top1_val'
+        self.xaxis = 'inference_power_draw' if self.task == 'inference' else 'train_power_draw'
+        self.yaxis = 'top1_val'
+        return avail_envs, [avail_envs[0]], options, self.xaxis, options, 'top1_val'
 
     def display_model(self, hover_data=None, env_names=None, rating_mode=None):
         if hover_data is not None:
@@ -333,7 +343,7 @@ if __name__ == '__main__':
     parser.add_argument("--directory", default='results', type=str, help="path directory with aggregated logs")
     parser.add_argument("--host", default='localhost', type=str, help="default host")
     parser.add_argument("--port", default=8888, type=int, help="default port")
-    parser.add_argument("--debug", default=False, type=bool, help="debugging")
+    parser.add_argument("--debug", default=True, type=bool, help="debugging")
     args = parser.parse_args()
 
     app = Visualization(args.directory)
