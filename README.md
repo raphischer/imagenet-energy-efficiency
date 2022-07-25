@@ -1,7 +1,7 @@
 # Assessing Energy Efficiency of Machine Learning - MLEE
 
-Code and results for assesing energy efficiency of machine learning tasks.
-The associated research paper is currently under review, upon acceptance this repository will be published on the author's GitHub.
+Code and results for assesing energy efficiency of machine learning tasks at the example of ImageNet.
+The associated research paper will be published in the proceedings of the 7th Workshop on Data Science for Social Good @ ECML-PKDD 2022.
 
 ## Installation
 All code was executed with Python 3.8, please refer to [requirements](./requirements.txt) for all dependencies.
@@ -30,6 +30,6 @@ We intend to extend and improve our software framework:
 
 ## Reference & Term of Use
 Please refer to the [license](.LICENSE.md) for terms of use.
-If you use this code or the data, please link back to https://github.com/tmplxz/ml-energy-efficiency.
+If you use this code or the data, please cite our paper and link back to https://github.com/raphischer/imagenet-energy-efficiency.
 
-Copyright (c) 2022 tmplxz
+Copyright (c) 2022 Raphael Fischer

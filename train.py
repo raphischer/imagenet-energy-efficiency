@@ -57,7 +57,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--batch-size", default=32, type=int, help="images per gpu, the total batch will be $NGPU x batch_size")
 
     # output & experiment settings
-    parser.add_argument("--output-dir", default="/raid/tmpler/dnns", type=str, help="path to save outputs")
+    parser.add_argument("--output-dir", default="/raid/fischer/dnns", type=str, help="path to save outputs")
     parser.add_argument("--gpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates GPU profiling every X seconds")
     parser.add_argument("--cpu-monitor-interval", default=1, type=float, help="Setting to > 0 activates CPU profiling every X seconds")
     parser.add_argument("--seed", type=int, default=-1, help="Seed to use (if -1, uses and logs random seed)"),

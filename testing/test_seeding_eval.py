@@ -7,10 +7,10 @@ ds = load_imagenet('/raid/imagenet', None, 'train', resize_with_crop, batch_size
 x, y = iter(ds).next()
 
 dirs = [
-    '/raid/tmpler/checkpoints/train_2021_12_15_13_31/vgg16',
-    '/raid/tmpler/checkpoints/train_2021_12_15_13_35/vgg16',
-    '/raid/tmpler/checkpoints/train_2021_12_15_14_38/vgg16',
-    '/raid/tmpler/checkpoints/train_2021_12_15_14_39/vgg16'
+    '/raid/fischer/checkpoints/train_2021_12_15_13_31/vgg16',
+    '/raid/fischer/checkpoints/train_2021_12_15_13_35/vgg16',
+    '/raid/fischer/checkpoints/train_2021_12_15_14_38/vgg16',
+    '/raid/fischer/checkpoints/train_2021_12_15_14_39/vgg16'
 ]
 
 ms = []
