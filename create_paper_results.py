@@ -44,7 +44,7 @@ TEX_TABLE_HARDWARE_ENVS = r'''\resizebox{\linewidth}{!}{
         & & & & & Inference & Training \\
         \midrule
         $ENVS
-        \endrule
+        \bottomrule
         
     \end{tabular}
 }'''
