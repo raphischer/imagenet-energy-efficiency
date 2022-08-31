@@ -9,8 +9,8 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 
 from mlee.elex.pages import create_page
-from mlee.elex.util import toggle_config, AXIS_NAMES, summary_to_html_table
-from mlee.elex.graphs import create_scatter_fig, add_rating_background
+from mlee.elex.util import summary_to_html_tables, toggle_config, AXIS_NAMES
+from mlee.elex.graphs import create_scatter_graph, create_bar_graph, add_rating_background
 from mlee.ratings import load_boundaries, save_boundaries, calculate_optimal_boundaries, save_weights, update_weights
 from mlee.ratings import load_results, rate_results, calculate_compound_rating, TASK_METRICS_CALCULATION, MODEL_INFO
 from mlee.label_generator import EnergyLabel
@@ -36,6 +36,11 @@ class Visualization(dash.Dash):
             [State("task-config", "is_open")],
         ) (toggle_config)
         self.callback(
+            Output("graph-config", "is_open"),
+            Input("btn-open-graph-config", "n_clicks"),
+            [State("graph-config", "is_open")],
+        ) (toggle_config)
+        self.callback(
             [Output('x-weight', 'value'), Output('y-weight', 'value')],
             [Input('xaxis', 'value'), Input('yaxis', 'value'), Input('weights-upload', 'contents')]
         ) (self.update_metric_fields)
@@ -48,19 +53,23 @@ class Visualization(dash.Dash):
             [Input('xaxis', 'value'), Input('yaxis', 'value'), Input('boundaries-upload', 'contents'), Input('btn-calc-boundaries', 'n_clicks')]
         ) (self.update_boundary_sliders)
         self.callback(
-            Output('figures', 'figure'),
+            Output('graph-scatter', 'figure'),
             [Input('environments', 'value'), Input('scale-switch', 'value'), Input('rating', 'value'), Input('x-weight', 'value'), Input('y-weight', 'value'), Input('boundary-slider-x', 'value'), Input('boundary-slider-y', 'value')]
-        ) (self.update_figures)
+        ) (self.update_scatter_graph)
         self.callback(
-            [Output('model-table', 'children'), Output('model-label', "src"), Output('btn-open-paper', "href")],
-            Input('figures', 'hoverData'), State('environments', 'value'), State('rating', 'value')
+            Output('graph-bars', 'figure'),
+            Input('graph-scatter', 'figure')
+        ) (self.update_bars_graph)
+        self.callback(
+            [Output('model-table', 'children'), Output('metric-table', 'children'), Output('model-label', "src"), Output('btn-open-paper', "href"), Output('info-hover', 'is_open')],
+            Input('graph-scatter', 'hoverData'), State('environments', 'value'), State('rating', 'value')
         ) (self.display_model)
         self.callback(Output('save-label', 'data'), [Input('btn-save-label', 'n_clicks'), Input('btn-save-summary', 'n_clicks'), Input('btn-save-logs', 'n_clicks')]) (self.save_label)
         self.callback(Output('save-boundaries', 'data'), Input('btn-save-boundaries', 'n_clicks')) (self.save_boundaries)
         self.callback(Output('save-weights', 'data'), Input('btn-save-weights', 'n_clicks')) (self.save_weights)
 
 
-    def update_figures(self, env_names=None, scale_switch=None, rating_mode=None, xweight=None, yweight=None, *slider_args):
+    def update_scatter_graph(self, env_names=None, scale_switch=None, rating_mode=None, xweight=None, yweight=None, *slider_args):
         if xweight is not None and 'x-weight' in dash.callback_context.triggered[0]['prop_id']:
             self.summaries = update_weights(self.summaries, xweight, self.xaxis)
         if yweight is not None and 'y-weight' in dash.callback_context.triggered[0]['prop_id']:
@@ -70,7 +79,7 @@ class Visualization(dash.Dash):
         env_names = self.environments[self.task] if env_names is None else env_names
         scale_switch = 'index' if scale_switch is None else scale_switch
         rating_mode = 'mean' if rating_mode is None else rating_mode
-        plot_data = {}
+        self.plot_data = {}
         for env in env_names:
             env_data = { 'names': [], 'ratings': [], 'x': [], 'y': [] }
             for sum in self.summaries[self.task][env]:
@@ -82,16 +91,20 @@ class Visualization(dash.Dash):
                 else:
                     env_data['x'].append(sum[self.xaxis]['value'] or 0)
                     env_data['y'].append(sum[self.yaxis]['value'] or 0)
-            plot_data[env] = env_data
+            self.plot_data[env] = env_data
         axis_names = [AXIS_NAMES[self.xaxis], AXIS_NAMES[self.yaxis]]
         if scale_switch == 'index':
             rating_pos = [self.boundaries[self.xaxis], self.boundaries[self.yaxis]]
             axis_names = [name.split('[')[0].strip() + ' Index' for name in axis_names]
         else:
             rating_pos = [self.boundaries_real[self.task][env_names[0]][self.xaxis], self.boundaries_real[self.task][env_names[0]][self.yaxis]]
-        figures = create_scatter_fig(plot_data, axis_names)
-        add_rating_background(figures, rating_pos, rating_mode)
-        return figures
+        scatter = create_scatter_graph(self.plot_data, axis_names)
+        add_rating_background(scatter, rating_pos, rating_mode)
+        return scatter
+
+    def update_bars_graph(self, scatter_graph):
+        bars = create_bar_graph(self.plot_data)
+        return bars
 
     def update_boundary_sliders(self, xaxis=None, yaxis=None, uploaded_boundaries=None, calculated_boundaries=None):
         if uploaded_boundaries is not None:
@@ -135,23 +148,20 @@ class Visualization(dash.Dash):
         return avail_envs, [avail_envs[0]['value']], options, self.xaxis, options, self.yaxis
 
     def display_model(self, hover_data=None, env_names=None, rating_mode=None):
+        model_table, metric_table,  enc_label, link, open = None, None, None, "/", True
         if hover_data is not None:
-            # if not isinstance(env_names, list):
-            #     env_names = [env_names]
             rating_mode = 'mean' if rating_mode is None else rating_mode
             point = hover_data['points'][0]
-            if point['curveNumber'] % 2 == 0: # otherwise hovered on bars
-                env_name = env_names[point['curveNumber'] // 2]
-                self.current['summary'] = self.summaries[self.task][env_name][point['pointNumber']]
-                self.current['logs'] = self.logs[self.task][env_name][point['pointNumber']]
-                self.current['label'] = EnergyLabel(self.current['summary'], rating_mode)
-            
-            if self.current['summary'] is not None:
-                html_table = summary_to_html_table(self.current['summary'], rating_mode)
-                enc_label = self.current['label'].to_encoded_image()
-                link = MODEL_INFO[self.current['summary']['name']]['url']
-                return html_table,  enc_label, link
-        return 'no model summary to show', None, "/"
+            env_name = env_names[point['curveNumber']]
+            self.current['summary'] = self.summaries[self.task][env_name][point['pointNumber']]
+            self.current['logs'] = self.logs[self.task][env_name][point['pointNumber']]
+            self.current['label'] = EnergyLabel(self.current['summary'], rating_mode)
+
+            model_table, metric_table = summary_to_html_tables(self.current['summary'], rating_mode)
+            enc_label = self.current['label'].to_encoded_image()
+            link = MODEL_INFO[self.current['summary']['name']]['url']
+            open = False
+        return model_table, metric_table,  enc_label, link, open
 
     def save_boundaries(self, save_labels_clicks=None):
         if save_labels_clicks is not None:

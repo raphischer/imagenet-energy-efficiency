@@ -40,7 +40,7 @@ def summary_to_str(summary, rating_mode):
     return full_str
 
 
-def summary_to_html_table(summary, rating_mode):
+def summary_to_html_tables(summary, rating_mode):
     final_rating = calculate_compound_rating(summary, rating_mode)
     info_header = [
         html.Thead(html.Tr([html.Th("Task"), html.Th("Model Name"), html.Th("Environment"), html.Th("Final Rating")]))
@@ -61,7 +61,9 @@ def summary_to_html_table(summary, rating_mode):
                 value, index = val["value"], val["index"]
             metrics_rows.append(html.Tr([html.Td(field) for field in [AXIS_NAMES[key], value, index, val["rating"]]]))
 
-    return info_header + info_row + metrics_header + [html.Tbody(metrics_rows)]
+    model = info_header + info_row
+    metrics = metrics_header + [html.Tbody(metrics_rows)]
+    return model, metrics
 
 
 
