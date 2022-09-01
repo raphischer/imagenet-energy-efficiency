@@ -119,11 +119,10 @@ class Visualization(dash.Dash):
         values = []
         for axis in [self.xaxis, self.yaxis]:
             all_ratings = [ sums[axis]['index'] for env_sums in self.summaries[self.task].values() for sums in env_sums if sums[axis]['index'] is not None ]
-            min_v = min(all_ratings) # if sl_idx == 0 else self.boundaries[axis][4 - sl_idx][1]
-            max_v = max(all_ratings) # if sl_idx == 3 else self.boundaries[axis][3 - sl_idx][0]
+            min_v = min(all_ratings)
+            max_v = max(all_ratings)
             value = [entry[0] for entry in reversed(self.boundaries[axis][1:])]
             marks={ val: {'label': str(val)} for val in np.round(np.linspace(min_v, max_v, 10), 2)}
-            # (sl_id, prop) for sl_id in ['boundary-slider-x', 'boundary-slider-y'] for prop in ['min', 'max', 'value', 'step', 'marks']]
             values.extend([min_v, max_v, value, marks])
         return values
     
@@ -148,8 +147,10 @@ class Visualization(dash.Dash):
         return avail_envs, [avail_envs[0]['value']], options, self.xaxis, options, self.yaxis
 
     def display_model(self, hover_data=None, env_names=None, rating_mode=None):
-        model_table, metric_table,  enc_label, link, open = None, None, None, "/", True
-        if hover_data is not None:
+        if hover_data is None:
+            self.current = { 'summary': None, 'label': None, 'logs': None }
+            model_table, metric_table,  enc_label, link, open = None, None, None, "/", True
+        else:
             rating_mode = 'mean' if rating_mode is None else rating_mode
             point = hover_data['points'][0]
             env_name = env_names[point['curveNumber']]
@@ -179,14 +180,15 @@ class Visualization(dash.Dash):
             return dict(content=save_weights(self.summaries, None), filename='weights.json')
 
     def save_label(self, lbl_clicks=None, sum_clicks=None, log_clicks=None):
-        if self.current['summary'] is not None:
-            f_id = f'{self.current["summary"]["name"]}_{self.current["summary"]["environment"]}'
-            if 'label' in dash.callback_context.triggered[0]['prop_id']:
-                return dcc.send_bytes(self.current['label'].write(), filename=f'energy_label_{f_id}.pdf')
-            elif 'sum' in dash.callback_context.triggered[0]['prop_id']:
-                return dict(content=json.dumps(self.current['summary'], indent=4), filename=f'energy_summary_{f_id}.json')
-            else: # full logs
-                return dict(content=json.dumps(self.current['logs'], indent=4), filename=f'energy_logs_{f_id}.json')
+        if (lbl_clicks is None and sum_clicks is None and log_clicks is None) or self.current['summary'] is None:
+            return # callback init
+        f_id = f'{self.current["summary"]["name"]}_{self.current["summary"]["environment"]}'
+        if 'label' in dash.callback_context.triggered[0]['prop_id']:
+            return dcc.send_bytes(self.current['label'].write(), filename=f'energy_label_{f_id}.pdf')
+        elif 'sum' in dash.callback_context.triggered[0]['prop_id']:
+            return dict(content=json.dumps(self.current['summary'], indent=4), filename=f'energy_summary_{f_id}.json')
+        else: # full logs
+            return dict(content=json.dumps(self.current['logs'], indent=4), filename=f'energy_logs_{f_id}.json')
 
 
 if __name__ == '__main__':

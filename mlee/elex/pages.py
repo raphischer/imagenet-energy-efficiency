@@ -110,11 +110,11 @@ def create_page(tasks):
         html.Img(id='model-label', style={"height": "40vh"})
     ])
     table_model = html.Div(children=[
-        html.H2('General model info:'),
+        html.H2('General Information:'),
         dbc.Table(id='model-table', bordered=True)
     ])
     table_metrics = html.Div(children=[
-        html.H2('Efficiency metrics:'),
+        html.H2('Efficiency Information:'),
         dbc.Table(id='metric-table', bordered=True),
     ])
     buttons = html.Div(children=[
