@@ -9,7 +9,7 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 
 from mlee.elex.pages import create_page
-from mlee.elex.util import summary_to_html_tables, toggle_config, AXIS_NAMES
+from mlee.elex.util import summary_to_html_tables, toggle_element_visibility, AXIS_NAMES
 from mlee.elex.graphs import create_scatter_graph, create_bar_graph, add_rating_background
 from mlee.ratings import load_boundaries, save_boundaries, calculate_optimal_boundaries, save_weights, update_weights
 from mlee.ratings import load_results, rate_results, calculate_compound_rating, TASK_METRICS_CALCULATION, MODEL_INFO
@@ -31,16 +31,6 @@ class Visualization(dash.Dash):
         self.layout = create_page(list(self.keys.keys()))
 
         self.callback(
-            Output("task-config", "is_open"),
-            Input("btn-open-task-config", "n_clicks"),
-            [State("task-config", "is_open")],
-        ) (toggle_config)
-        self.callback(
-            Output("graph-config", "is_open"),
-            Input("btn-open-graph-config", "n_clicks"),
-            [State("graph-config", "is_open")],
-        ) (toggle_config)
-        self.callback(
             [Output('x-weight', 'value'), Output('y-weight', 'value')],
             [Input('xaxis', 'value'), Input('yaxis', 'value'), Input('weights-upload', 'contents')]
         ) (self.update_metric_fields)
@@ -61,12 +51,16 @@ class Visualization(dash.Dash):
             Input('graph-scatter', 'figure')
         ) (self.update_bars_graph)
         self.callback(
-            [Output('model-table', 'children'), Output('metric-table', 'children'), Output('model-label', "src"), Output('btn-open-paper', "href"), Output('info-hover', 'is_open')],
+            [Output('model-table', 'children'), Output('metric-table', 'children'), Output('model-label', "src"), Output('label-modal-img', "src"), Output('btn-open-paper', "href"), Output('info-hover', 'is_open')],
             Input('graph-scatter', 'hoverData'), State('environments', 'value'), State('rating', 'value')
         ) (self.display_model)
-        self.callback(Output('save-label', 'data'), [Input('btn-save-label', 'n_clicks'), Input('btn-save-summary', 'n_clicks'), Input('btn-save-logs', 'n_clicks')]) (self.save_label)
+        self.callback(Output('save-label', 'data'), [Input('btn-save-label', 'n_clicks'), Input('btn-save-label2', 'n_clicks'), Input('btn-save-summary', 'n_clicks'), Input('btn-save-logs', 'n_clicks')]) (self.save_label)
         self.callback(Output('save-boundaries', 'data'), Input('btn-save-boundaries', 'n_clicks')) (self.save_boundaries)
         self.callback(Output('save-weights', 'data'), Input('btn-save-weights', 'n_clicks')) (self.save_weights)
+        # offcanvas and modals
+        self.callback(Output("task-config", "is_open"), Input("btn-open-task-config", "n_clicks"), State("task-config", "is_open")) (toggle_element_visibility)
+        self.callback(Output("graph-config", "is_open"), Input("btn-open-graph-config", "n_clicks"), State("graph-config", "is_open")) (toggle_element_visibility)
+        self.callback(Output('label-modal', 'is_open'), Input('model-label', "n_clicks"), State('label-modal', 'is_open')) (toggle_element_visibility)
 
 
     def update_scatter_graph(self, env_names=None, scale_switch=None, rating_mode=None, xweight=None, yweight=None, *slider_args):
@@ -162,7 +156,7 @@ class Visualization(dash.Dash):
             enc_label = self.current['label'].to_encoded_image()
             link = MODEL_INFO[self.current['summary']['name']]['url']
             open = False
-        return model_table, metric_table,  enc_label, link, open
+        return model_table, metric_table,  enc_label, enc_label, link, open
 
     def save_boundaries(self, save_labels_clicks=None):
         if save_labels_clicks is not None:
@@ -179,8 +173,8 @@ class Visualization(dash.Dash):
         if save_weights_clicks is not None:
             return dict(content=save_weights(self.summaries, None), filename='weights.json')
 
-    def save_label(self, lbl_clicks=None, sum_clicks=None, log_clicks=None):
-        if (lbl_clicks is None and sum_clicks is None and log_clicks is None) or self.current['summary'] is None:
+    def save_label(self, lbl_clicks=None, lbl_clicks2=None, sum_clicks=None, log_clicks=None):
+        if (lbl_clicks is None and lbl_clicks2 is None and sum_clicks is None and log_clicks is None) or self.current['summary'] is None:
             return # callback init
         f_id = f'{self.current["summary"]["name"]}_{self.current["summary"]["environment"]}'
         if 'label' in dash.callback_context.triggered[0]['prop_id']:

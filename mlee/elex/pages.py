@@ -1,3 +1,4 @@
+from sqlite3 import Row
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
@@ -44,7 +45,6 @@ def create_page(tasks):
         ]),
         id="task-config", title="Task Configuration", is_open=False,
     )
-    btn_task_config = dbc.Button("Task Configuration", id="btn-open-task-config", n_clicks=0)
 
     # graph configuration (offcanvas)
     graph_configuration = dbc.Offcanvas(
@@ -82,8 +82,6 @@ def create_page(tasks):
             ], title = 'More Graph Options')
         ], start_collapsed=True), id="graph-config", title="Graph Configuration", is_open=False, style=dict(width='40%')
     )
-    btn_graph_config = dbc.Button("Graph Configuration", id="btn-open-graph-config", n_clicks=0)
-    config_buttons = html.Div(children=[btn_task_config, btn_graph_config])
 
     # graphs
     graph_scatter = dcc.Graph(
@@ -100,28 +98,57 @@ def create_page(tasks):
     )
     
     # label display & tables
-    # label_display = dbc.Card(
-    #     [
-    #         dbc.CardImg(id='model-label', top=True),
-    #         dbc.CardBody([dbc.Button("Save Label", id="btn-save-label")]),
-    #     ]
-    # )    
     label_display = html.Div(children=[
-        html.Img(id='model-label', style={"height": "40vh"})
+        html.H3('Energy Label:'),
+        html.Img(id='model-label', style={"height": "36vh"}),
+        dbc.Tooltip("Click to enlarge", target="model-label"),
     ])
+
+    label_modal = dbc.Modal(
+        [
+            dbc.ModalHeader(dbc.ModalTitle("Energy Label")),
+            dbc.ModalBody(html.Img(id='label-modal-img', style={"height": "70vh"})),
+            dbc.ModalFooter(dbc.Button("Save Label", id="btn-save-label2"))
+        ],
+        id="label-modal",
+        is_open=False,
+    )
+
     table_model = html.Div(children=[
-        html.H2('General Information:'),
+        html.H3('General Information:'),
         dbc.Table(id='model-table', bordered=True)
     ])
     table_metrics = html.Div(children=[
-        html.H2('Efficiency Information:'),
+        html.H3('Efficiency Information:'),
         dbc.Table(id='metric-table', bordered=True),
     ])
-    buttons = html.Div(children=[
-        dbc.Button("Open Paper", id="btn-open-paper"),
-        dbc.Button("Save Label", id="btn-save-label"),
-        dbc.Button("Save Summary", id="btn-save-summary"),
-        dbc.Button("Save Logs", id="btn-save-logs")
+    # buttons = html.Div(children=[
+    #     # general buttons
+    #     html.Div(children=[
+    #         dbc.Button("Open Paper", id="btn-open-paper", className='col'),
+    #         dbc.Button("Save Label", id="btn-save-label", className='col'),
+    #         dbc.Button("Save Summary", id="btn-save-summary", className='col'),
+    #         dbc.Button("Save Logs", id="btn-save-logs", className='col')
+    #     ], className="row row-cols-4 g-5"),
+    #     # config buttons
+    #     html.Div(children=[
+    #         dbc.Button("Task Configuration", id="btn-open-task-config", size="lg", className='col'),
+    #         dbc.Button("Graph Configuration", id="btn-open-graph-config", size="lg", className='col')
+    #     ], className="row row-cols-2 g-3")
+    # ], className='container')
+
+    buttons = dbc.Container([
+        dbc.Row([
+            dbc.Col(dbc.Button("Open Paper", id="btn-open-paper", class_name='col-12'), width=3),
+            dbc.Col(dbc.Button("Save Label", id="btn-save-label", class_name='col-12'), width=3),
+            dbc.Col(dbc.Button("Save Summary", id="btn-save-summary", class_name='col-12'), width=3),
+            dbc.Col(dbc.Button("Save Logs", id="btn-save-logs", class_name='col-12'), width=3)
+        ], style=dict(height='50px')),
+        # config buttons
+        dbc.Row([
+            dbc.Col(dbc.Button("Task Configuration", id="btn-open-task-config", size="lg", class_name='col-12'), width=6),
+            dbc.Col(dbc.Button("Graph Configuration", id="btn-open-graph-config", size="lg", class_name='col-12'), width=6)
+        ], style=dict(height='50px'))
     ])
 
     info_hover = dbc.Alert(
@@ -138,16 +165,16 @@ def create_page(tasks):
     ]
 
     row2 = [
-        dbc.Col([table_model, buttons, config_buttons], width=5),
+        dbc.Col([table_model, buttons], width=5),
         dbc.Col(table_metrics, width=5),
         dbc.Col(label_display, width=2)
     ]
     
     return html.Div([
         dbc.Row(html.H1('ELEx - AI Energy Labeling Exploration Tool')),
-        dbc.Row(row1, style={"height": "50vh"}),
-        dbc.Row(row2, style={"height": "50vh"}),
+        dbc.Row(row1, style={"height": "40vh"}),
         dbc.Row(info_hover),
+        dbc.Row(row2, style={"height": "50vh"}),
         # additional hidden html elements
-        task_configuration, graph_configuration, dcc.Download(id="save-label"),
+        label_modal, task_configuration, graph_configuration, dcc.Download(id="save-label"),
     ])
