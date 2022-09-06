@@ -4,6 +4,7 @@ numpy
 # ELEx
 dash
 plotly
+dash-bootstrap-components
 reportlab
 PyMuPDF
 qrcode
