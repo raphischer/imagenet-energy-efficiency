@@ -100,7 +100,7 @@ def create_page(tasks):
     # label display & tables
     label_display = html.Div(children=[
         html.H3('Energy Label:'),
-        html.Img(id='model-label', style={"height": "36vh"}),
+        html.Img(id='model-label', className="img-fluid"),
         dbc.Tooltip("Click to enlarge", target="model-label"),
     ])
 
@@ -122,20 +122,6 @@ def create_page(tasks):
         html.H3('Efficiency Information:'),
         dbc.Table(id='metric-table', bordered=True),
     ])
-    # buttons = html.Div(children=[
-    #     # general buttons
-    #     html.Div(children=[
-    #         dbc.Button("Open Paper", id="btn-open-paper", className='col'),
-    #         dbc.Button("Save Label", id="btn-save-label", className='col'),
-    #         dbc.Button("Save Summary", id="btn-save-summary", className='col'),
-    #         dbc.Button("Save Logs", id="btn-save-logs", className='col')
-    #     ], className="row row-cols-4 g-5"),
-    #     # config buttons
-    #     html.Div(children=[
-    #         dbc.Button("Task Configuration", id="btn-open-task-config", size="lg", className='col'),
-    #         dbc.Button("Graph Configuration", id="btn-open-graph-config", size="lg", className='col')
-    #     ], className="row row-cols-2 g-3")
-    # ], className='container')
 
     buttons = dbc.Container([
         dbc.Row([
@@ -143,13 +129,13 @@ def create_page(tasks):
             dbc.Col(dbc.Button("Save Label", id="btn-save-label", class_name='col-12'), width=3),
             dbc.Col(dbc.Button("Save Summary", id="btn-save-summary", class_name='col-12'), width=3),
             dbc.Col(dbc.Button("Save Logs", id="btn-save-logs", class_name='col-12'), width=3)
-        ], style=dict(height='50px')),
+        ], style={'height': '50px'}, className="g-1"),
         # config buttons
         dbc.Row([
             dbc.Col(dbc.Button("Task Configuration", id="btn-open-task-config", size="lg", class_name='col-12'), width=6),
             dbc.Col(dbc.Button("Graph Configuration", id="btn-open-graph-config", size="lg", class_name='col-12'), width=6)
-        ], style=dict(height='50px'))
-    ])
+        ], style=dict(height='50px'), className="g-1")
+    ], style={'padding': '0 0'})
 
     info_hover = dbc.Alert(
         "Hover over data points to show model information",
@@ -158,6 +144,11 @@ def create_page(tasks):
         is_open=True,
         color="info",
     )
+    
+    row0 = [
+        dbc.Col(html.H1('ELEx - AI Energy Label Exploration')),
+        dbc.Col(html.Img(src="assets/lamarr-logo.svg", className="img-fluid"), width=4)
+    ]
 
     row1 = [
         dbc.Col(graph_scatter, width=8),
@@ -171,10 +162,12 @@ def create_page(tasks):
     ]
     
     return html.Div([
-        dbc.Row(html.H1('ELEx - AI Energy Labeling Exploration Tool')),
-        dbc.Row(row1, style={"height": "40vh"}),
-        dbc.Row(info_hover),
-        dbc.Row(row2, style={"height": "50vh"}),
+        dbc.Container([
+            dbc.Row(row0, style={"height": "8vh"}, align="center"),
+            dbc.Row(row1, style={"height": "40vh"}),
+            dbc.Row(info_hover),
+            dbc.Row(row2, style={"height": "50vh"}),
+        ]),
         # additional hidden html elements
         label_modal, task_configuration, graph_configuration, dcc.Download(id="save-label"),
     ])

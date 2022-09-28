@@ -177,8 +177,8 @@ def calc_gflops(res):
 
 def calc_fsize(res):
     if 'validation' in res:
-        return res['validation']['results']['model']['fsize']
-    return res['results']['model']['fsize']
+        return res['validation']['results']['model']['fsize'] * 1e-6
+    return res['results']['model']['fsize'] * 1e-6
 
 
 def calc_inf_time(res):

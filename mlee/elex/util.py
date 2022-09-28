@@ -8,11 +8,11 @@ from mlee.ratings import calculate_compound_rating
 
 ENV_SYMBOLS = [SymbolValidator().values[i] for i in range(0, len(SymbolValidator().values), 12)]
 RATING_COLOR_SCALE = colors.make_colorscale(['rgb(0,255,0)', 'rgb(255,255,0)', 'rgb(255,0,0))'])
-RATING_COLORS = colors.sample_colorscale(RATING_COLOR_SCALE, samplepoints=[float(c) / (4) for c in range(5)])
+RATING_COLORS = ['rgb(99,155,48)', 'rgb(184,172,43)', 'rgb(248,184,48)', 'rgb(239,125,41)', 'rgb(229,36,33)']
 AXIS_NAMES = {
     "parameters":               "M Parameters [#]",
     "gflops":                   "(Giga) Floating Point Operations [#]",
-    "fsize":                    "Model File Size [B]", 
+    "fsize":                    "Model File Size [MB]", 
     "inference_power_draw":     "Inference Power Draw / Batch [Ws]",
     "inference_time":           "Inference Time / Batch [ms]",
     "train_power_draw":         "Full Training Power Draw [Ws]",
@@ -58,7 +58,7 @@ def summary_to_html_tables(summary, rating_mode):
             if val["value"] is None:
                 value, index = "n.a.", "n.a."
             else:
-                value, index = val["value"], val["index"]
+                value, index = f'{val["value"]:6.4f}'[:6], f'{val["index"]:6.4f}'[:6]
             metrics_rows.append(html.Tr([html.Td(field) for field in [AXIS_NAMES[key], value, index, val["rating"]]]))
 
     model = info_header + info_row
