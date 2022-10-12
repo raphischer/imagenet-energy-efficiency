@@ -163,7 +163,7 @@ def create_page(tasks):
     
     return html.Div([
         dbc.Container([
-            dbc.Row(row0, style={"height": "8vh"}, align="center"),
+            dbc.Row(row0, style={"height": "15vh"}, align="center"),
             dbc.Row(row1, style={"height": "40vh"}),
             dbc.Row(info_hover),
             dbc.Row(row2, style={"height": "50vh"}),
